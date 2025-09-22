@@ -1,0 +1,51 @@
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">🧑‍🤝‍🧑 Registro de Ciudadano</h2>
+
+  <form method="POST" action="/registro" class="card p-4 shadow-sm">
+    <!-- Nombre -->
+    <div class="mb-3">
+      <label class="form-label">Nombre completo:</label>
+      <input type="text" name="nombre" class="form-control" required>
+    </div>
+
+    <!-- Correo -->
+    <div class="mb-3">
+      <label class="form-label">Correo electrónico:</label>
+      <input type="email" name="email" class="form-control" required>
+    </div>
+
+    <!-- Contraseña -->
+    <div class="mb-3">
+      <label class="form-label">Contraseña:</label>
+      <input type="password" name="password" class="form-control" required>
+    </div>
+
+    <!-- Teléfono -->
+    <div class="mb-3">
+      <label class="form-label">Teléfono:</label>
+      <input type="text" name="telefono" class="form-control" required>
+    </div>
+
+    <!-- Calle -->
+    <div class="mb-3">
+      <label class="form-label">¿A qué calle perteneces?</label>
+      <select name="calle_id" class="form-select" required>
+        <% calles.forEach(c => { %>
+          <option value="<%= c.id %>"><%= c.nombre %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <!-- Error -->
+    <% if (error) { %>
+      <p class="text-danger"><%= error %></p>
+    <% } %>
+
+    <!-- Botón -->
+    <div class="text-center">
+      <button type="submit" class="btn btn-success px-4">
+        ✅ Registrarse
+      </button>
+    </div>
+  </form>
+</div>

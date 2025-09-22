@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>ComuniSolve</title>
+</head>
+<body>
+  <header>
+    <h1>ComuniSolve</h1>
+    <% if (usuario) { %>
+      <p>Hola, <%= usuario.nombre %> | <a href="/logout">Cerrar sesión</a></p>
+    <% } else { %>
+      <p><a href="/login">Iniciar sesión</a></p>
+    <% } %>
+    <hr>
+  </header>
+
+  <main>
+    <%- body %> <!-- 👈 AQUÍ express-ejs-layouts mete el contenido -->
+  </main>
+
+  <footer>
+    <hr>
+    <p>© 2025 ComuniSolve</p>
+  </footer>
+</body>
+</html>

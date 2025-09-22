@@ -1,0 +1,60 @@
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">📝 Formulario de Reporte Ciudadano</h2>
+
+  <!-- 👇 importante: enctype para enviar archivos -->
+  <form action="/reportar" method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm">
+    <!-- Título -->
+    <div class="mb-3">
+      <label class="form-label">Título del problema:</label>
+      <input type="text" name="titulo" class="form-control" required>
+    </div>
+
+    <!-- Descripción -->
+    <div class="mb-3">
+      <label class="form-label">Descripción:</label>
+      <textarea name="descripcion" class="form-control" rows="3" required></textarea>
+    </div>
+
+    <!-- Categoría -->
+    <div class="mb-3">
+      <label class="form-label">Categoría:</label>
+      <select name="categoria" class="form-select" required>
+        <option value="Agua">Agua</option>
+        <option value="Electricidad">Electricidad</option>
+        <option value="Vialidad">Vialidad</option>
+        <option value="Salud">Salud</option>
+      </select>
+    </div>
+
+    <!-- Calle -->
+    <div class="mb-3">
+      <label class="form-label">¿A qué calle pertenece?</label>
+      <select name="calle_id" class="form-select" required>
+        <% calles.forEach(c => { %>
+          <option value="<%= c.id %>"><%= c.nombre %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <!-- Mostrar nombre -->
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" name="mostrar_nombre" value="1" id="mostrarNombre" checked>
+      <label class="form-check-label" for="mostrarNombre">
+        Mostrar mi nombre en el reporte
+      </label>
+    </div>
+
+    <!-- 📸 Subir imagen -->
+    <div class="mb-3">
+      <label class="form-label">Adjuntar imagen (opcional):</label>
+      <input type="file" name="imagen" class="form-control" accept="image/*">
+    </div>
+
+    <!-- Botón -->
+    <div class="text-center">
+      <button type="submit" class="btn btn-primary px-4">
+        🚀 Enviar Reporte
+      </button>
+    </div>
+  </form>
+</div>

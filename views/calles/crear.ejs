@@ -1,0 +1,23 @@
+<div class="container mt-4">
+  <h2>➕ Nueva Calle</h2>
+
+<form action="/calles/nueva" method="POST">
+    <div class="mb-3">
+      <label for="nombre" class="form-label">Nombre de la calle</label>
+      <input type="text" class="form-control" name="nombre" id="nombre" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="jefe_id" class="form-label">Asignar jefe de calle</label>
+      <select name="jefe_id" id="jefe_id" class="form-select">
+        <option value="">-- Ninguno --</option>
+        <% jefes.forEach(j => { %>
+          <option value="<%= j.id %>"><%= j.nombre %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a href="/calles" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>

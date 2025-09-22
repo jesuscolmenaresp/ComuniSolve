@@ -1,0 +1,26 @@
+<div class="container mt-4">
+  <h2>📍 Calles registradas</h2>
+
+  <a href="/calles/nueva" class="btn btn-primary mb-3">➕ Nueva Calle</a>
+
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (calles.length === 0) { %>
+        <tr>
+          <td colspan="1" class="text-center text-muted">No hay calles registradas</td>
+        </tr>
+      <% } else { %>
+        <% calles.forEach(c => { %>
+          <tr>
+            <td><%= c.nombre %></td>
+          </tr>
+        <% }) %>
+      <% } %>
+    </tbody>
+  </table>
+</div>
