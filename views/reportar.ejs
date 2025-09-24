@@ -1,7 +1,6 @@
 <div class="container mt-5">
   <h2 class="mb-4 text-center">📝 Formulario de Reporte Ciudadano</h2>
 
-  <!-- 👇 importante: enctype para enviar archivos -->
   <form action="/reportar" method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm">
     <!-- Título -->
     <div class="mb-3">
@@ -44,10 +43,19 @@
       </label>
     </div>
 
-    <!-- 📸 Subir imagen -->
+    <!-- Subir imagen -->
     <div class="mb-3">
       <label class="form-label">Adjuntar imagen (opcional):</label>
       <input type="file" name="imagen" class="form-control" accept="image/*">
+    </div>
+
+    <!-- 🌍 Seleccionar ubicación -->
+    <div class="mb-3">
+      <label class="form-label">Ubicación del problema:</label>
+      <div id="map" style="height: 300px; border-radius: 8px;"></div>
+      <!-- inputs ocultos para lat/lng -->
+      <input type="hidden" name="ubicacion_lat" id="ubicacion_lat">
+      <input type="hidden" name="ubicacion_lng" id="ubicacion_lng">
     </div>
 
     <!-- Botón -->
@@ -58,3 +66,32 @@
     </div>
   </form>
 </div>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  // Inicializar mapa centrado en coordenadas por defecto
+const map = L.map('map').setView([10.0389, -67.4931], 14); // 📍 Villa de Cura, Aragua
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  let marker;
+
+  // Click en el mapa para seleccionar ubicación
+  map.on('click', function(e) {
+    const { lat, lng } = e.latlng;
+
+    if (marker) {
+      map.removeLayer(marker);
+    }
+
+    marker = L.marker([lat, lng]).addTo(map);
+
+    // Guardar en inputs ocultos
+    document.getElementById('ubicacion_lat').value = lat;
+    document.getElementById('ubicacion_lng').value = lng;
+  });
+</script>

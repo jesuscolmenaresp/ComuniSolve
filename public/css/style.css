@@ -1,0 +1,97 @@
+/* 🎨 Estilos globales */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fafafa;
+  color: #333;
+}
+
+/* 🔹 Header */
+header.navbar {
+  background-color: #fce9d8;
+}
+header .navbar-brand {
+  font-weight: bold;
+  color: #ff6600 !important;
+}
+header .nav-link {
+  color: #333 !important;
+  margin-right: 10px;
+}
+header .nav-link.active {
+  color: #ff6600 !important;
+  font-weight: bold;
+}
+
+/* 🗺️ Mapa */
+#map {
+  height: 400px;
+  width: 100%;
+  border-radius: 10px;
+  border: 2px solid #ddd;
+  margin-top: 15px;
+}
+
+/* 📢 Reportes */
+.report-card {
+  border-radius: 12px;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #fff;
+  transition: transform 0.2s ease-in-out;
+}
+.report-card:hover {
+  transform: translateY(-4px);
+}
+.report-card h5 {
+  color: #444;
+}
+
+/* 📌 Botones */
+.btn-primary {
+  background-color: #ff6600;
+  border-color: #ff6600;
+}
+.btn-primary:hover {
+  background-color: #e65c00;
+  border-color: #e65c00;
+}
+.btn-outline-primary {
+  color: #ff6600;
+  border-color: #ff6600;
+}
+.btn-outline-primary:hover {
+  background-color: #ff6600;
+  color: #fff;
+}
+
+/* 📌 Footer */
+footer {
+  background: #fce9d8;
+  padding: 20px;
+  margin-top: 30px;
+  text-align: center;
+}
+/* 🏘️ Sectores */
+.sector-card {
+  background: #fdfdfd;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+.sector-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  background: #fff8f2;
+}
+.sector-card h5 {
+  font-weight: 600;
+  color: #333;
+}
+/* 🔘 Botones de acción en últimos reportes */
+.text-center .btn {
+  min-width: 200px;
+  font-weight: 500;
+}

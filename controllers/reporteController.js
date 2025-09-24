@@ -78,10 +78,10 @@ exports.mostrarFormulario = async (req, res) => {
 };
 
 // ==========================
-// 📌 GUARDAR REPORTE (con imagen)
+// 📌 GUARDAR REPORTE (con imagen + ubicación)
 // ==========================
 exports.guardarReporte = async (req, res) => {
-  const { titulo, descripcion, categoria, calle_id, mostrar_nombre } = req.body;
+  const { titulo, descripcion, categoria, calle_id, mostrar_nombre, ubicacion_lat, ubicacion_lng } = req.body;
   const usuario = req.session.usuario;
 
   // 📸 si hay archivo adjunto lo guardamos en la BD
@@ -92,9 +92,9 @@ exports.guardarReporte = async (req, res) => {
       // ✅ Reporte identificado
       await db.query(
         `INSERT INTO reportes 
-          (titulo, descripcion, categoria, usuario_id, calle_id, mostrar_nombre, estado, fecha, imagen)
-         VALUES (?, ?, ?, ?, ?, 1, 'Pendiente', NOW(), ?)`,
-        [titulo, descripcion, categoria, usuario.id, calle_id, imagen]
+          (titulo, descripcion, categoria, usuario_id, calle_id, mostrar_nombre, estado, fecha, imagen, ubicacion_lat, ubicacion_lng)
+         VALUES (?, ?, ?, ?, ?, 1, 'Pendiente', NOW(), ?, ?, ?)`,
+        [titulo, descripcion, categoria, usuario.id, calle_id, imagen, ubicacion_lat || null, ubicacion_lng || null]
       );
     } else {
       // ✅ Reporte anónimo → buscar jefe de la calle automáticamente
@@ -103,9 +103,9 @@ exports.guardarReporte = async (req, res) => {
 
       await db.query(
         `INSERT INTO reportes 
-          (titulo, descripcion, categoria, jefe_calle_id, calle_id, mostrar_nombre, estado, fecha, imagen)
-         VALUES (?, ?, ?, ?, ?, 0, 'Pendiente', NOW(), ?)`,
-        [titulo, descripcion, categoria, jefe_id, calle_id, imagen]
+          (titulo, descripcion, categoria, jefe_calle_id, calle_id, mostrar_nombre, estado, fecha, imagen, ubicacion_lat, ubicacion_lng)
+         VALUES (?, ?, ?, ?, ?, 0, 'Pendiente', NOW(), ?, ?, ?)`,
+        [titulo, descripcion, categoria, jefe_id, calle_id, imagen, ubicacion_lat || null, ubicacion_lng || null]
       );
     }
 
