@@ -1,0 +1,137 @@
+<div class="container mt-4">
+  <h2>✏️ Editar Usuario</h2>
+
+  <% if (session && session.error) { %>
+    <div class="alert alert-danger">
+      <%= session.error %>
+    </div>
+    <% session.error = null; %>
+  <% } %>
+
+  <form action="/usuarios/<%= usuario.id %>/editar" method="POST" class="card p-4 shadow-sm">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Nombre completo *</label>
+        <input type="text" name="nombre" class="form-control" 
+               value="<%= usuario.nombre %>" required>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Email *</label>
+        <input type="email" name="email" class="form-control" 
+               value="<%= usuario.email %>" required>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Nueva contraseña</label>
+        <input type="password" name="password" class="form-control" 
+               placeholder="Dejar vacío para no cambiar">
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Teléfono</label>
+        <input type="text" name="telefono" class="form-control" 
+               value="<%= usuario.telefono || '' %>">
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Rol *</label>
+        <select name="rol_id" id="rolSelectEdit" class="form-select" required>
+          <% roles.forEach(r => { %>
+            <option value="<%= r.id %>" <%= usuario.rol_id == r.id ? 'selected' : '' %>>
+              <%= r.nombre %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Campo para JEFE (una sola calle) -->
+      <div class="col-md-6 mb-3 campo-jefe <%= usuario.rol_id === 3 ? '' : 'd-none' %>">
+        <label class="form-label">Calle asignada (para Jefes)</label>
+        <select name="calle_id" class="form-select">
+          <option value="">-- Sin calle asignada --</option>
+          <% calles.forEach(c => { %>
+            <option value="<%= c.id %>" <%= usuario.calle_id == c.id ? 'selected' : '' %>>
+              <%= c.nombre_completo || c.nombre %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Campo para LÍDER (múltiples calles con checkboxes) -->
+      <div class="col-md-6 mb-3 campo-lider <%= usuario.rol_id === 2 ? '' : 'd-none' %>">
+        <label class="form-label">Calles que lidera (seleccione las que correspondan)</label>
+        <div class="border p-3 rounded" style="max-height: 200px; overflow-y: auto;">
+          <% calles.forEach(c => { %>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="calles_lider" value="<%= c.id %>" 
+                     id="calle_<%= c.id %>"
+                     <%= (typeof callesLideradas !== 'undefined' && callesLideradas.includes(c.id)) ? 'checked' : '' %>>
+              <label class="form-check-label" for="calle_<%= c.id %>">
+                <%= c.nombre %>
+              </label>
+            </div>
+          <% }) %>
+        </div>
+        <small class="text-muted">Seleccione todas las calles que lidera</small>
+      </div>
+
+      <!-- Campo para COMUNIDADES (solo si es UBCH) -->
+      <div class="col-md-12 mb-3 campo-comunidades <%= usuario.rol_id === 1 ? '' : 'd-none' %>">
+        <label class="form-label">Comunidades que atiende (puede seleccionar varias)</label>
+        <div class="border p-3 rounded" style="max-height: 200px; overflow-y: auto;">
+          <% if (typeof comunidades !== 'undefined' && comunidades.length > 0) { %>
+            <% comunidades.forEach(c => { %>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="comunidades" value="<%= c.id %>" 
+                       id="comunidad_<%= c.id %>"
+                       <%= (typeof comunidadesAsignadas !== 'undefined' && comunidadesAsignadas.includes(c.id)) ? 'checked' : '' %>>
+                <label class="form-check-label" for="comunidad_<%= c.id %>">
+                  <%= c.nombre %>
+                </label>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p class="text-muted">No hay comunidades registradas. <a href="/comunidades/nueva">Crear una</a></p>
+          <% } %>
+        </div>
+        <small class="text-muted">Seleccione todas las comunidades que este UBCH supervisa</small>
+      </div>
+
+      <input type="hidden" name="es_ubch" id="es_ubch" value="<%= usuario.rol_id === 1 ? '1' : '0' %>">
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-success">Actualizar</button>
+      <a href="/usuarios" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.getElementById('rolSelectEdit').addEventListener('change', function() {
+    const rol = this.value;
+    
+    const campoJefe = document.querySelector('.campo-jefe');
+    const campoLider = document.querySelector('.campo-lider');
+    const campoComunidades = document.querySelector('.campo-comunidades');
+    
+    if (rol === '3') {
+      campoJefe.classList.remove('d-none');
+      campoLider.classList.add('d-none');
+      campoComunidades.classList.add('d-none');
+    } else if (rol === '2') {
+      campoJefe.classList.add('d-none');
+      campoLider.classList.remove('d-none');
+      campoComunidades.classList.add('d-none');
+    } else if (rol === '1') {
+      campoJefe.classList.add('d-none');
+      campoLider.classList.add('d-none');
+      campoComunidades.classList.remove('d-none');
+    } else {
+      campoJefe.classList.add('d-none');
+      campoLider.classList.add('d-none');
+      campoComunidades.classList.add('d-none');
+    }
+  });
+</script>

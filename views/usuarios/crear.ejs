@@ -1,0 +1,108 @@
+<div class="container mt-4">
+  <h2>➕ Nuevo Usuario</h2>
+
+  <% if (session && session.error) { %>
+    <div class="alert alert-danger">
+      <%= session.error %>
+    </div>
+    <% session.error = null; %>
+  <% } %>
+
+  <form action="/usuarios" method="POST" class="card p-4 shadow-sm">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Nombre completo *</label>
+        <input type="text" name="nombre" class="form-control" required>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Email *</label>
+        <input type="email" name="email" class="form-control" required>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Contraseña *</label>
+        <input type="password" name="password" class="form-control" required 
+               minlength="6">
+        <small class="text-muted">Mínimo 6 caracteres</small>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Teléfono</label>
+        <input type="text" name="telefono" class="form-control" 
+               placeholder="0414-1234567">
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Rol *</label>
+        <select name="rol_id" id="rolSelect" class="form-select" required>
+          <option value="">Seleccione...</option>
+          <% roles.forEach(r => { %>
+            <option value="<%= r.id %>"><%= r.nombre %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Campo para JEFE (una sola calle) -->
+      <div class="col-md-6 mb-3" id="campoJefe" style="display:none;">
+        <label class="form-label">Calle asignada (para Jefes)</label>
+        <select name="calle_id" class="form-select">
+          <option value="">-- Sin calle asignada --</option>
+          <% calles.forEach(c => { %>
+            <option value="<%= c.id %>"><%= c.nombre_completo || c.nombre %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Campo para LÍDER (múltiples calles con checkboxes) -->
+      <div class="col-md-6 mb-3" id="campoLider" style="display:none;">
+        <label class="form-label">Calles que lidera (seleccione las que correspondan)</label>
+        <div class="border p-3 rounded" style="max-height: 200px; overflow-y: auto;">
+          <% calles.forEach(c => { %>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="calles_lider" value="<%= c.id %>" id="calle_<%= c.id %>">
+              <label class="form-check-label" for="calle_<%= c.id %>">
+                <%= c.nombre %>
+              </label>
+            </div>
+          <% }) %>
+        </div>
+        <small class="text-muted">Seleccione todas las calles que lidera</small>
+      </div>
+
+      <!-- Campo para UBCH (múltiples comunidades con checkboxes) -->
+      <div class="col-md-6 mb-3" id="campoUbch" style="display:none;">
+        <label class="form-label">Comunidades que atiende (seleccione las que correspondan)</label>
+        <div class="border p-3 rounded" style="max-height: 200px; overflow-y: auto;">
+          <% if (typeof comunidades !== 'undefined' && comunidades.length > 0) { %>
+            <% comunidades.forEach(c => { %>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="comunidades" value="<%= c.id %>" id="comunidad_<%= c.id %>">
+                <label class="form-check-label" for="comunidad_<%= c.id %>">
+                  <%= c.nombre %>
+                </label>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p class="text-muted">No hay comunidades registradas. <a href="/comunidades/nueva">Crear una</a></p>
+          <% } %>
+        </div>
+        <small class="text-muted">Seleccione todas las comunidades que este UBCH supervisa</small>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-success">Guardar</button>
+      <a href="/usuarios" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.getElementById('rolSelect').addEventListener('change', function() {
+    const rol = this.value;
+    document.getElementById('campoJefe').style.display = rol == '3' ? 'block' : 'none';
+    document.getElementById('campoLider').style.display = rol == '2' ? 'block' : 'none';
+    document.getElementById('campoUbch').style.display = rol == '1' ? 'block' : 'none';
+  });
+</script>

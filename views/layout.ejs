@@ -2,26 +2,100 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>ComuniSolve</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ComuniSolve - <%- typeof title !== 'undefined' ? title : 'Gestión Comunitaria' %></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+  <!-- 🔹 Header -->
   <header>
-    <h1>ComuniSolve</h1>
-    <% if (usuario) { %>
-      <p>Hola, <%= usuario.nombre %> | <a href="/logout">Cerrar sesión</a></p>
-    <% } else { %>
-      <p><a href="/login">Iniciar sesión</a></p>
-    <% } %>
-    <hr>
+    <nav class="navbar navbar-expand-lg navbar-light px-4">
+      <a class="navbar-brand" href="/">ComuniSolve</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <!-- Módulos públicos (visibles para todos) -->
+          <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="/reportes">Reportes</a></li>
+          <li class="nav-item"><a class="nav-link" href="/mapas">Mapas</a></li>
+          
+          <!-- Voluntarios: según el rol -->
+          <% if (!usuario) { %>
+            <!-- Usuario no logueado: ver voluntarios públicos -->
+            <li class="nav-item"><a class="nav-link" href="/voluntarios/publico">Voluntarios</a></li>
+          <% } else if (usuario.rol_id === 4) { %>
+            <!-- Ciudadano: puede unirse como voluntario -->
+            <li class="nav-item"><a class="nav-link" href="/voluntarios">Ser Voluntario</a></li>
+          <% } %>
+          
+          <!-- Módulos de gestión (solo para UBCH) -->
+          <% if (usuario && usuario.rol_id === 1) { %>
+            <li class="nav-item"><a class="nav-link" href="/categorias">Categorías</a></li>
+            <li class="nav-item"><a class="nav-link" href="/empresas">Empresas</a></li>
+            <li class="nav-item"><a class="nav-link" href="/comunidades">Comunidades</a></li>
+            <li class="nav-item"><a class="nav-link" href="/calles">Calles</a></li>
+            <li class="nav-item"><a class="nav-link" href="/voluntarios/gestionar">Gestionar Voluntarios</a></li>
+            
+            <!-- Dropdown Usuarios (solo UBCH) -->
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                👥 Usuarios
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/usuarios">Listar usuarios</a></li>
+                <li><a class="dropdown-item" href="/usuarios/nuevo">Crear usuario</a></li>
+              </ul>
+            </li>
+          <% } %>
+          
+          <!-- Módulos para Líder (rol 2) -->
+          <% if (usuario && usuario.rol_id === 2) { %>
+            <li class="nav-item"><a class="nav-link" href="/reportes">Mis Reportes</a></li>
+            <li class="nav-item"><a class="nav-link" href="/voluntarios/gestionar">Gestionar Voluntarios</a></li>
+          <% } %>
+          
+          <!-- Módulos para Jefe de Calle (rol 3) -->
+          <% if (usuario && usuario.rol_id === 3) { %>
+            <li class="nav-item"><a class="nav-link" href="/reportes">Mis Reportes</a></li>
+          <% } %>
+          
+          <!-- Login / Registro / Logout -->
+          <% if (!usuario) { %>
+            <li class="nav-item">
+              <a class="btn btn-outline-success ms-2" href="/registro">📝 Registrarse</a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-outline-primary ms-2" href="/login">🔐 Iniciar sesión</a>
+            </li>
+          <% } else { %>
+            <li class="nav-item">
+              <span class="navbar-text me-2">👋 Hola, <%= usuario.nombre %></span>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-primary ms-2" href="/logout">Cerrar sesión</a>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+    </nav>
   </header>
 
-  <main>
-    <%- body %> <!-- 👈 AQUÍ express-ejs-layouts mete el contenido -->
+  <!-- 🔹 Contenido principal -->
+  <main class="container mt-4">
+    <%- body %>
   </main>
 
-  <footer>
-    <hr>
-    <p>© 2025 ComuniSolve</p>
+  <!-- 🔹 Footer -->
+  <footer class="mt-5 py-3 text-center">
+    <p>© <%= new Date().getFullYear() %> ComuniSolve - Todos los derechos reservados</p>
+    <p class="small">Villa de Cura, Estado Aragua</p>
   </footer>
+
+  <!-- Scripts comunes -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

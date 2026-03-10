@@ -1,6 +1,201 @@
-<h2>Panel de Jefe de Calle</h2>
-<p>Aquí podrás atender reportes de tu calle y coordinar con ciudadanos.</p>
-<ul>
-  <li><a href="/lider">Volver al panel de Líder</a></li>
-  <li><a href="/admin">Ir a panel de Admin</a></li>
-</ul>
+<%
+// Preparar datos para Chart.js (solo si hay datos)
+let categoriasLabels = [];
+let categoriasDatos = [];
+let estadosLabels = [];
+let estadosDatos = [];
+
+if (porCategoria && porCategoria.length > 0) {
+  categoriasLabels = porCategoria.map(item => item.categoria);
+  categoriasDatos = porCategoria.map(item => item.total);
+}
+
+if (porEstado && porEstado.length > 0) {
+  estadosLabels = porEstado.map(item => item.estado);
+  estadosDatos = porEstado.map(item => item.total);
+}
+%>
+
+<div class="container mt-4">
+  <h2 class="mb-4">👤 Panel de Jefe de Calle</h2>
+  
+  <!-- Información de la calle a cargo -->
+  <% if (tieneCalle) { %>
+    <div class="alert alert-success">
+      <strong>Calles a tu cargo:</strong> <%= miCalle %>
+    </div>
+  <% } else { %>
+    <div class="alert alert-warning">
+      <strong>⚠️ No tienes una calle asignada.</strong> 
+      <br>Contacta al administrador para asignarte una calle.
+    </div>
+  <% } %>
+
+  <!-- Tarjetas de resumen (solo si tiene calle) -->
+  <% if (tieneCalle) { %>
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-white bg-primary">
+        <div class="card-body">
+          <h5 class="card-title">Total Reportes</h5>
+          <h2><%= totales.total_reportes || 0 %></h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-warning">
+        <div class="card-body">
+          <h5 class="card-title">Pendientes</h5>
+          <h2><%= totales.pendientes || 0 %></h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-info">
+        <div class="card-body">
+          <h5 class="card-title">En Progreso</h5>
+          <h2><%= totales.en_progreso || 0 %></h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-success">
+        <div class="card-body">
+          <h5 class="card-title">Resueltos</h5>
+          <h2><%= totales.resueltos || 0 %></h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráficas (solo si hay datos) -->
+  <% if (porCategoria && porCategoria.length > 0) { %>
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5>📊 Reportes por Categoría (tu calle)</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="chartCategoria" style="max-height: 300px;"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5>📈 Reportes por Estado (tu calle)</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="chartEstado" style="max-height: 300px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Reportes recientes -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5>📋 Reportes Recientes en tu Calle</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm table-striped">
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Categoría</th>
+                  <th>Reportado por</th>
+                  <th>Fecha</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (reportesRecientes && reportesRecientes.length > 0) { %>
+                  <% reportesRecientes.forEach(r => { %>
+                    <tr>
+                      <td><%= r.titulo %></td>
+                      <td><span class="badge bg-primary"><%= r.categoria %></span></td>
+                      <td><%= r.reportado_por %></td>
+                      <td><%= new Date(r.fecha).toLocaleDateString() %></td>
+                      <td>
+                        <span class="badge 
+                          <%= r.estado === 'Pendiente' ? 'bg-warning' : 
+                              r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>">
+                          <%= r.estado %>
+                        </span>
+                      </td>
+                      <td>
+                        <a href="/reportes" class="btn btn-sm btn-outline-primary">Ver</a>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6" class="text-center">No hay reportes en tu calle</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Acciones rápidas -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5>⚡ Acciones Rápidas</h5>
+        </div>
+        <div class="card-body">
+          <a href="/reportes" class="btn btn-primary">Ver todos mis reportes</a>
+          <a href="/reportar" class="btn btn-success">➕ Crear reporte</a>
+          <% if (usuario.rol_id === 1 || usuario.rol_id === 2) { %>
+            <a href="/admin" class="btn btn-secondary">Volver al panel Admin</a>
+          <% } %>
+          <% if (usuario.rol_id === 2) { %>
+            <a href="/lider" class="btn btn-info text-white">Ir a panel Líder</a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js (solo si hay datos) -->
+<% if (tieneCalle && porCategoria && porCategoria.length > 0) { %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Gráfico de Categorías
+  new Chart(document.getElementById('chartCategoria'), {
+    type: 'pie',
+    data: {
+      labels: JSON.parse('<%- JSON.stringify(categoriasLabels) %>'),
+      datasets: [{
+        data: JSON.parse('<%- JSON.stringify(categoriasDatos) %>'),
+        backgroundColor: ['#0d6efd', '#ffc107', '#198754', '#dc3545']
+      }]
+    }
+  });
+
+  // Gráfico de Estados
+  new Chart(document.getElementById('chartEstado'), {
+    type: 'doughnut',
+    data: {
+      labels: JSON.parse('<%- JSON.stringify(estadosLabels) %>'),
+      datasets: [{
+        data: JSON.parse('<%- JSON.stringify(estadosDatos) %>'),
+        backgroundColor: ['#ffc107', '#0dcaf0', '#198754']
+      }]
+    }
+  });
+</script>
+<% } %>

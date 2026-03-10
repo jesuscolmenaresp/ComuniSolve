@@ -1,6 +1,13 @@
 <div class="container mt-5">
   <h2 class="mb-4 text-center">📝 Formulario de Reporte Ciudadano</h2>
 
+  <% if (session && session.error) { %>
+    <div class="alert alert-danger">
+      <%= session.error %>
+    </div>
+    <% session.error = null; %>
+  <% } %>
+
   <form action="/reportar" method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm">
     <!-- Título -->
     <div class="mb-3">
@@ -14,14 +21,20 @@
       <textarea name="descripcion" class="form-control" rows="3" required></textarea>
     </div>
 
-    <!-- Categoría -->
+    <!-- Categoría (dinámica) -->
     <div class="mb-3">
-      <label class="form-label">Categoría:</label>
-      <select name="categoria" class="form-select" required>
-        <option value="Agua">Agua</option>
-        <option value="Electricidad">Electricidad</option>
-        <option value="Vialidad">Vialidad</option>
-        <option value="Salud">Salud</option>
+      <label class="form-label">Categoría del problema:</label>
+      <select name="categoria_id" class="form-select" required>
+        <option value="">Seleccione una categoría...</option>
+        <% if (categorias && categorias.length > 0) { %>
+          <% categorias.forEach(cat => { %>
+            <option value="<%= cat.id %>">
+              <%= cat.icono ? cat.icono + ' ' : '' %><%= cat.nombre %>
+            </option>
+          <% }) %>
+        <% } else { %>
+          <option value="" disabled>No hay categorías disponibles</option>
+        <% } %>
       </select>
     </div>
 
@@ -52,10 +65,18 @@
     <!-- 🌍 Seleccionar ubicación -->
     <div class="mb-3">
       <label class="form-label">Ubicación del problema:</label>
+      
+      <div class="mb-2">
+        <button type="button" id="btnUbicacion" class="btn btn-outline-primary btn-sm">
+          📍 Usar mi ubicación actual
+        </button>
+        <small class="text-muted ms-2" id="estadoUbicacion"></small>
+      </div>
+      
       <div id="map" style="height: 300px; border-radius: 8px;"></div>
-      <!-- inputs ocultos para lat/lng -->
       <input type="hidden" name="ubicacion_lat" id="ubicacion_lat">
       <input type="hidden" name="ubicacion_lng" id="ubicacion_lng">
+      <small class="text-muted">Haz clic en el mapa para marcar la ubicación o usa el botón</small>
     </div>
 
     <!-- Botón -->
@@ -70,28 +91,82 @@
 <!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script>
-  // Inicializar mapa centrado en coordenadas por defecto
-const map = L.map('map').setView([10.0389, -67.4931], 14); // 📍 Villa de Cura, Aragua
 
+<script>
+  window.map = L.map('map').setView([10.0389, -67.4931], 14);
+  
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
+  }).addTo(window.map);
 
   let marker;
 
-  // Click en el mapa para seleccionar ubicación
-  map.on('click', function(e) {
+  window.map.on('click', function(e) {
     const { lat, lng } = e.latlng;
 
     if (marker) {
-      map.removeLayer(marker);
+      marker.setLatLng([lat, lng]);
+    } else {
+      marker = L.marker([lat, lng]).addTo(window.map);
     }
 
-    marker = L.marker([lat, lng]).addTo(map);
-
-    // Guardar en inputs ocultos
     document.getElementById('ubicacion_lat').value = lat;
     document.getElementById('ubicacion_lng').value = lng;
+  });
+
+  window.marker = marker;
+
+  document.getElementById('btnUbicacion').addEventListener('click', function() {
+    const estado = document.getElementById('estadoUbicacion');
+    estado.textContent = 'Obteniendo ubicación...';
+    
+    if (!navigator.geolocation) {
+      estado.textContent = '❌ Tu navegador no soporta geolocalización';
+      return;
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        
+        document.getElementById('ubicacion_lat').value = lat;
+        document.getElementById('ubicacion_lng').value = lng;
+        
+        window.map.setView([lat, lng], 16);
+        if (window.marker) {
+          window.marker.setLatLng([lat, lng]);
+        } else {
+          window.marker = L.marker([lat, lng]).addTo(window.map);
+        }
+        
+        estado.textContent = '✅ Ubicación obtenida';
+      },
+      function(error) {
+        let mensaje = '❌ Error: ';
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            mensaje += 'Permiso denegado';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            mensaje += 'Ubicación no disponible';
+            break;
+          case error.TIMEOUT:
+            mensaje += 'Tiempo de espera agotado';
+            break;
+        }
+        estado.textContent = mensaje;
+      }
+    );
+  });
+
+  document.querySelector('form').addEventListener('submit', function(e) {
+    const lat = document.getElementById('ubicacion_lat').value;
+    const lng = document.getElementById('ubicacion_lng').value;
+    
+    if (!lat || !lng) {
+      e.preventDefault();
+      alert('Por favor, selecciona una ubicación en el mapa o usa el botón "Usar mi ubicación actual"');
+    }
   });
 </script>

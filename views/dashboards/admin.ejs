@@ -1,6 +1,203 @@
-<h2>Panel de Administración</h2>
-<p>Aquí podrás gestionar líderes, jefes de calle y reportes.</p>
-<ul>
-  <li><a href="/lider">Ir a panel de Líder</a></li>
-  <li><a href="/jefe">Ir a panel de Jefe de Calle</a></li>
-</ul>
+<%
+// Preparar datos para Chart.js
+const categorias = {
+    labels: porCategoria.map(item => item.nombre),
+    datos: porCategoria.map(item => item.total)
+};
+
+const estados = {
+    labels: porEstado.map(item => item.estado),
+    datos: porEstado.map(item => item.total)
+};
+
+const calles = {
+    labels: porCalle.map(item => item.nombre),
+    datos: porCalle.map(item => item.total)
+};
+%>
+
+<h2 class="mb-4">📊 Panel de Administración - Estadísticas</h2>
+
+<!-- Tarjetas de resumen -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Total Reportes</h5>
+                <h2><%= totales.total_reportes || 0 %></h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Pendientes</h5>
+                <h2><%= totales.pendientes || 0 %></h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">En Progreso</h5>
+                <h2><%= totales.en_progreso || 0 %></h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Resueltos</h5>
+                <h2><%= totales.resueltos || 0 %></h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficas -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>📊 Reportes por Categoría</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartCategoria" style="max-height: 300px;"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>📈 Reportes por Estado</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartEstado" style="max-height: 300px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top calles y más votados -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>🏘️ Top 5 Calles con más Reportes</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartCalles" style="max-height: 300px;"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>👍 Reportes más Votados</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Categoría</th>
+                            <th>Calle</th>
+                            <th>Votos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (masVotados && masVotados.length > 0) { %>
+                            <% masVotados.forEach(r => { %>
+                                <tr>
+                                    <td><%= r.titulo %></td>
+                                    <td><span class="badge bg-primary"><%= r.categoria %></span></td>
+                                    <td><%= r.calle %></td>
+                                    <td><span class="badge bg-secondary">👍 <%= r.votos || 0 %></span></td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="4" class="text-center">Sin votos aún</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Participación -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>👥 Participación</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Ciudadanos registrados
+                        <span class="badge bg-primary rounded-pill"><%= totales.total_ciudadanos || 0 %></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Voluntarios
+                        <span class="badge bg-success rounded-pill"><%= totales.total_voluntarios || 0 %></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Gráfico de Categorías
+    new Chart(document.getElementById('chartCategoria'), {
+        type: 'pie',
+        data: {
+            labels: JSON.parse('<%- JSON.stringify(categorias.labels) %>'),
+            datasets: [{
+                data: JSON.parse('<%- JSON.stringify(categorias.datos) %>'),
+                backgroundColor: [
+                    '#0d6efd', '#ffc107', '#198754', '#dc3545', '#6c757d'
+                ]
+            }]
+        }
+    });
+
+    // Gráfico de Estados
+    new Chart(document.getElementById('chartEstado'), {
+        type: 'doughnut',
+        data: {
+            labels: JSON.parse('<%- JSON.stringify(estados.labels) %>'),
+            datasets: [{
+                data: JSON.parse('<%- JSON.stringify(estados.datos) %>'),
+                backgroundColor: ['#ffc107', '#0dcaf0', '#198754']
+            }]
+        }
+    });
+
+    // Gráfico de Calles
+    new Chart(document.getElementById('chartCalles'), {
+        type: 'bar',
+        data: {
+            labels: JSON.parse('<%- JSON.stringify(calles.labels) %>'),
+            datasets: [{
+                label: 'Reportes',
+                data: JSON.parse('<%- JSON.stringify(calles.datos) %>'),
+                backgroundColor: '#0d6efd'
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    stepSize: 1
+                }
+            }
+        }
+    });
+</script>

@@ -1,0 +1,42 @@
+<div class="container mt-4">
+  <h2 class="mb-4 text-center">🤝 Voluntarios de la Comunidad</h2>
+
+  <% if (session && session.mensaje) { %>
+    <div class="alert alert-success alert-dismissible fade show">
+      <%= session.mensaje %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <% session.mensaje = null; %>
+  <% } %>
+
+  <div class="row">
+    <% if (voluntarios && voluntarios.length > 0) { %>
+      <% voluntarios.forEach(v => { %>
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title"><%= v.nombre %></h5>
+              <p class="card-text">
+                <strong>Habilidad:</strong> <%= v.habilidad %><br>
+                <% if (v.telefono) { %>
+                  <strong>Contacto:</strong> <%= v.telefono %>
+                <% } %>
+              </p>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="col-12">
+        <div class="alert alert-info text-center">
+          No hay voluntarios registrados aún.
+          <% if (!usuario) { %>
+            <br><a href="/login" class="btn btn-primary mt-2">Inicia sesión para unirte</a>
+          <% } else if (usuario.rol_id === 4) { %>
+            <br><a href="/voluntarios" class="btn btn-primary mt-2">¡Únete como voluntario!</a>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>

@@ -54,14 +54,19 @@ exports.logout = (req, res) => {
   });
 };
 
-// Formulario de registro
+// ==========================
+// 📌 MOSTRAR FORMULARIO DE REGISTRO
+// ==========================
 exports.mostrarRegistro = async (req, res) => {
   try {
-    const [calles] = await db.query("SELECT * FROM calles");
-    res.render('registro', { error: null, calles });
+    const [calles] = await db.query("SELECT id, nombre FROM calles ORDER BY nombre");
+    res.render('registro', { 
+      calles,
+      error: null 
+    });
   } catch (err) {
     console.error(err);
-    res.render('registro', { error: 'Error cargando formulario', calles: [] });
+    res.status(500).send("Error al cargar formulario de registro");
   }
 };
 

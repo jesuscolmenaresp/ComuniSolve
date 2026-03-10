@@ -1,0 +1,67 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>🏘️ Gestión de Comunidades</h2>
+    <a href="/comunidades/nueva" class="btn btn-primary">
+      ➕ Nueva Comunidad
+    </a>
+  </div>
+
+  <% if (session && session.mensaje) { %>
+    <div class="alert alert-success alert-dismissible fade show">
+      <%= session.mensaje %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <% session.mensaje = null; %>
+  <% } %>
+
+  <% if (session && session.error) { %>
+    <div class="alert alert-danger alert-dismissible fade show">
+      <%= session.error %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <% session.error = null; %>
+  <% } %>
+
+  <div class="table-responsive">
+    <table class="table table-striped table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Calles</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (comunidades && comunidades.length > 0) { %>
+          <% comunidades.forEach(c => { %>
+            <tr>
+              <td><%= c.id %></td>
+              <td><strong><%= c.nombre %></strong></td>
+              <td><%= c.descripcion || '—' %></td>
+              <td>
+                <span class="badge bg-info"><%= c.total_calles || 0 %> calles</span>
+              </td>
+              <td>
+                <a href="/comunidades/<%= c.id %>/editar" class="btn btn-sm btn-warning">
+                  ✏️ Editar
+                </a>
+                <form action="/comunidades/<%= c.id %>/eliminar" method="POST" class="d-inline"
+                      onsubmit="return confirm('¿Eliminar esta comunidad? Se eliminarán también sus relaciones.')">
+                  <button type="submit" class="btn btn-sm btn-danger">
+                    🗑️ Eliminar
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="5" class="text-center">No hay comunidades registradas</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>

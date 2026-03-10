@@ -1,195 +1,117 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ComuniSolve - Inicio</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="/css/style.css"> <!-- 📌 nuestro CSS -->
-</head>
-<body>
-  <!-- 🔹 Header -->
-  <header>
-    <nav class="navbar navbar-expand-lg navbar-light px-4">
-      <a class="navbar-brand" href="/">ComuniSolve</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link active" href="/">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link" href="/reportes">Reportes</a></li>
-          <li class="nav-item"><a class="nav-link" href="/mapas">Mapas</a></li>
-          <li class="nav-item"><a class="nav-link" href="/voluntarios">Voluntarios</a></li>
-          <% if (!usuario) { %>
-            <li class="nav-item"><a class="btn btn-outline-primary ms-2" href="/login">Iniciar sesión</a></li>
-          <% } else { %>
-            <li class="nav-item"><a class="btn btn-primary ms-2" href="/logout">Cerrar sesión</a></li>
-          <% } %>
-        </ul>
-      </div>
-    </nav>
-  </header>
+<!-- 🗺️ Mapa -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">🗺️ Reportes en el Mapa</h2>
+  <a href="/reportar" class="btn btn-primary">➕ Reportar un problema</a>
+</div>
+<div id="map"></div>
 
-  <!-- 🔹 Contenedor principal -->
-  <main class="container mt-4">
-    <!-- 🗺️ Mapa -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="mb-0">🗺️ Reportes en el Mapa</h2>
-      <a href="/reportar" class="btn btn-primary">➕ Reportar un problema</a>
+<!-- 📌 Sección ¿Qué es ComuniSolve? -->
+<section class="mt-5 p-4 bg-light rounded shadow-sm">
+  <h2 class="text-center mb-3">¿Qué es <span class="text-primary">ComuniSolve</span>?</h2>
+  <p class="text-center">
+    ComuniSolve es un software de gestión comunitaria diseñado para facilitar la participación ciudadana 
+    en la <strong>Comuna Socialista Nuestra Señora de las Mercedes</strong>. 
+    Permite reportar problemas, ver incidencias geolocalizadas en un mapa, 
+    votar por prioridades y fortalecer la organización local mediante herramientas tecnológicas accesibles y eficientes.
+  </p>
+</section>
+
+<!-- 📌 Sección ¿Cómo funciona? -->
+<section class="mt-5">
+  <h2 class="text-center mb-4">¿Cómo funciona ComuniSolve?</h2>
+  <div class="row text-center">
+    <div class="col-md-3">
+      <div class="p-3 bg-white shadow-sm rounded">
+        <h3>📢</h3>
+        <h5>Reporta</h5>
+        <p>Informa cualquier problema en tu comunidad con una descripción, imagen y ubicación.</p>
+      </div>
     </div>
-    <div id="map"></div>
-
-
-    <!-- 📌 Sección ¿Qué es ComuniSolve? -->
-    <section class="mt-5 p-4 bg-light rounded shadow-sm">
-      <h2 class="text-center mb-3">¿Qué es <span class="text-primary">ComuniSolve</span>?</h2>
-      <p class="text-center">
-        ComuniSolve es un software de gestión comunitaria diseñado para facilitar la participación ciudadana 
-        en la <strong>Comuna Socialista Nuestra Señora de las Mercedes</strong>. 
-        Permite reportar problemas, ver incidencias geolocalizadas en un mapa, 
-        votar por prioridades y fortalecer la organización local mediante herramientas tecnológicas accesibles y eficientes.
-      </p>
-    </section>
-
-    <!-- 📌 Sección ¿Cómo funciona? -->
-    <section class="mt-5">
-      <h2 class="text-center mb-4">¿Cómo funciona ComuniSolve?</h2>
-      <div class="row text-center">
-        <div class="col-md-3">
-          <div class="p-3 bg-white shadow-sm rounded">
-            <h3>📢</h3>
-            <h5>Reporta</h5>
-            <p>Informa cualquier problema en tu comunidad con una descripción, imagen y ubicación.</p>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="p-3 bg-white shadow-sm rounded">
-            <h3>🗺️</h3>
-            <h5>Visualiza</h5>
-            <p>Todos los reportes se muestran en un mapa interactivo accesible a la comunidad.</p>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="p-3 bg-white shadow-sm rounded">
-            <h3>👍</h3>
-            <h5>Prioriza</h5>
-            <p>Los vecinos pueden votar y comentar los reportes, ayudando a decidir qué atender primero.</p>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="p-3 bg-white shadow-sm rounded">
-            <h3>🤝</h3>
-            <h5>Actúa</h5>
-            <p>Líderes y voluntarios coordinan acciones para resolver los problemas priorizados.</p>
-          </div>
-        </div>
+    <div class="col-md-3">
+      <div class="p-3 bg-white shadow-sm rounded">
+        <h3>🗺️</h3>
+        <h5>Visualiza</h5>
+        <p>Todos los reportes se muestran en un mapa interactivo accesible a la comunidad.</p>
       </div>
-    </section>
-
-    <!-- 📌 Sectores que atiende -->
-    <section class="mt-5">
-      <h2 class="text-center mb-4">🏘️ Sectores que atiende ComuniSolve</h2>
-      <div class="row text-center">
-        <div class="col-md-3">
-          <div class="p-3 bg-white shadow-sm rounded sector-card">
-            <h5>Virgen de Lourdes</h5>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="p-3 bg-white shadow-sm rounded sector-card">
-            <h5>Nuestra Señora de Las Mercedes</h5>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="p-3 bg-white shadow-sm rounded sector-card">
-            <h5>Brisas de las Mercedes</h5>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="p-3 bg-white shadow-sm rounded sector-card">
-            <h5>Las Mercedes</h5>
-          </div>
-        </div>
-      </div>
-      <div class="row text-center mt-3">
-        <div class="col-md-4">
-          <div class="p-3 bg-white shadow-sm rounded sector-card">
-            <h5>Asentamiento campesino</h5>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="p-3 bg-white shadow-sm rounded sector-card">
-            <h5>Urbanización La Providencia</h5>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="p-3 bg-white shadow-sm rounded sector-card">
-            <h5>Santa Eduviges</h5>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 📢 Últimos reportes -->
-    <h3 class="mt-5 mb-3">📢 Últimos reportes</h3>
-    <div class="row">
-      <% if (reportes && reportes.length > 0) { %>
-        <% reportes.slice(0,3).forEach(r => { %>
-          <div class="col-md-4">
-            <div class="report-card">
-              <h5><%= r.titulo %></h5>
-              <p class="text-muted"><%= r.descripcion.substring(0, 80) %>...</p>
-              <p><strong>Categoría:</strong> <%= r.categoria %></p>
-              <p><strong>Calle:</strong> <%= r.nombre_calle %></p>
-              <p><span class="badge 
-                <%= r.estado === 'Pendiente' ? 'bg-warning' : 
-                    r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>">
-                <%= r.estado %></span>
-              </p>
-            </div>
-          </div>
-        <% }) %>
-      <% } else { %>
-        <p class="text-muted">No hay reportes registrados aún.</p>
-      <% } %>
     </div>
-
-    <!-- 🔘 Botones de acción -->
-    <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
-      <a href="/reportes" class="btn btn-outline-primary">📄 Ver todos los reportes</a>
-      <a href="/voluntarios" class="btn btn-success">🤝 Únete como voluntario</a>
-      <a href="#" class="btn btn-warning text-white">⭐ Votar / priorizar</a>
+    <div class="col-md-3">
+      <div class="p-3 bg-white shadow-sm rounded">
+        <h3>👍</h3>
+        <h5>Prioriza</h5>
+        <p>Los vecinos pueden votar y comentar los reportes, ayudando a decidir qué atender primero.</p>
+      </div>
     </div>
+    <div class="col-md-3">
+      <div class="p-3 bg-white shadow-sm rounded">
+        <h3>🤝</h3>
+        <h5>Actúa</h5>
+        <p>Líderes y voluntarios coordinan acciones para resolver los problemas priorizados.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <!-- 🔹 Footer -->
-  <footer>
-    <p>© <%= new Date().getFullYear() %> ComuniSolve - Todos los derechos reservados</p>
-  </footer>
+<!-- 📌 Sectores que atiende -->
+<section class="mt-5">
+  <h2 class="text-center mb-4">🏘️ Sectores que atiende ComuniSolve</h2>
+  <div class="row text-center">
+    <div class="col-md-3"><div class="p-3 bg-white shadow-sm rounded sector-card"><h5>Virgen de Lourdes</h5></div></div>
+    <div class="col-md-3"><div class="p-3 bg-white shadow-sm rounded sector-card"><h5>Nuestra Señora de Las Mercedes</h5></div></div>
+    <div class="col-md-3"><div class="p-3 bg-white shadow-sm rounded sector-card"><h5>Brisas de las Mercedes</h5></div></div>
+    <div class="col-md-3"><div class="p-3 bg-white shadow-sm rounded sector-card"><h5>Las Mercedes</h5></div></div>
+  </div>
+  <div class="row text-center mt-3">
+    <div class="col-md-4"><div class="p-3 bg-white shadow-sm rounded sector-card"><h5>Asentamiento campesino</h5></div></div>
+    <div class="col-md-4"><div class="p-3 bg-white shadow-sm rounded sector-card"><h5>Urbanización La Providencia</h5></div></div>
+    <div class="col-md-4"><div class="p-3 bg-white shadow-sm rounded sector-card"><h5>Santa Eduviges</h5></div></div>
+  </div>
+</section>
 
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
-    // Inicializar mapa centrado en Villa de Cura
-    const map = L.map('map').setView([10.042, -67.489], 14);
+<!-- 📢 Últimos reportes -->
+<h3 class="mt-5 mb-3">📢 Últimos reportes</h3>
+<div class="row">
+  <% if (reportes && reportes.length > 0) { %>
+    <% reportes.slice(0,3).forEach(r => { %>
+      <div class="col-md-4">
+        <div class="report-card">
+          <h5><%= r.titulo %></h5>
+          <p class="text-muted"><%= r.descripcion.substring(0, 80) %>...</p>
+          <p><strong>Categoría:</strong> 
+            <span class="badge bg-<%= r.categoria_color || 'primary' %>">
+              <%= r.categoria_icono ? r.categoria_icono + ' ' : '' %><%= r.categoria_nombre %>
+            </span>
+          </p>
+          <p><strong>Calle:</strong> <%= r.nombre_calle %></p>
+          <p><span class="badge <%= r.estado === 'Pendiente' ? 'bg-warning' : r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>"><%= r.estado %></span></p>
+        </div>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <p class="text-muted">No hay reportes registrados aún.</p>
+  <% } %>
+</div>
 
-    // Capa base de OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+<!-- 🔘 Botones de acción -->
+<div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
+  <a href="/reportes" class="btn btn-outline-primary">📄 Ver todos los reportes</a>
+  <a href="/voluntarios" class="btn btn-success">🤝 Únete como voluntario</a>
+  <a href="#" class="btn btn-warning text-white">⭐ Votar / priorizar</a>
+</div>
 
-    // 📌 Reportes desde backend
-    const reportes = <%- JSON.stringify(reportes || []) %>;
+<!-- Script del mapa -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([10.042, -67.489], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
 
-    reportes.forEach(r => {
-      if (r.ubicacion_lat && r.ubicacion_lng) {
-        L.marker([r.ubicacion_lat, r.ubicacion_lng])
-          .addTo(map)
-          .bindPopup(`<strong>${r.titulo}</strong><br>${r.descripcion}`);
-      }
-    });
-  </script>
-</body>
-</html>
+    const reportes = JSON.parse('<%- JSON.stringify(reportes || []) %>');
+      reportes.forEach(r => {
+    if (r.ubicacion_lat && r.ubicacion_lng) {
+      L.marker([r.ubicacion_lat, r.ubicacion_lng])
+        .addTo(map)
+        .bindPopup(`<strong>${r.titulo}</strong><br>${r.descripcion}`);
+    }
+  });
+</script>

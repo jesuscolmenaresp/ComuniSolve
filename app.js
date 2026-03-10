@@ -38,14 +38,39 @@ const authRoutes = require('./routes/auth');
 const reporteRoutes = require('./routes/reportes');
 const indexRouter = require('./routes/index');
 const dashboardRoutes = require('./routes/dashboard');
+const voluntarioRoutes = require('./routes/voluntarios');
+const mapasRoutes = require('./routes/mapas');
 
 const calleRoutes = require("./routes/calles");
+const votoRoutes = require('./routes/votos');
+const votoController = require('./controllers/votoController');
+
+const usuarioRoutes = require('./routes/usuarios');
+
+const comunidadesRoutes = require('./routes/comunidades');
+
+const empresasRoutes = require('./routes/empresas');
+
+const categoriasRoutes = require('./routes/categorias');
 
 app.use('/', indexRouter);
 app.use(authRoutes);
 app.use(reporteRoutes);
 app.use(dashboardRoutes);
 app.use(calleRoutes);
+app.use(voluntarioRoutes);
+app.use(mapasRoutes);
+
+app.use(votoRoutes);
+app.use(votoController.obtenerConteos);
+
+app.use(usuarioRoutes);
+
+app.use(comunidadesRoutes);
+
+app.use(empresasRoutes);
+
+app.use(categoriasRoutes);
 
 // Exportar app
 module.exports = app;

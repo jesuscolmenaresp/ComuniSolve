@@ -1,14 +1,55 @@
-<h2>Iniciar Sesión</h2>
-<form method="POST" action="/login">
-  <label>Email:</label>
-  <input type="email" name="email" required>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white text-center">
+          <h4 class="mb-0">🔐 Iniciar Sesión</h4>
+        </div>
+        <div class="card-body">
+          
+          <% if (error) { %>
+            <div class="alert alert-danger">
+              <%= error %>
+            </div>
+          <% } %>
 
-  <label>Contraseña:</label>
-  <input type="password" name="password" required>
+          <form method="POST" action="/login">
+            <!-- Email -->
+            <div class="mb-3">
+              <label class="form-label">Correo electrónico:</label>
+              <div class="input-group">
+                <span class="input-group-text">📧</span>
+                <input type="email" name="email" class="form-control" 
+                       placeholder="ejemplo@correo.com" required>
+              </div>
+            </div>
 
-  <button type="submit">Iniciar sesión</button>
+            <!-- Contraseña -->
+            <div class="mb-4">
+              <label class="form-label">Contraseña:</label>
+              <div class="input-group">
+                <span class="input-group-text">🔑</span>
+                <input type="password" name="password" class="form-control" 
+                       placeholder="••••••••" required>
+              </div>
+            </div>
 
-  <% if (error) { %>
-    <p style="color:red;"><%= error %></p>
-  <% } %>
-</form>
+            <!-- Botón -->
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary">
+                🚀 Iniciar sesión
+              </button>
+            </div>
+
+            <!-- Enlace a registro -->
+            <div class="text-center mt-3">
+              <p class="mb-0">¿No tienes cuenta? 
+                <a href="/registro" class="text-primary fw-bold">Regístrate aquí</a>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

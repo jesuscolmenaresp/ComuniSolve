@@ -1,77 +1,159 @@
 <div class="container mt-4">
-  <h2 class="mb-4 text-center">📋 Lista de Reportes</h2>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📋 Lista de Reportes</h2>
+    <a href="/reportar" class="btn btn-primary">
+      ➕ Crear nuevo reporte
+    </a>
+  </div>
+
+  <% if (session && session.mensaje) { %>
+    <div class="alert alert-success alert-dismissible fade show">
+      <%= session.mensaje %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <% session.mensaje = null; %>
+  <% } %>
+
+  <% if (session && session.error) { %>
+    <div class="alert alert-danger alert-dismissible fade show">
+      <%= session.error %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <% session.error = null; %>
+  <% } %>
+
+  <!-- Pestañas de filtro -->
+  <ul class="nav nav-tabs mb-3" id="reportesTabs">
+    <li class="nav-item">
+      <a class="nav-link active" data-estado="todos" href="#">Todos</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-estado="Pendiente" href="#">Pendientes</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-estado="En Progreso" href="#">En Progreso</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-estado="Resuelto" href="#">Resueltos</a>
+    </li>
+  </ul>
+
+  <!-- Buscador -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <input type="text" id="buscarReporte" class="form-control" 
+             placeholder="🔍 Buscar por título o descripción...">
+    </div>
+  </div>
 
   <div class="table-responsive">
-    <table class="table table-striped table-bordered align-middle">
+    <table class="table table-striped table-hover table-sm" id="tablaReportes">
       <thead class="table-dark">
         <tr>
           <th>Título</th>
           <th>Descripción</th>
           <th>Categoría</th>
+          <th>Empresa</th>
           <th>Calle</th>
           <th>Reportado por</th>
           <th>Fecha</th>
-          <th>Imagen</th> <!-- 👈 nueva columna -->
+          <th>Votos</th>
           <th>Estado</th>
           <% if (usuario && [1,2,3].includes(usuario.rol_id)) { %>
             <th>Acciones</th>
+          <% } %>
+          <% if (usuario && usuario.rol_id === 4) { %>
+            <th>Votar</th>
           <% } %>
         </tr>
       </thead>
       <tbody>
         <% if (reportes.length === 0) { %>
           <tr>
-            <td colspan="9" class="text-center text-muted">
+            <td colspan="10" class="text-center text-muted">
               No hay reportes registrados.
             </td>
           </tr>
         <% } else { %>
           <% reportes.forEach(r => { %>
-            <tr>
+            <tr class="reporte-fila" data-estado="<%= r.estado %>">
               <td><strong><%= r.titulo %></strong></td>
-              <td><%= r.descripcion %></td>
+              <td><%= r.descripcion.length > 50 ? r.descripcion.substring(0,50) + '...' : r.descripcion %></td>
+              
+              <!-- 📌 Categoría -->
               <td>
-                <span class="badge bg-primary"><%= r.categoria %></span>
+                <span class="badge bg-<%= r.categoria_color || 'primary' %>" style="font-size: 0.8rem;">
+                  <%= r.categoria_icono ? r.categoria_icono + ' ' : '' %><%= r.categoria_nombre %>
+                </span>
               </td>
+              
+              <!-- 🏢 Empresa -->
+              <td>
+                <% if (r.empresa_nombre) { %>
+                  <span class="badge bg-info" style="font-size: 0.8rem;">
+                    <%= r.empresa_nombre %>
+                  </span>
+                <% } else { %>
+                  <span class="text-muted">—</span>
+                  <% if (usuario && [1,2].includes(usuario.rol_id)) { %>
+                    <button type="button" class="btn btn-sm btn-link p-0 ms-1" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#modalEmpresa<%= r.id %>">
+                      ✏️
+                    </button>
+                  <% } %>
+                <% } %>
+              </td>
+
               <td><%= r.nombre_calle %></td>
               <td>
                 <% if (r.mostrar_nombre && r.nombre_usuario) { %>
                   <span class="text-success"><%= r.nombre_usuario %></span>
                 <% } else { %>
                   <span class="text-danger">Anónimo</span>
-                  <% if (r.nombre_jefe) { %>
-                    <small>(Jefe: <%= r.nombre_jefe %>)</small>
-                  <% } %>
                 <% } %>
               </td>
-              <td><%= new Date(r.fecha).toLocaleString() %></td>
+              <td><%= new Date(r.fecha).toLocaleDateString() %></td>
 
-              <!-- 📸 Imagen -->
-<td>
-  <% if (r.imagen) { %>
-    <img src="<%= r.imagen %>" class="img-thumbnail" style="max-width: 120px;">
-  <% } else { %>
-    <span class="text-muted">Sin imagen</span>
-  <% } %>
-</td>
+              <!-- 👍 Votos -->
+              <td class="text-center">
+                <span class="badge bg-secondary">👍 <%= r.total_votos || 0 %></span>
+              </td>
+
+              <!-- 📌 Estado -->
               <td>
                 <span class="badge 
                   <%= r.estado === 'Pendiente' ? 'bg-warning' : 
-                      r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>">
+                      r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>"
+                      style="font-size: 0.8rem;">
                   <%= r.estado %>
                 </span>
               </td>
 
+              <!-- ⚙️ Acciones -->
               <% if (usuario && [1,2,3].includes(usuario.rol_id)) { %>
                 <td>
-                  <form action="/reportes/<%= r.id %>/estado" method="POST" class="d-flex gap-2">
-                    <select name="estado" class="form-select form-select-sm">
+                  <form action="/reportes/<%= r.id %>/estado" method="POST" class="d-flex gap-1">
+                    <select name="estado" class="form-select form-select-sm" style="width: 100px;">
                       <option value="Pendiente" <%= r.estado === 'Pendiente' ? 'selected' : '' %>>Pendiente</option>
-                      <option value="En Progreso" <%= r.estado === 'En Progreso' ? 'selected' : '' %>>En Progreso</option>
+                      <option value="En Progreso" <%= r.estado === 'En Progreso' ? 'selected' : '' %>>Progreso</option>
                       <option value="Resuelto" <%= r.estado === 'Resuelto' ? 'selected' : '' %>>Resuelto</option>
                     </select>
                     <button type="submit" class="btn btn-sm btn-success">✔️</button>
                   </form>
+                </td>
+              <% } %>
+
+              <!-- 👍 Votar -->
+              <% if (usuario && usuario.rol_id === 4) { %>
+                <td class="text-center">
+                  <% if (!votosUsuario[r.id]) { %>
+                    <form action="/reportes/<%= r.id %>/votar" method="POST">
+                      <button type="submit" class="btn btn-sm btn-warning">👍</button>
+                    </form>
+                  <% } else { %>
+                    <span class="badge bg-success">✓</span>
+                  <% } %>
                 </td>
               <% } %>
             </tr>
@@ -80,10 +162,94 @@
       </tbody>
     </table>
   </div>
-
-  <div class="text-center mt-3">
-    <a href="/reportar" class="btn btn-primary">
-      ➕ Crear nuevo reporte
-    </a>
-  </div>
 </div>
+
+<!-- Modales para asignar empresa -->
+<% if (usuario && [1,2].includes(usuario.rol_id)) { %>
+  <% reportes.forEach(r => { %>
+    <% if (!r.empresa_id) { %>
+      <div class="modal fade" id="modalEmpresa<%= r.id %>" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h6 class="modal-title">Asignar empresa</h6>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/reportes/<%= r.id %>/asignar-empresa" method="POST">
+              <div class="modal-body">
+                <select name="empresa_id" class="form-select form-select-sm" required>
+                  <option value="">Seleccionar...</option>
+                  <% if (empresas && empresas.length > 0) { %>
+                    <% empresas.forEach(e => { %>
+                      <option value="<%= e.id %>"><%= e.nombre %></option>
+                    <% }) %>
+                  <% } %>
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-sm btn-primary">Asignar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  <% }) %>
+<% } %>
+
+<!-- Scripts para filtros -->
+<script>
+  // Filtro por pestañas
+  document.querySelectorAll('#reportesTabs .nav-link').forEach(tab => {
+    tab.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      document.querySelectorAll('#reportesTabs .nav-link').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      
+      const estadoFiltro = this.dataset.estado;
+      const filas = document.querySelectorAll('.reporte-fila');
+      
+      filas.forEach(fila => {
+        if (estadoFiltro === 'todos' || fila.dataset.estado === estadoFiltro) {
+          fila.style.display = '';
+        } else {
+          fila.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // Buscador
+  document.getElementById('buscarReporte').addEventListener('keyup', function() {
+    const texto = this.value.toLowerCase();
+    const filas = document.querySelectorAll('.reporte-fila');
+    
+    filas.forEach(fila => {
+      if (fila.style.display !== 'none') {
+        const titulo = fila.cells[0].textContent.toLowerCase();
+        const descripcion = fila.cells[1].textContent.toLowerCase();
+        
+        if (titulo.includes(texto) || descripcion.includes(texto)) {
+          fila.style.display = '';
+        } else {
+          fila.style.display = 'none';
+        }
+      }
+    });
+  });
+</script>
+
+<style>
+  .table-sm td, .table-sm th {
+    padding: 0.3rem;
+    vertical-align: middle;
+  }
+  .badge {
+    font-weight: normal;
+  }
+  .nav-tabs .nav-link {
+    padding: 0.3rem 0.8rem;
+  }
+</style>

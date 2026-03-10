@@ -1,0 +1,81 @@
+<div class="container mt-4">
+  <h2>✏️ Editar Empresa</h2>
+
+  <% if (session && session.error) { %>
+    <div class="alert alert-danger">
+      <%= session.error %>
+    </div>
+    <% session.error = null; %>
+  <% } %>
+
+  <form action="/empresas/<%= empresa.id %>/editar" method="POST" class="card p-4 shadow-sm">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Nombre de la empresa *</label>
+        <input type="text" name="nombre" class="form-control" 
+               value="<%= empresa.nombre %>" required>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">RIF</label>
+        <input type="text" name="rif" class="form-control" 
+               value="<%= empresa.rif || '' %>">
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Persona de contacto</label>
+        <input type="text" name="contacto" class="form-control" 
+               value="<%= empresa.contacto || '' %>">
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Teléfono</label>
+        <input type="text" name="telefono" class="form-control" 
+               value="<%= empresa.telefono || '' %>">
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control" 
+               value="<%= empresa.email || '' %>">
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Tipo de ente</label>
+        <select name="tipo" class="form-select">
+          <option value="pública" <%= empresa.tipo === 'pública' ? 'selected' : '' %>>Pública</option>
+          <option value="privada" <%= empresa.tipo === 'privada' ? 'selected' : '' %>>Privada</option>
+          <option value="mixta" <%= empresa.tipo === 'mixta' ? 'selected' : '' %>>Mixta</option>
+          <option value="comunitaria" <%= empresa.tipo === 'comunitaria' ? 'selected' : '' %>>Comunitaria</option>
+        </select>
+      </div>
+
+      <div class="col-md-12 mb-3">
+        <label class="form-label">Dirección</label>
+        <textarea name="direccion" class="form-control" rows="2"><%= empresa.direccion || '' %></textarea>
+      </div>
+
+      <!-- Campo de categorías con valores como IDs y selección -->
+      <div class="col-md-12 mb-3">
+        <label class="form-label">Categorías que atiende</label>
+        <div class="border p-3 rounded">
+          <% categorias.forEach(cat => { %>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" name="categorias" value="<%= cat.id %>" 
+                    id="cat_<%= cat.id %>"
+                    <%= categoriasSeleccionadas.includes(cat.id) ? 'checked' : '' %>>
+              <label class="form-check-label" for="cat_<%= cat.id %>">
+                <%= cat.icono ? cat.icono + ' ' : '' %><%= cat.nombre %>
+              </label>
+            </div>
+          <% }) %>
+        </div>
+        <small class="text-muted">Seleccione las categorías que esta empresa puede atender</small>
+      </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-success">Actualizar</button>
+      <a href="/empresas" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>

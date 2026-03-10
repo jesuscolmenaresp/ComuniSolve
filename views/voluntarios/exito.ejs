@@ -1,0 +1,29 @@
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow text-center">
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <span style="font-size: 4rem;">🎉</span>
+                    </div>
+                    <h3 class="text-success mb-3">¡Gracias por unirte!</h3>
+                    
+                    <% if (mensaje) { %>
+                        <p class="lead"><%= mensaje %></p>
+                    <% } else { %>
+                        <p class="lead">Tu solicitud ha sido registrada exitosamente.</p>
+                    <% } %>
+                    
+                    <p class="text-muted">
+                        Un líder comunitario se comunicará contigo pronto.
+                    </p>
+                    
+                    <div class="mt-4">
+                        <a href="/" class="btn btn-primary">Volver al inicio</a>
+                        <a href="/voluntarios" class="btn btn-outline-success">Otro voluntario</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

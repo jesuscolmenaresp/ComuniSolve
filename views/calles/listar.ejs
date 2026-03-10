@@ -1,26 +1,74 @@
 <div class="container mt-4">
   <h2>📍 Calles registradas</h2>
 
+  <% if (session && session.mensaje) { %>
+    <div class="alert alert-success alert-dismissible fade show">
+      <%= session.mensaje %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <% session.mensaje = null; %>
+  <% } %>
+
+  <% if (session && session.error) { %>
+    <div class="alert alert-danger alert-dismissible fade show">
+      <%= session.error %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <% session.error = null; %>
+  <% } %>
+
   <a href="/calles/nueva" class="btn btn-primary mb-3">➕ Nueva Calle</a>
 
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% if (calles.length === 0) { %>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
         <tr>
-          <td colspan="1" class="text-center text-muted">No hay calles registradas</td>
+          <th>Nombre</th>
+          <th>Comunidad</th>
+          <th>Líder asignado</th>
+          <th>Jefe de calle</th>
+          <th>Acciones</th>
         </tr>
-      <% } else { %>
-        <% calles.forEach(c => { %>
+      </thead>
+      <tbody>
+        <% if (calles.length === 0) { %>
           <tr>
-            <td><%= c.nombre %></td>
+            <td colspan="5" class="text-center text-muted">No hay calles registradas</td>
           </tr>
-        <% }) %>
-      <% } %>
-    </tbody>
-  </table>
+        <% } else { %>
+          <% calles.forEach(c => { %>
+            <tr>
+              <td><strong><%= c.nombre %></strong></td>
+              <td>
+                <% if (c.comunidad_nombre) { %>
+                  <span class="badge bg-primary"><%= c.comunidad_nombre %></span>
+                <% } else { %>
+                  <span class="text-muted">— No asignada —</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (c.lider_nombre) { %>
+                  <span class="badge bg-info"><%= c.lider_nombre %></span>
+                <% } else { %>
+                  <span class="text-muted">— No asignado —</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (c.jefe_nombre) { %>
+                  <span class="badge bg-success"><%= c.jefe_nombre %></span>
+                <% } else { %>
+                  <span class="text-muted">— No asignado —</span>
+                <% } %>
+              </td>
+              <td>
+                <a href="/calles/<%= c.id %>/editar" class="btn btn-sm btn-warning">
+                  ✏️ Editar
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
 </div>

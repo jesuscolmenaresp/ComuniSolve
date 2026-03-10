@@ -1,51 +1,94 @@
 <div class="container mt-5">
-  <h2 class="mb-4 text-center">🧑‍🤝‍🧑 Registro de Ciudadano</h2>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white text-center">
+          <h4 class="mb-0">🧑‍🤝‍🧑 Registro de Ciudadano</h4>
+        </div>
+        <div class="card-body">
+          
+          <% if (error) { %>
+            <div class="alert alert-danger">
+              <%= error %>
+            </div>
+          <% } %>
 
-  <form method="POST" action="/registro" class="card p-4 shadow-sm">
-    <!-- Nombre -->
-    <div class="mb-3">
-      <label class="form-label">Nombre completo:</label>
-      <input type="text" name="nombre" class="form-control" required>
+          <form method="POST" action="/registro">
+            <!-- Nombre -->
+            <div class="mb-3">
+              <label class="form-label">Nombre completo:</label>
+              <div class="input-group">
+                <span class="input-group-text">👤</span>
+                <input type="text" name="nombre" class="form-control" 
+                       placeholder="Ej: Juan Pérez" required>
+              </div>
+            </div>
+
+            <!-- Correo -->
+            <div class="mb-3">
+              <label class="form-label">Correo electrónico:</label>
+              <div class="input-group">
+                <span class="input-group-text">📧</span>
+                <input type="email" name="email" class="form-control" 
+                       placeholder="ejemplo@correo.com" required>
+              </div>
+            </div>
+
+            <!-- Contraseña -->
+            <div class="mb-3">
+              <label class="form-label">Contraseña:</label>
+              <div class="input-group">
+                <span class="input-group-text">🔑</span>
+                <input type="password" name="password" class="form-control" 
+                       placeholder="Mínimo 6 caracteres" required>
+              </div>
+              <small class="text-muted">Mínimo 6 caracteres</small>
+            </div>
+
+            <!-- Teléfono -->
+            <div class="mb-3">
+              <label class="form-label">Teléfono:</label>
+              <div class="input-group">
+                <span class="input-group-text">📱</span>
+                <input type="text" name="telefono" class="form-control" 
+                       placeholder="0414-1234567" required>
+              </div>
+            </div>
+
+            <!-- Calle -->
+            <div class="mb-4">
+              <label class="form-label">¿A qué calle perteneces?</label>
+              <div class="input-group">
+                <span class="input-group-text">📍</span>
+                <select name="calle_id" class="form-select" required>
+                  <option value="">Seleccione una calle...</option>
+                  <% if (calles && calles.length > 0) { %>
+                    <% calles.forEach(c => { %>
+                      <option value="<%= c.id %>"><%= c.nombre %></option>
+                    <% }) %>
+                  <% } else { %>
+                    <option value="" disabled>No hay calles registradas</option>
+                  <% } %>
+                </select>
+              </div>
+            </div>
+
+            <!-- Botón -->
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-success">
+                ✅ Registrarse
+              </button>
+            </div>
+
+            <!-- Enlace a login -->
+            <div class="text-center mt-3">
+              <p class="mb-0">¿Ya tienes cuenta? 
+                <a href="/login" class="text-primary fw-bold">Inicia sesión aquí</a>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-
-    <!-- Correo -->
-    <div class="mb-3">
-      <label class="form-label">Correo electrónico:</label>
-      <input type="email" name="email" class="form-control" required>
-    </div>
-
-    <!-- Contraseña -->
-    <div class="mb-3">
-      <label class="form-label">Contraseña:</label>
-      <input type="password" name="password" class="form-control" required>
-    </div>
-
-    <!-- Teléfono -->
-    <div class="mb-3">
-      <label class="form-label">Teléfono:</label>
-      <input type="text" name="telefono" class="form-control" required>
-    </div>
-
-    <!-- Calle -->
-    <div class="mb-3">
-      <label class="form-label">¿A qué calle perteneces?</label>
-      <select name="calle_id" class="form-select" required>
-        <% calles.forEach(c => { %>
-          <option value="<%= c.id %>"><%= c.nombre %></option>
-        <% }) %>
-      </select>
-    </div>
-
-    <!-- Error -->
-    <% if (error) { %>
-      <p class="text-danger"><%= error %></p>
-    <% } %>
-
-    <!-- Botón -->
-    <div class="text-center">
-      <button type="submit" class="btn btn-success px-4">
-        ✅ Registrarse
-      </button>
-    </div>
-  </form>
+  </div>
 </div>

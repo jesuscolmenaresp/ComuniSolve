@@ -1,5 +1,5 @@
 <div class="container mt-4">
-  <h2>➕ Nueva Calle</h2>
+  <h2>✏️ Editar Calle</h2>
 
   <% if (session && session.error) { %>
     <div class="alert alert-danger">
@@ -8,10 +8,11 @@
     <% session.error = null; %>
   <% } %>
 
-  <form action="/calles/nueva" method="POST">
+  <form action="/calles/<%= calle.id %>/editar" method="POST">
     <div class="mb-3">
       <label for="nombre" class="form-label">Nombre de la calle</label>
-      <input type="text" class="form-control" name="nombre" id="nombre" required>
+      <input type="text" class="form-control" name="nombre" id="nombre" 
+             value="<%= calle.nombre %>" required>
     </div>
 
     <div class="mb-3">
@@ -20,13 +21,12 @@
         <option value="">-- Seleccione una comunidad --</option>
         <% if (comunidades && comunidades.length > 0) { %>
           <% comunidades.forEach(c => { %>
-            <option value="<%= c.id %>"><%= c.nombre %></option>
+            <option value="<%= c.id %>" <%= calle.comunidad_id == c.id ? 'selected' : '' %>>
+              <%= c.nombre %>
+            </option>
           <% }) %>
-        <% } else { %>
-          <option value="" disabled>No hay comunidades registradas</option>
         <% } %>
       </select>
-      <small class="text-muted">Selecciona la comunidad a la que pertenece esta calle</small>
     </div>
 
     <div class="mb-3">
@@ -35,10 +35,10 @@
         <option value="">-- Ninguno --</option>
         <% if (lideres && lideres.length > 0) { %>
           <% lideres.forEach(l => { %>
-            <option value="<%= l.id %>"><%= l.nombre %></option>
+            <option value="<%= l.id %>" <%= calle.lider_id == l.id ? 'selected' : '' %>>
+              <%= l.nombre %>
+            </option>
           <% }) %>
-        <% } else { %>
-          <option value="" disabled>No hay líderes disponibles</option>
         <% } %>
       </select>
     </div>
@@ -49,15 +49,15 @@
         <option value="">-- Ninguno --</option>
         <% if (jefes && jefes.length > 0) { %>
           <% jefes.forEach(j => { %>
-            <option value="<%= j.id %>"><%= j.nombre %></option>
+            <option value="<%= j.id %>" <%= calle.jefe_id == j.id ? 'selected' : '' %>>
+              <%= j.nombre %>
+            </option>
           <% }) %>
-        <% } else { %>
-          <option value="" disabled>No hay jefes disponibles</option>
         <% } %>
       </select>
     </div>
 
-    <button type="submit" class="btn btn-success">Guardar</button>
+    <button type="submit" class="btn btn-success">Actualizar</button>
     <a href="/calles" class="btn btn-secondary">Cancelar</a>
   </form>
 </div>
