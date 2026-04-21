@@ -1,0 +1,188 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>🏘️ Reportes de mi calle: <span class="text-primary"><%= usuario.calle_nombre || 'No asignada' %></span></h2>
+    <a href="/reportar" class="btn btn-primary">
+      ➕ Crear nuevo reporte
+    </a>
+  </div>
+
+  <% if (session && session.mensaje) { %>
+    <div class="alert alert-success alert-dismissible fade show">
+      <%= session.mensaje %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <% session.mensaje = null; %>
+  <% } %>
+
+  <% if (session && session.error) { %>
+    <div class="alert alert-danger alert-dismissible fade show">
+      <%= session.error %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <% session.error = null; %>
+  <% } %>
+
+  <!-- Pestañas de filtro -->
+  <ul class="nav nav-pills mb-4 justify-content-center" id="filtroTipo">
+    <li class="nav-item">
+      <a class="nav-link active" data-tipo="todos" href="#">📋 Todos</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-tipo="con_votos" href="#">👍 Más votados</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-tipo="pendientes" href="#">⏳ Pendientes</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-tipo="resueltos" href="#">✅ Resueltos</a>
+    </li>
+  </ul>
+
+  <!-- Buscador -->
+  <div class="row mb-3">
+    <div class="col-md-6 mx-auto">
+      <input type="text" id="buscarReporte" class="form-control" 
+             placeholder="🔍 Buscar por título o descripción...">
+    </div>
+  </div>
+
+  <div class="row" id="vistaTarjetas">
+    <% if (reportes.length === 0) { %>
+      <div class="col-12">
+        <div class="alert alert-info text-center">
+          <i class="bi bi-info-circle"></i> No hay reportes en tu calle aún. 
+          <a href="/reportar" class="alert-link">¡Sé el primero en reportar!</a>
+        </div>
+      </div>
+    <% } else { %>
+      <% reportes.forEach(r => { %>
+        <div class="col-md-6 mb-3">
+          <div class="card h-100 shadow-sm reporte-tarjeta" data-estado="<%= r.estado %>" data-votos="<%= r.total_votos || 0 %>">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <h5 class="card-title mb-0"><%= r.titulo %></h5>
+                <span class="badge <%= r.estado === 'Pendiente' ? 'bg-warning' : r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>">
+                  <%= r.estado %>
+                </span>
+              </div>
+              <p class="card-text text-muted small mt-2"><%= r.descripcion.length > 100 ? r.descripcion.substring(0, 100) + '...' : r.descripcion %></p>
+              
+              <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
+                <div>
+                  <span class="badge bg-secondary">
+                    👍 <span class="votos-count"><%= r.total_votos || 0 %></span> votos
+                  </span>
+                  <span class="badge bg-<%= r.categoria_color || 'primary' %> ms-1">
+                    <%= r.categoria_icono ? r.categoria_icono + ' ' : '' %><%= r.categoria_nombre %>
+                  </span>
+                </div>
+                
+                <% if (!votosUsuario[r.id]) { %>
+                  <form action="/reportes/<%= r.id %>/votar" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-warning" 
+                            onclick="return confirm('¿Votar por este reporte? Tu voto ayudará a priorizar este problema en tu calle.')">
+                      👍 Votar
+                    </button>
+                  </form>
+                <% } else { %>
+                  <span class="badge bg-success">✓ Ya votaste</span>
+                <% } %>
+              </div>
+              
+              <% if (r.imagen) { %>
+                <div class="mt-2 text-center">
+                  <img src="<%= r.imagen %>" class="img-thumbnail" style="max-height: 100px; cursor: pointer;" 
+                       onclick="verImagenGrande('<%= r.imagen %>')">
+                </div>
+              <% } %>
+              
+              <div class="mt-2 text-end">
+                <small class="text-muted">
+                  📅 <%= new Date(r.fecha).toLocaleDateString() %>
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+
+  <!-- Botón para volver -->
+  <div class="text-center mt-4">
+    <a href="/reportes" class="btn btn-outline-secondary">
+      ← Volver a mis reportes
+    </a>
+  </div>
+</div>
+
+<!-- Modal para ver imagen grande -->
+<div class="modal fade" id="modalImagen" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">📸 Imagen del reporte</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="imagenGrande" src="" class="img-fluid rounded" style="max-height: 500px;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function verImagenGrande(src) {
+    document.getElementById('imagenGrande').src = src;
+    new bootstrap.Modal(document.getElementById('modalImagen')).show();
+  }
+
+  // Filtro por tipo (todos, más votados, pendientes, resueltos)
+  document.querySelectorAll('#filtroTipo .nav-link').forEach(tab => {
+    tab.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.querySelectorAll('#filtroTipo .nav-link').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      
+      const tipo = this.dataset.tipo;
+      const tarjetas = document.querySelectorAll('.reporte-tarjeta');
+      
+      tarjetas.forEach(tarjeta => {
+        const votos = parseInt(tarjeta.dataset.votos || '0');
+        const estado = tarjeta.dataset.estado;
+        
+        if (tipo === 'todos') {
+          tarjeta.style.display = '';
+        } else if (tipo === 'con_votos') {
+          tarjeta.style.display = votos > 0 ? '' : 'none';
+        } else if (tipo === 'pendientes') {
+          tarjeta.style.display = estado === 'Pendiente' ? '' : 'none';
+        } else if (tipo === 'resueltos') {
+          tarjeta.style.display = estado === 'Resuelto' ? '' : 'none';
+        }
+      });
+    });
+  });
+
+  // Buscador
+  document.getElementById('buscarReporte').addEventListener('keyup', function() {
+    const texto = this.value.toLowerCase();
+    document.querySelectorAll('.reporte-tarjeta').forEach(tarjeta => {
+      const titulo = tarjeta.querySelector('.card-title')?.textContent.toLowerCase() || '';
+      const descripcion = tarjeta.querySelector('.card-text')?.textContent.toLowerCase() || '';
+      tarjeta.style.display = (titulo.includes(texto) || descripcion.includes(texto)) ? '' : 'none';
+    });
+  });
+</script>
+
+<style>
+  .reporte-tarjeta {
+    transition: transform 0.2s;
+  }
+  .reporte-tarjeta:hover {
+    transform: translateY(-3px);
+  }
+  .btn-sm {
+    transition: all 0.2s ease;
+  }
+</style>

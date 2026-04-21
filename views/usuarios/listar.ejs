@@ -22,48 +22,60 @@
     <% session.error = null; %>
   <% } %>
 
-  <!-- Filtros -->
-  <div class="row mb-3">
+  <!-- Filtros mejorados -->
+  <div class="row mb-3 g-2">
     <div class="col-md-4">
       <select id="filtroRol" class="form-select">
-        <option value="0">Todos los roles</option>
-        <option value="1">UBCH</option>
-        <option value="2">Líder</option>
-        <option value="3">Jefe de Calle</option>
-        <option value="4">Ciudadano</option>
+        <option value="0">📌 Todos los roles</option>
+        <option value="1">🏛️ UBCH</option>
+        <option value="2">👨‍💼 Líder</option>
+        <option value="3">👤 Jefe de Calle</option>
+        <option value="4">🧑‍🤝‍🧑 Ciudadano</option>
       </select>
     </div>
     <div class="col-md-4">
       <input type="text" id="buscarUsuario" class="form-control" placeholder="🔍 Buscar por nombre o email...">
     </div>
+    <div class="col-md-4">
+      <button id="limpiarFiltros" class="btn btn-outline-secondary w-100">
+        🧹 Limpiar filtros
+      </button>
+    </div>
   </div>
 
   <div class="table-responsive">
-    <table class="table table-striped table-hover" id="tablaUsuarios">
-      <thead class="table-dark">
+    <table class="table table-hover table-sm align-middle" id="tablaUsuarios">
+      <thead class="table-light">
         <tr>
           <th>ID</th>
           <th>Nombre</th>
           <th>Email</th>
           <th>Teléfono</th>
           <th>Rol</th>
-          <th>Calles asignadas</th>
-          <th>Comunidades</th>
+          <th>Asignación</th>
           <th>Acciones</th>
-        </tr>
-      </thead>
+         </thead>
       <tbody>
         <% if (usuarios && usuarios.length > 0) { %>
           <% usuarios.forEach(u => { %>
-            <tr data-rol="<%= u.rol_id %>">
-              <td><%= u.id %></td>
-              <td><%= u.nombre %></td>
+            <tr data-rol="<%= u.rol_id %>" 
+                data-id="<%= u.id %>"
+                data-nombre="<%= u.nombre %>"
+                data-email="<%= u.email %>"
+                data-telefono="<%= u.telefono || 'No registrado' %>"
+                data-rol-nombre="<%= u.rol_nombre %>"
+                data-calles-lideradas="<%= JSON.stringify(u.calles_lideradas || []) %>"
+                data-calle-nombre="<%= u.calle_nombre || '' %>"
+                data-comunidades="<%= JSON.stringify(u.comunidades_atiende || []) %>"
+                style="cursor: pointer;">
+              <td class="text-muted small"><%= u.id %></td>
+              <td class="fw-semibold"><%= u.nombre %></td>
               <td><%= u.email %></td>
               <td><%= u.telefono || '—' %></td>
               <td>
                 <span class="badge <%= 
                   u.rol_id === 1 ? 'bg-danger' : 
-                  u.rol_id === 2 ? 'bg-info' : 
+                  u.rol_id === 2 ? 'bg-info text-dark' : 
                   u.rol_id === 3 ? 'bg-success' : 
                   'bg-secondary' %>">
                   <%= u.rol_nombre %>
@@ -71,88 +83,251 @@
               </td>
               <td>
                 <% if (u.rol_id === 2 && u.calles_lideradas && u.calles_lideradas.length > 0) { %>
-                  <% u.calles_lideradas.forEach(calle => { %>
-                    <span class="badge bg-primary me-1"><%= calle %></span>
-                  <% }) %>
-                <% } else if (u.rol_id === 2) { %>
-                  <span class="text-muted">— Sin calles asignadas —</span>
+                  <span class="badge bg-primary" title="Calles que lidera">
+                    📍 <%= u.calles_lideradas.length %> calles
+                  </span>
+                  <span class="text-muted small d-block"><%= u.calles_lideradas.join(', ').substring(0, 40) %><%= u.calles_lideradas.join(', ').length > 40 ? '...' : '' %></span>
                 <% } else if (u.rol_id === 3 && u.calle_nombre) { %>
-                  <span class="badge bg-success"><%= u.calle_nombre %></span>
+                  <span class="badge bg-success">🏘️ <%= u.calle_nombre %></span>
+                <% } else if (u.rol_id === 4 && u.calle_nombre) { %>
+                  <span class="badge bg-secondary">📍 <%= u.calle_nombre %></span>
+                <% } else if (u.rol_id === 4) { %>
+                  <span class="text-muted small">— Sin calle asignada —</span>
+                <% } else if (u.rol_id === 1 && u.comunidades_atiende && u.comunidades_atiende.length > 0) { %>
+                  <span class="badge bg-warning text-dark" title="Comunidades que atiende">
+                    🏘️ <%= u.comunidades_atiende.length %> comunidades
+                  </span>
+                <% } else if (u.rol_id === 1) { %>
+                  <span class="text-muted small">— Sin asignaciones —</span>
+                <% } else if (u.rol_id === 2) { %>
+                  <span class="text-muted small">— Sin calles asignadas —</span>
                 <% } else if (u.rol_id === 3) { %>
-                  <span class="text-muted">— Sin calle asignada —</span>
-                <% } else if (u.rol_id === 1) { %>
-                  <span class="text-muted">— Admin —</span>
+                  <span class="text-muted small">— Sin calle asignada —</span>
                 <% } else { %>
-                  <span class="text-muted">— No aplica —</span>
+                  <span class="text-muted small">— Sin asignación —</span>
                 <% } %>
               </td>
               <td>
-                <% if (u.rol_id === 1 && u.comunidades_atiende && u.comunidades_atiende.length > 0) { %>
-                  <% u.comunidades_atiende.forEach(com => { %>
-                    <span class="badge bg-warning text-dark me-1"><%= com %></span>
-                  <% }) %>
-                <% } else if (u.rol_id === 1) { %>
-                  <span class="text-muted">— Sin comunidades —</span>
-                <% } else { %>
-                  <span class="text-muted">—</span>
-                <% } %>
-              </td>
-              <td>
-                <a href="/usuarios/<%= u.id %>/editar" class="btn btn-sm btn-warning">
-                  ✏️ Editar
-                </a>
-                <% if (u.id !== usuario.id) { %>
-                  <form action="/usuarios/<%= u.id %>/eliminar" method="POST" class="d-inline" 
-                        onsubmit="return confirm('¿Eliminar este usuario?')">
-                    <button type="submit" class="btn btn-sm btn-danger">
-                      🗑️ Eliminar
-                    </button>
-                  </form>
-                <% } %>
+                <div class="btn-group btn-group-sm" role="group">
+                  <a href="/usuarios/<%= u.id %>/editar" class="btn btn-warning" title="Editar">
+                    ✏️
+                  </a>
+                  <% if (u.id !== usuario.id) { %>
+                    <form action="/usuarios/<%= u.id %>/eliminar" method="POST" class="d-inline" 
+                          onsubmit="return confirm('¿Eliminar este usuario?')">
+                      <button type="submit" class="btn btn-danger" title="Eliminar">
+                        🗑️
+                      </button>
+                    </form>
+                  <% } %>
+                </div>
               </td>
             </tr>
           <% }) %>
         <% } else { %>
           <tr>
-            <td colspan="8" class="text-center">No hay usuarios registrados</td>
+            <td colspan="7" class="text-center py-5 text-muted">
+              <i class="bi bi-people"></i> No hay usuarios registrados
+            </td>
           </tr>
         <% } %>
       </tbody>
     </table>
   </div>
+
+  <!-- Resumen de usuarios -->
+  <div class="card mt-3 bg-light">
+    <div class="card-body py-2">
+      <div class="row text-center">
+        <div class="col-3">
+          <small class="text-muted">Total usuarios</small>
+          <h5 class="mb-0"><%= usuarios.length %></h5>
+        </div>
+        <div class="col-3">
+          <small class="text-muted">UBCH</small>
+          <h5 class="mb-0"><%= usuarios.filter(u => u.rol_id === 1).length %></h5>
+        </div>
+        <div class="col-3">
+          <small class="text-muted">Líderes</small>
+          <h5 class="mb-0"><%= usuarios.filter(u => u.rol_id === 2).length %></h5>
+        </div>
+        <div class="col-3">
+          <small class="text-muted">Ciudadanos</small>
+          <h5 class="mb-0"><%= usuarios.filter(u => u.rol_id === 4).length %></h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Detalles del Usuario -->
+<div class="modal fade" id="modalUsuarioDetalle" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-person-circle"></i> Detalles del Usuario
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="detalleUsuarioContent">
+          <!-- Contenido cargado dinámicamente con JavaScript -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" id="btnEditarUsuario" class="btn btn-warning">✏️ Editar usuario</a>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
   // Filtro por rol
-  document.getElementById('filtroRol').addEventListener('change', function() {
-    const rol = this.value;
-    const filas = document.querySelectorAll('#tablaUsuarios tbody tr');
+  const filtroRol = document.getElementById('filtroRol');
+  const buscarUsuario = document.getElementById('buscarUsuario');
+  const limpiarFiltros = document.getElementById('limpiarFiltros');
+  const filas = () => document.querySelectorAll('#tablaUsuarios tbody tr');
+
+  function aplicarFiltros() {
+    const rol = filtroRol.value;
+    const texto = buscarUsuario.value.toLowerCase();
     
-    filas.forEach(fila => {
-      if (rol == 0 || fila.dataset.rol == rol) {
-        fila.style.display = '';
-      } else {
-        fila.style.display = 'none';
+    filas().forEach(fila => {
+      const dataRol = fila.dataset.rol;
+      const dataNombre = fila.dataset.nombre?.toLowerCase() || '';
+      const dataEmail = fila.dataset.email?.toLowerCase() || '';
+      
+      let mostrar = true;
+      
+      if (rol != 0 && dataRol != rol) {
+        mostrar = false;
       }
+      
+      if (texto && !dataNombre.includes(texto) && !dataEmail.includes(texto)) {
+        mostrar = false;
+      }
+      
+      fila.style.display = mostrar ? '' : 'none';
     });
+  }
+
+  filtroRol.addEventListener('change', aplicarFiltros);
+  buscarUsuario.addEventListener('keyup', aplicarFiltros);
+  limpiarFiltros.addEventListener('click', () => {
+    filtroRol.value = '0';
+    buscarUsuario.value = '';
+    aplicarFiltros();
   });
 
-  // Búsqueda por texto
-  document.getElementById('buscarUsuario').addEventListener('keyup', function() {
-    const texto = this.value.toLowerCase();
-    const filas = document.querySelectorAll('#tablaUsuarios tbody tr');
-    
-    filas.forEach(fila => {
-      if (fila.style.display !== 'none') {
-        const nombre = fila.cells[1].textContent.toLowerCase();
-        const email = fila.cells[2].textContent.toLowerCase();
-        
-        if (nombre.includes(texto) || email.includes(texto)) {
-          fila.style.display = '';
-        } else {
-          fila.style.display = 'none';
-        }
+  // Doble clic para mostrar detalles
+  document.querySelectorAll('#tablaUsuarios tbody tr').forEach(fila => {
+    fila.addEventListener('dblclick', function(e) {
+      // Evitar que se active si se hizo clic en un botón
+      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
+      
+      const id = this.dataset.id;
+      const nombre = this.dataset.nombre;
+      const email = this.dataset.email;
+      const telefono = this.dataset.telefono;
+      const rolNombre = this.dataset.rolNombre;
+      const rolId = this.dataset.rol;
+      const callesLideradas = JSON.parse(this.dataset.callesLideradas || '[]');
+      const calleNombre = this.dataset.calleNombre;
+      const comunidades = JSON.parse(this.dataset.comunidades || '[]');
+      
+      // Construir contenido del modal
+      let contenido = `
+        <div class="mb-3">
+          <div class="row">
+            <div class="col-4 fw-bold">Nombre:</div>
+            <div class="col-8">${nombre}</div>
+          </div>
+          <div class="row mt-2">
+            <div class="col-4 fw-bold">Email:</div>
+            <div class="col-8">${email}</div>
+          </div>
+          <div class="row mt-2">
+            <div class="col-4 fw-bold">Teléfono:</div>
+            <div class="col-8">${telefono}</div>
+          </div>
+          <div class="row mt-2">
+            <div class="col-4 fw-bold">Rol:</div>
+            <div class="col-8">
+              <span class="badge ${rolId == 1 ? 'bg-danger' : rolId == 2 ? 'bg-info text-dark' : rolId == 3 ? 'bg-success' : 'bg-secondary'}">
+                ${rolNombre}
+              </span>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Contenido específico según el rol
+      if (rolId == 1 && comunidades.length > 0) {
+        contenido += `
+          <div class="card mt-3">
+            <div class="card-header bg-info text-white">
+              <i class="bi bi-building"></i> Comunidades que atiende
+            </div>
+            <div class="card-body">
+              <div class="d-flex flex-wrap gap-2">
+                ${comunidades.map(com => `<span class="badge bg-warning text-dark">🏘️ ${com}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (rolId == 2 && callesLideradas.length > 0) {
+        contenido += `
+          <div class="card mt-3">
+            <div class="card-header bg-primary text-white">
+              <i class="bi bi-geo-alt"></i> Calles que lidera
+            </div>
+            <div class="card-body">
+              <div class="list-group">
+                ${callesLideradas.map(calle => `<div class="list-group-item list-group-item-action">📍 ${calle}</div>`).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (rolId == 3 && calleNombre) {
+        contenido += `
+          <div class="card mt-3">
+            <div class="card-header bg-success text-white">
+              <i class="bi bi-house-door"></i> Calle asignada
+            </div>
+            <div class="card-body">
+              <h5 class="mb-0">📍 ${calleNombre}</h5>
+            </div>
+          </div>
+        `;
+      } else if (rolId == 4 && calleNombre) {
+        contenido += `
+          <div class="card mt-3">
+            <div class="card-header bg-secondary text-white">
+              <i class="bi bi-house-heart"></i> Calle donde vive
+            </div>
+            <div class="card-body">
+              <h5 class="mb-0">📍 ${calleNombre}</h5>
+            </div>
+          </div>
+        `;
+      } else {
+        contenido += `
+          <div class="alert alert-warning mt-3 mb-0">
+            <i class="bi bi-info-circle"></i> Este usuario no tiene asignaciones específicas.
+          </div>
+        `;
       }
+      
+      document.getElementById('detalleUsuarioContent').innerHTML = contenido;
+      document.getElementById('btnEditarUsuario').href = `/usuarios/${id}/editar`;
+      
+      const modal = new bootstrap.Modal(document.getElementById('modalUsuarioDetalle'));
+      modal.show();
     });
   });
 </script>
+
+<!-- Bootstrap Icons (si no lo tienes) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

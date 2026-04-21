@@ -30,125 +30,125 @@
   </ul>
 
   <div class="tab-content">
-    <!-- Pendientes -->
-    <div class="tab-pane active" id="pendientes">
-      <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
+<!-- Pendientes -->
+<div class="tab-pane active" id="pendientes">
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Habilidad</th>
+          <th>Experiencia</th>
+          <th>Disponibilidad</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (solicitudes && solicitudes.length > 0) { %>
+          <% solicitudes.forEach(s => { %>
             <tr>
-              <th>Fecha</th>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Teléfono</th>
-              <th>Habilidad</th>
-              <th>Acciones</th>
+              <td><%= new Date(s.fecha_solicitud).toLocaleDateString() %></td>
+              <td><%= s.nombre %></td>
+              <td><%= s.email %></td>
+              <td><%= s.habilidad %></td>
+              <td><%= s.experiencia ? s.experiencia.substring(0, 50) : '—' %></td>
+              <td><%= s.disponibilidad_horaria || '—' %></td>
+              <td>
+                <form action="/voluntarios/<%= s.id %>/aprobar" method="POST" class="d-inline">
+                  <button type="submit" class="btn btn-sm btn-success">✅ Aprobar</button>
+                </form>
+                <form action="/voluntarios/<%= s.id %>/rechazar" method="POST" class="d-inline">
+                  <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Rechazar este voluntario?')">❌ Rechazar</button>
+                </form>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            <% const pendientes = solicitudes.filter(s => s.estado === 'pendiente') %>
-            <% if (pendientes.length > 0) { %>
-              <% pendientes.forEach(s => { %>
-                <tr>
-                  <td><%= new Date(s.fecha_solicitud).toLocaleDateString() %></td>
-                  <td><%= s.nombre %></td>
-                  <td><%= s.email %></td>
-                  <td><%= s.telefono || s.usuario_telefono || '—' %></td>
-                  <td><%= s.habilidad %></td>
-                  <td>
-                    <form action="/voluntarios/<%= s.id %>/aprobar" method="POST" class="d-inline">
-                      <button type="submit" class="btn btn-sm btn-success">✅ Aprobar</button>
-                    </form>
-                    <form action="/voluntarios/<%= s.id %>/rechazar" method="POST" class="d-inline">
-                      <button type="submit" class="btn btn-sm btn-danger" 
-                              onclick="return confirm('¿Rechazar este voluntario?')">❌ Rechazar</button>
-                    </form>
-                  </td>
-                </tr>
-              <% }) %>
-            <% } else { %>
-              <tr>
-                <td colspan="6" class="text-center">No hay solicitudes pendientes</td>
-              </tr>
-            <% } %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Aprobados -->
-    <div class="tab-pane" id="aprobados">
-      <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Teléfono</th>
-              <th>Habilidad</th>
-              <th>Aprobado por</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% const aprobados = solicitudes.filter(s => s.estado === 'aprobado') %>
-            <% if (aprobados.length > 0) { %>
-              <% aprobados.forEach(s => { %>
-                <tr>
-                  <td><%= new Date(s.fecha_solicitud).toLocaleDateString() %></td>
-                  <td><%= s.nombre %></td>
-                  <td><%= s.email %></td>
-                  <td><%= s.telefono || s.usuario_telefono || '—' %></td>
-                  <td><%= s.habilidad %></td>
-                  <td><span class="badge bg-success">Aprobado</span></td>
-                </tr>
-              <% }) %>
-            <% } else { %>
-              <tr>
-                <td colspan="6" class="text-center">No hay voluntarios aprobados</td>
-              </tr>
-            <% } %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Rechazados -->
-    <div class="tab-pane" id="rechazados">
-      <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Habilidad</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% const rechazados = solicitudes.filter(s => s.estado === 'rechazado') %>
-            <% if (rechazados.length > 0) { %>
-              <% rechazados.forEach(s => { %>
-                <tr>
-                  <td><%= new Date(s.fecha_solicitud).toLocaleDateString() %></td>
-                  <td><%= s.nombre %></td>
-                  <td><%= s.email %></td>
-                  <td><%= s.habilidad %></td>
-                  <td><span class="badge bg-danger">Rechazado</span></td>
-                </tr>
-              <% }) %>
-            <% } else { %>
-              <tr>
-                <td colspan="5" class="text-center">No hay solicitudes rechazadas</td>
-              </tr>
-            <% } %>
-          </tbody>
-        </table>
-      </div>
-    </div>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="7" class="text-center">No hay solicitudes pendientes</td></tr>
+        <% } %>
+      </tbody>
+    </table>
   </div>
+</div>
 
-  <div class="mt-3">
-    <a href="/voluntarios" class="btn btn-primary">➕ Nueva solicitud</a>
+<!-- Aprobados -->
+<div class="tab-pane" id="aprobados">
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Habilidad</th>
+          <th>Experiencia</th>
+          <th>Disponibilidad</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (aprobados && aprobados.length > 0) { %>
+          <% aprobados.forEach(v => { %>
+            <tr>
+              <td><%= v.nombre %></td>
+              <td><%= v.email %></td>
+              <td><%= v.habilidad %></td>
+              <td><%= v.experiencia ? v.experiencia.substring(0, 50) : '—' %></td>
+              <td><%= v.disponibilidad_horaria || '—' %></td>
+              <td>
+                <form action="/voluntarios/<%= v.id %>/cambiar-estado" method="POST" class="d-inline"
+                      onsubmit="return confirm('¿Cambiar este voluntario a RECHAZADO?')">
+                  <input type="hidden" name="nuevo_estado" value="rechazado">
+                  <button type="submit" class="btn btn-sm btn-warning">⚠️ Rechazar</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="6" class="text-center">No hay voluntarios aprobados</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Rechazados -->
+<div class="tab-pane" id="rechazados">
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Habilidad</th>
+          <th>Motivo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (rechazados && rechazados.length > 0) { %>
+          <% rechazados.forEach(v => { %>
+            <tr>
+              <td><%= new Date(v.fecha_respuesta).toLocaleDateString() %></td>
+              <td><%= v.nombre %></td>
+              <td><%= v.email %></td>
+              <td><%= v.habilidad %></td>
+              <td>—</td>
+              <td>
+                <form action="/voluntarios/<%= v.id %>/cambiar-estado" method="POST" class="d-inline"
+                      onsubmit="return confirm('¿Cambiar este voluntario a APROBADO?')">
+                  <input type="hidden" name="nuevo_estado" value="aprobado">
+                  <button type="submit" class="btn btn-sm btn-success">✅ Aprobar</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="6" class="text-center">No hay solicitudes rechazadas</td></tr>
+        <% } %>
+      </tbody>
+    </table>
   </div>
 </div>

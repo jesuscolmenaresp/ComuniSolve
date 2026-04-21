@@ -1,2 +1,7 @@
 node_modules/
 .env
+.env.production
+.env.local
+.DS_Store
+*.log
+public/uploads/

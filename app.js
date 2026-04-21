@@ -9,19 +9,49 @@ const app = express();
 // Configurar variables de entorno
 dotenv.config();
 
+// Puerto dinámico para producción (Render asigna el puerto automáticamente)
+const PORT = process.env.PORT || 3000;
+
 // Middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-  secret: 'comunisolve-secret-key',
+  secret: process.env.SESSION_SECRET || 'comunisolve-secret-key',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // true en producción (HTTPS)
+    maxAge: 1000 * 60 * 60 * 24 // 24 horas
+  }
 }));
 
 // Pasar datos de sesión a todas las vistas
 app.use((req, res, next) => {
   res.locals.usuario = req.session.usuario || null;
+  next();
+});
+
+// Middleware para verificar si el usuario es voluntario
+app.use(async (req, res, next) => {
+  if (req.session.usuario && req.session.usuario.rol_id === 4) {
+    try {
+      const db = require('./models/db');
+      const [voluntario] = await db.query(
+        'SELECT id, estado FROM voluntarios WHERE usuario_id = ?',
+        [req.session.usuario.id]
+      );
+      res.locals.esVoluntario = voluntario.length > 0;
+      res.locals.estadoVoluntario = voluntario[0]?.estado || null;
+    } catch (err) {
+      console.error('Error al verificar voluntario:', err);
+      res.locals.esVoluntario = false;
+      res.locals.estadoVoluntario = null;
+    }
+  } else {
+    res.locals.esVoluntario = false;
+    res.locals.estadoVoluntario = null;
+  }
   next();
 });
 
@@ -31,7 +61,7 @@ app.set('view engine', 'ejs');
 
 // Layouts
 app.use(expressLayouts);
-app.set('layout', 'layout'); // layout.ejs como plantilla base
+app.set('layout', 'layout');
 
 // Rutas
 const authRoutes = require('./routes/auth');
@@ -53,6 +83,8 @@ const empresasRoutes = require('./routes/empresas');
 
 const categoriasRoutes = require('./routes/categorias');
 
+const auditoriaRoutes = require('./routes/auditoria');
+
 app.use('/', indexRouter);
 app.use(authRoutes);
 app.use(reporteRoutes);
@@ -72,5 +104,12 @@ app.use(empresasRoutes);
 
 app.use(categoriasRoutes);
 
-// Exportar app
+app.use(auditoriaRoutes);
+
+// Iniciar servidor
+app.listen(PORT, () => {
+  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+});
+
+// Exportar app (para pruebas)
 module.exports = app;

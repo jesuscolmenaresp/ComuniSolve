@@ -70,6 +70,18 @@
         <small class="text-muted">Seleccione todas las calles que lidera</small>
       </div>
 
+      <!-- Campo para CIUDADANO (una sola calle) -->
+      <div class="col-md-6 mb-3" id="campoCiudadano" style="display:none;">
+        <label class="form-label">Calle donde vive (para Ciudadanos)</label>
+        <select name="calle_id" class="form-select">
+          <option value="">-- Seleccione una calle --</option>
+          <% calles.forEach(c => { %>
+            <option value="<%= c.id %>"><%= c.nombre_completo || c.nombre %></option>
+          <% }) %>
+        </select>
+        <small class="text-muted">Seleccione la calle donde reside</small>
+      </div>
+
       <!-- Campo para UBCH (múltiples comunidades con checkboxes) -->
       <div class="col-md-6 mb-3" id="campoUbch" style="display:none;">
         <label class="form-label">Comunidades que atiende (seleccione las que correspondan)</label>
@@ -103,6 +115,7 @@
     const rol = this.value;
     document.getElementById('campoJefe').style.display = rol == '3' ? 'block' : 'none';
     document.getElementById('campoLider').style.display = rol == '2' ? 'block' : 'none';
+    document.getElementById('campoCiudadano').style.display = rol == '4' ? 'block' : 'none';
     document.getElementById('campoUbch').style.display = rol == '1' ? 'block' : 'none';
   });
 </script>

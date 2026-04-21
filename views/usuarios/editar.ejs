@@ -48,7 +48,7 @@
       <!-- Campo para JEFE (una sola calle) -->
       <div class="col-md-6 mb-3 campo-jefe <%= usuario.rol_id === 3 ? '' : 'd-none' %>">
         <label class="form-label">Calle asignada (para Jefes)</label>
-        <select name="calle_id" class="form-select">
+        <select name="calle_jefe_id" class="form-select">
           <option value="">-- Sin calle asignada --</option>
           <% calles.forEach(c => { %>
             <option value="<%= c.id %>" <%= usuario.calle_id == c.id ? 'selected' : '' %>>
@@ -74,6 +74,20 @@
           <% }) %>
         </div>
         <small class="text-muted">Seleccione todas las calles que lidera</small>
+      </div>
+
+      <!-- Campo para CIUDADANO (una sola calle) -->
+      <div class="col-md-6 mb-3 campo-ciudadano <%= usuario.rol_id === 4 ? '' : 'd-none' %>">
+        <label class="form-label">Calle donde vive (para Ciudadanos)</label>
+        <select name="calle_ciudadano_id" class="form-select">
+          <option value="">-- Seleccione una calle --</option>
+          <% calles.forEach(c => { %>
+            <option value="<%= c.id %>" <%= usuario.calle_id == c.id ? 'selected' : '' %>>
+              <%= c.nombre_completo || c.nombre %>
+            </option>
+          <% }) %>
+        </select>
+        <small class="text-muted">Seleccione la calle donde reside</small>
       </div>
 
       <!-- Campo para COMUNIDADES (solo si es UBCH) -->
@@ -114,23 +128,33 @@
     
     const campoJefe = document.querySelector('.campo-jefe');
     const campoLider = document.querySelector('.campo-lider');
+    const campoCiudadano = document.querySelector('.campo-ciudadano');
     const campoComunidades = document.querySelector('.campo-comunidades');
     
     if (rol === '3') {
       campoJefe.classList.remove('d-none');
       campoLider.classList.add('d-none');
+      campoCiudadano.classList.add('d-none');
       campoComunidades.classList.add('d-none');
     } else if (rol === '2') {
       campoJefe.classList.add('d-none');
       campoLider.classList.remove('d-none');
+      campoCiudadano.classList.add('d-none');
+      campoComunidades.classList.add('d-none');
+    } else if (rol === '4') {
+      campoJefe.classList.add('d-none');
+      campoLider.classList.add('d-none');
+      campoCiudadano.classList.remove('d-none');
       campoComunidades.classList.add('d-none');
     } else if (rol === '1') {
       campoJefe.classList.add('d-none');
       campoLider.classList.add('d-none');
+      campoCiudadano.classList.add('d-none');
       campoComunidades.classList.remove('d-none');
     } else {
       campoJefe.classList.add('d-none');
       campoLider.classList.add('d-none');
+      campoCiudadano.classList.add('d-none');
       campoComunidades.classList.add('d-none');
     }
   });

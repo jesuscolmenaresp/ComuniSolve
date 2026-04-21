@@ -1,27 +1,32 @@
 {
   "name": "comunisolve",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Software de Gestión Comunitaria",
+  "main": "bin/www",
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www"
+    "dev": "nodemon ./bin/www",
+    "build": "npm install"
   },
   "keywords": [],
-  "author": "",
+  "author": "Jesús Colmenares",
   "license": "ISC",
   "dependencies": {
-    "bcryptjs": "^3.0.2",
-    "dotenv": "^17.2.1",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.4.2",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.18.2",
+    "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
     "mysql2": "^3.14.2",
-    "nodemailer": "^7.0.5"
+    "nodemailer": "^7.0.13"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }

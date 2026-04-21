@@ -1,5 +1,6 @@
 const db = require('../models/db');
 const bcrypt = require('bcryptjs');
+const { registrarAuditoria } = require('../middleware/auditoriaMiddleware');
 
 // 📌 Listar todos los usuarios
 exports.listar = async (req, res) => {
@@ -21,7 +22,7 @@ exports.listar = async (req, res) => {
     // Para cada usuario, obtener sus calles y comunidades
     for (let usuario of usuarios) {
       if (usuario.rol_id === 2) {
-        // Es líder: obtener TODAS las calles que lidera
+        // Líder: obtener todas las calles que lidera
         const [calles] = await db.query(`
           SELECT nombre 
           FROM calles 
@@ -31,7 +32,16 @@ exports.listar = async (req, res) => {
         usuario.calles_lideradas = calles.map(c => c.nombre);
       } 
       else if (usuario.rol_id === 3) {
-        // Es jefe: obtener su calle asignada
+        // Jefe: obtener su calle asignada
+        const [calle] = await db.query(`
+          SELECT nombre 
+          FROM calles 
+          WHERE id = ?
+        `, [usuario.calle_id]);
+        usuario.calle_nombre = calle[0]?.nombre;
+      }
+      else if (usuario.rol_id === 4) {
+        // Ciudadano: obtener su calle asignada
         const [calle] = await db.query(`
           SELECT nombre 
           FROM calles 
@@ -40,7 +50,7 @@ exports.listar = async (req, res) => {
         usuario.calle_nombre = calle[0]?.nombre;
       }
       else if (usuario.rol_id === 1) {
-        // Es UBCH: obtener las comunidades que atiende
+        // UBCH: obtener las comunidades que atiende
         const [comunidades] = await db.query(`
           SELECT c.nombre 
           FROM comunidades c
@@ -111,12 +121,16 @@ exports.crear = async (req, res) => {
     await connection.beginTransaction();
 
     try {
-      // Insertar usuario
+      // Insertar usuario - GUARDAR calle_id para jefes y ciudadanos
+      let calleAsignada = null;
+      if (rol_id == 3 || rol_id == 4) {
+        calleAsignada = calle_id || null;
+      }
+
       const [result] = await connection.query(
         `INSERT INTO usuarios (nombre, email, password, telefono, rol_id, calle_id) 
          VALUES (?, ?, ?, ?, ?, ?)`,
-        [nombre, email, passwordHash, telefono || null, rol_id, 
-         rol_id == 3 ? calle_id : null]
+        [nombre, email, passwordHash, telefono || null, rol_id, calleAsignada]
       );
 
       const nuevoUsuarioId = result.insertId;
@@ -144,6 +158,17 @@ exports.crear = async (req, res) => {
       }
 
       await connection.commit();
+
+      // Registrar en auditoría
+      await registrarAuditoria(
+        req.session.usuario,
+        'CREAR',
+        'usuarios',
+        nuevoUsuarioId,
+        null,
+        { nombre, email, rol_id, calle_id: calleAsignada }
+      );
+
       req.session.mensaje = 'Usuario creado exitosamente';
       res.redirect('/usuarios');
     } catch (err) {
@@ -216,35 +241,70 @@ exports.formEditar = async (req, res) => {
 // 📌 Actualizar usuario
 exports.actualizar = async (req, res) => {
   const { id } = req.params;
-  const { nombre, email, telefono, rol_id, calle_id, password, calles_lider, comunidades } = req.body;
+  const { 
+    nombre, email, telefono, rol_id, 
+    password, 
+    calle_jefe_id,      // Para jefes
+    calle_ciudadano_id, // Para ciudadanos
+    calles_lider, 
+    comunidades 
+  } = req.body;
 
   try {
     const connection = await db.getConnection();
     await connection.beginTransaction();
 
     try {
-      let query = 'UPDATE usuarios SET nombre = ?, email = ?, telefono = ?, rol_id = ?';
-      let params = [nombre, email, telefono, rol_id];
+      // Obtener datos anteriores antes de actualizar
+      const [usuarioAnterior] = await connection.query(
+        'SELECT nombre, email, telefono, rol_id, calle_id FROM usuarios WHERE id = ?',
+        [id]
+      );
 
-      // Para jefes, actualizar calle_id
+      let updates = [];
+      let params = [];
+
+      updates.push('nombre = ?');
+      params.push(nombre);
+      
+      updates.push('email = ?');
+      params.push(email);
+      
+      updates.push('telefono = ?');
+      params.push(telefono || null);
+      
+      updates.push('rol_id = ?');
+      params.push(rol_id);
+
+      let nuevaCalleId = null;
+      
+      // Determinar qué calle_id usar según el rol
       if (rol_id == 3) {
-        query += ', calle_id = ?';
-        params.push(calle_id || null);
+        // Jefe
+        nuevaCalleId = calle_jefe_id || null;
+        updates.push('calle_id = ?');
+        params.push(nuevaCalleId);
+      } else if (rol_id == 4) {
+        // Ciudadano
+        nuevaCalleId = calle_ciudadano_id || null;
+        updates.push('calle_id = ?');
+        params.push(nuevaCalleId);
       } else {
-        query += ', calle_id = NULL';
+        updates.push('calle_id = NULL');
       }
 
       // Si hay nueva contraseña
       if (password && password.trim() !== '') {
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);
-        query += ', password = ?';
+        updates.push('password = ?');
         params.push(passwordHash);
       }
 
-      query += ' WHERE id = ?';
       params.push(id);
 
+      const query = `UPDATE usuarios SET ${updates.join(', ')} WHERE id = ?`;
+      
       await connection.query(query, params);
 
       // Si es líder, actualizar sus calles
@@ -280,6 +340,24 @@ exports.actualizar = async (req, res) => {
       }
 
       await connection.commit();
+
+      // Registrar en auditoría
+      const datosNuevos = { 
+        nombre, email, telefono, rol_id, 
+        calle_id: nuevaCalleId,
+        calles_lider: calles_lider || [],
+        comunidades: comunidades || []
+      };
+      
+      await registrarAuditoria(
+        req.session.usuario,
+        'EDITAR',
+        'usuarios',
+        id,
+        usuarioAnterior[0],
+        datosNuevos
+      );
+
       req.session.mensaje = 'Usuario actualizado exitosamente';
       res.redirect('/usuarios');
 
@@ -308,19 +386,29 @@ exports.eliminar = async (req, res) => {
       return res.redirect('/usuarios');
     }
 
-    // Registrar en auditoría antes de eliminar
-    await db.query(
-      `INSERT INTO auditoria (usuario_id, accion, tabla, registro_id, fecha) 
-       VALUES (?, 'ELIMINAR', 'usuarios', ?, NOW())`,
-      [req.session.usuario.id, id]
+    // Obtener datos del usuario antes de eliminar
+    const [usuarioAEliminar] = await db.query(
+      'SELECT nombre, email, rol_id FROM usuarios WHERE id = ?',
+      [id]
     );
 
     await db.query('DELETE FROM usuarios WHERE id = ?', [id]);
+
+    // Registrar en auditoría
+    await registrarAuditoria(
+      req.session.usuario,
+      'ELIMINAR',
+      'usuarios',
+      id,
+      usuarioAEliminar[0],
+      null
+    );
 
     req.session.mensaje = 'Usuario eliminado exitosamente';
     res.redirect('/usuarios');
   } catch (err) {
     console.error(err);
-    res.status(500).send('Error al eliminar usuario');
+    req.session.error = 'Error al eliminar usuario';
+    res.redirect('/usuarios');
   }
 };

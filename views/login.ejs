@@ -1,24 +1,38 @@
 <div class="container mt-5">
   <div class="row justify-content-center">
     <div class="col-md-6">
-      <div class="card shadow">
-        <div class="card-header bg-primary text-white text-center">
-          <h4 class="mb-0">🔐 Iniciar Sesión</h4>
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-primary text-white text-center rounded-top-4">
+          <h4 class="mb-0">
+            <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+          </h4>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
           
-          <% if (error) { %>
-            <div class="alert alert-danger">
-              <%= error %>
+          <!-- Mensaje de éxito después de registro (por URL) -->
+          <% if (typeof registroExitoso !== 'undefined' && registroExitoso) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <i class="bi bi-check-circle-fill"></i> <strong>¡Registro exitoso!</strong> Ya puedes iniciar sesión con tus credenciales.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <% } %>
+
+          <!-- Mensaje de error -->
+          <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <i class="bi bi-exclamation-triangle-fill"></i> <strong>Error:</strong> <%= error %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
           <% } %>
 
           <form method="POST" action="/login">
             <!-- Email -->
             <div class="mb-3">
-              <label class="form-label">Correo electrónico:</label>
+              <label class="form-label fw-semibold">
+                <i class="bi bi-envelope-fill"></i> Correo electrónico
+              </label>
               <div class="input-group">
-                <span class="input-group-text">📧</span>
+                <span class="input-group-text bg-light">📧</span>
                 <input type="email" name="email" class="form-control" 
                        placeholder="ejemplo@correo.com" required>
               </div>
@@ -26,9 +40,11 @@
 
             <!-- Contraseña -->
             <div class="mb-4">
-              <label class="form-label">Contraseña:</label>
+              <label class="form-label fw-semibold">
+                <i class="bi bi-lock-fill"></i> Contraseña
+              </label>
               <div class="input-group">
-                <span class="input-group-text">🔑</span>
+                <span class="input-group-text bg-light">🔑</span>
                 <input type="password" name="password" class="form-control" 
                        placeholder="••••••••" required>
               </div>
@@ -36,8 +52,8 @@
 
             <!-- Botón -->
             <div class="d-grid gap-2">
-              <button type="submit" class="btn btn-primary">
-                🚀 Iniciar sesión
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
               </button>
             </div>
 
@@ -46,10 +62,23 @@
               <p class="mb-0">¿No tienes cuenta? 
                 <a href="/registro" class="text-primary fw-bold">Regístrate aquí</a>
               </p>
+              <p class="mt-2 mb-0">
+                <a href="/olvide-password" class="text-muted small">¿Olvidaste tu contraseña?</a>
+              </p>
             </div>
           </form>
         </div>
       </div>
+      
+      <!-- Info adicional -->
+      <div class="text-center mt-3">
+        <small class="text-muted">
+          <i class="bi bi-shield-check"></i> Tus datos están seguros
+        </small>
+      </div>
     </div>
   </div>
 </div>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

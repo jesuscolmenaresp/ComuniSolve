@@ -38,14 +38,43 @@
       </select>
     </div>
 
-    <!-- Calle -->
+    <!-- Calle - Comportamiento según rol -->
     <div class="mb-3">
-      <label class="form-label">¿A qué calle pertenece?</label>
-      <select name="calle_id" class="form-select" required>
-        <% calles.forEach(c => { %>
-          <option value="<%= c.id %>"><%= c.nombre %></option>
-        <% }) %>
-      </select>
+      <label class="form-label">¿A qué calle pertenece el problema?</label>
+      
+      <% if (usuario.rol_id === 4 && usuario.calle_id && calles && calles.length > 0) { %>
+        <input type="text" class="form-control bg-light" value="<%= calles[0].nombre %>" readonly disabled>
+        <input type="hidden" name="calle_id" value="<%= usuario.calle_id %>">
+        <small class="text-muted text-success">✅ Reportando desde tu calle: <strong><%= calles[0].nombre %></strong></small>
+      
+      <% } else if (usuario.rol_id === 3 && usuario.calle_id && calles && calles.length > 0) { %>
+        <input type="text" class="form-control bg-light" value="<%= calles[0].nombre %>" readonly disabled>
+        <input type="hidden" name="calle_id" value="<%= usuario.calle_id %>">
+        <small class="text-muted text-info">📍 Reportando desde tu calle asignada: <strong><%= calles[0].nombre %></strong></small>
+      
+      <% } else if (usuario.rol_id === 2 && calles && calles.length > 0) { %>
+        <select name="calle_id" class="form-select" required>
+          <% calles.forEach(c => { %>
+            <option value="<%= c.id %>"><%= c.nombre %></option>
+          <% }) %>
+        </select>
+        <small class="text-muted">Selecciona la calle donde ocurre el problema</small>
+      
+      <% } else if (usuario.rol_id === 1 && calles && calles.length > 0) { %>
+        <select name="calle_id" class="form-select" required>
+          <option value="">Seleccione una calle...</option>
+          <% calles.forEach(c => { %>
+            <option value="<%= c.id %>"><%= c.nombre %></option>
+          <% }) %>
+        </select>
+        <small class="text-muted">Selecciona la calle donde ocurre el problema</small>
+      
+      <% } else { %>
+        <div class="alert alert-warning">
+          ⚠️ No tienes una calle asignada. Contacta al administrador.
+        </div>
+        <input type="hidden" name="calle_id" value="">
+      <% } %>
     </div>
 
     <!-- Mostrar nombre -->

@@ -1,51 +1,85 @@
+<!-- Hero Section - Compacta y moderna -->
+<section class="hero-section py-4 mx-3" style="background: linear-gradient(135deg, #fff9f0 0%, #f8dbc6 80%); border-radius: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+  <div class="container">
+    <div class="text-center">
+      <p class="mb-1" style="color: #4d3c30; font-size: 1.2rem; letter-spacing: 5px;">BIENVENIDO A</p>
+      <h2 style="font-size: 2.3rem; font-weight: 700; margin-bottom: 0;">
+        <span style="color: #5D4037;">COMUNI</span><span style="color: #fd6704bd;">SOLVE</span>
+      </h2>
+      <p class="mt-2 mb-0" style="font-size: 0.90rem; color: #828181;">La plataforma de gestión comunitaria que transforma tu comunidad</p>
+    </div>
+  </div>
+</section>
 <!-- 🗺️ Mapa -->
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2 class="mb-0">🗺️ Reportes en el Mapa</h2>
-  <a href="/reportar" class="btn btn-primary">➕ Reportar un problema</a>
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0"><i class="bi bi-map"></i> Reportes en el Mapa</h2>
+    <a href="/reportar" class="btn btn-primary btn-lg">
+      <i class="bi bi-plus-circle"></i> Reportar problema
+    </a>
+  </div>
+  <div id="map" class="shadow rounded"></div>
 </div>
-<div id="map"></div>
 
 <!-- 📌 Sección ¿Qué es ComuniSolve? -->
-<section class="mt-5 p-4 bg-light rounded shadow-sm">
-  <h2 class="text-center mb-3">¿Qué es <span class="text-primary">ComuniSolve</span>?</h2>
-  <p class="text-center">
-    ComuniSolve es un software de gestión comunitaria diseñado para facilitar la participación ciudadana 
-    en la <strong>Comuna Socialista Nuestra Señora de las Mercedes</strong>. 
-    Permite reportar problemas, ver incidencias geolocalizadas en un mapa, 
-    votar por prioridades y fortalecer la organización local mediante herramientas tecnológicas accesibles y eficientes.
-  </p>
+<section class="mt-5 py-5" style="background: linear-gradient(135deg, #fce9d8 0%, #fff5ec 100%); border-radius: 16px;">
+  <div class="container">
+    <div class="text-center">
+      <h2 class="display-6 fw-bold mb-4">¿Qué es <span class="text-primary">ComuniSolve</span>?</h2>
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <p class="lead mb-0">
+            ComuniSolve es un software de gestión comunitaria diseñado para facilitar la participación ciudadana 
+            en la <strong>Comuna Socialista Nuestra Señora de las Mercedes</strong>. 
+            Permite reportar problemas, ver incidencias geolocalizadas en un mapa, 
+            votar por prioridades y fortalecer la organización local mediante herramientas tecnológicas accesibles y eficientes.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- 📌 Sección ¿Cómo funciona? -->
 <section class="mt-5">
-  <h2 class="text-center mb-4">¿Cómo funciona ComuniSolve?</h2>
-  <div class="row text-center">
-    <div class="col-md-3">
-      <div class="p-3 bg-white shadow-sm rounded">
-        <h3>📢</h3>
-        <h5>Reporta</h5>
-        <p>Informa cualquier problema en tu comunidad con una descripción, imagen y ubicación.</p>
+  <div class="container">
+    <h2 class="text-center mb-5">¿Cómo funciona ComuniSolve?</h2>
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="feature-card text-center p-4 bg-white shadow-sm rounded h-100">
+          <div class="feature-icon mb-3">
+            <img src="/images/icons/megaphone-fill.svg" alt="Reporta" class="img-fluid" style="width: 55px;">
+          </div>
+          <h4>Reporta</h4>
+          <p class="text-muted mb-0">Informa cualquier problema en tu comunidad con descripción, imagen y ubicación.</p>
+        </div>
       </div>
-    </div>
-    <div class="col-md-3">
-      <div class="p-3 bg-white shadow-sm rounded">
-        <h3>🗺️</h3>
-        <h5>Visualiza</h5>
-        <p>Todos los reportes se muestran en un mapa interactivo accesible a la comunidad.</p>
+      <div class="col-md-3">
+        <div class="feature-card text-center p-4 bg-white shadow-sm rounded h-100">
+          <div class="feature-icon mb-3">
+            <img src="/images/icons/map-fill.svg" alt="Visualiza" class="img-fluid" style="width: 55px;">
+          </div>
+          <h4>Visualiza</h4>
+          <p class="text-muted mb-0">Todos los reportes se muestran en un mapa interactivo accesible a la comunidad.</p>
+        </div>
       </div>
-    </div>
-    <div class="col-md-3">
-      <div class="p-3 bg-white shadow-sm rounded">
-        <h3>👍</h3>
-        <h5>Prioriza</h5>
-        <p>Los vecinos pueden votar y comentar los reportes, ayudando a decidir qué atender primero.</p>
+      <div class="col-md-3">
+        <div class="feature-card text-center p-4 bg-white shadow-sm rounded h-100">
+          <div class="feature-icon mb-3">
+            <img src="/images/icons/hand-thumbs-up-fill.svg" alt="Prioriza" class="img-fluid" style="width: 55px;">
+          </div>
+          <h4>Prioriza</h4>
+          <p class="text-muted mb-0">Los vecinos pueden votar y comentar los reportes, ayudando a decidir qué atender primero.</p>
+        </div>
       </div>
-    </div>
-    <div class="col-md-3">
-      <div class="p-3 bg-white shadow-sm rounded">
-        <h3>🤝</h3>
-        <h5>Actúa</h5>
-        <p>Líderes y voluntarios coordinan acciones para resolver los problemas priorizados.</p>
+      <div class="col-md-3">
+        <div class="feature-card text-center p-4 bg-white shadow-sm rounded h-100">
+          <div class="feature-icon mb-3">
+            <img src="/images/icons/people-fill.svg" alt="Actúa" class="img-fluid" style="width: 55px;">
+          </div>
+          <h4>Actúa</h4>
+          <p class="text-muted mb-0">Líderes y voluntarios coordinan acciones para resolver los problemas priorizados.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -53,50 +87,66 @@
 
 <!-- 📌 Sectores que atiende -->
 <section class="mt-5">
-  <h2 class="text-center mb-4">🏘️ Sectores que atiende ComuniSolve</h2>
-  <div class="row text-center">
-    <div class="col-md-3"><div class="p-3 bg-white shadow-sm rounded sector-card"><h5>Virgen de Lourdes</h5></div></div>
-    <div class="col-md-3"><div class="p-3 bg-white shadow-sm rounded sector-card"><h5>Nuestra Señora de Las Mercedes</h5></div></div>
-    <div class="col-md-3"><div class="p-3 bg-white shadow-sm rounded sector-card"><h5>Brisas de las Mercedes</h5></div></div>
-    <div class="col-md-3"><div class="p-3 bg-white shadow-sm rounded sector-card"><h5>Las Mercedes</h5></div></div>
-  </div>
-  <div class="row text-center mt-3">
-    <div class="col-md-4"><div class="p-3 bg-white shadow-sm rounded sector-card"><h5>Asentamiento campesino</h5></div></div>
-    <div class="col-md-4"><div class="p-3 bg-white shadow-sm rounded sector-card"><h5>Urbanización La Providencia</h5></div></div>
-    <div class="col-md-4"><div class="p-3 bg-white shadow-sm rounded sector-card"><h5>Santa Eduviges</h5></div></div>
+  <div class="container">
+    <h2 class="text-center mb-5">Sectores que atiende ComuniSolve</h2>
+    <div class="row g-3">
+      <div class="col-md-3 col-sm-6"><div class="sector-card text-center p-3"><h5 class="mb-0">Virgen de Lourdes</h5></div></div>
+      <div class="col-md-3 col-sm-6"><div class="sector-card text-center p-3"><h5 class="mb-0">Nuestra Señora de Las Mercedes</h5></div></div>
+      <div class="col-md-3 col-sm-6"><div class="sector-card text-center p-3"><h5 class="mb-0">Brisas de las Mercedes</h5></div></div>
+      <div class="col-md-3 col-sm-6"><div class="sector-card text-center p-3"><h5 class="mb-0">Las Mercedes</h5></div></div>
+      <div class="col-md-4 col-sm-6"><div class="sector-card text-center p-3"><h5 class="mb-0">Asentamiento campesino</h5></div></div>
+      <div class="col-md-4 col-sm-6"><div class="sector-card text-center p-3"><h5 class="mb-0">Urbanización La Providencia</h5></div></div>
+      <div class="col-md-4 col-sm-6"><div class="sector-card text-center p-3"><h5 class="mb-0">Santa Eduviges</h5></div></div>
+    </div>
   </div>
 </section>
 
-<!-- 📢 Últimos reportes -->
-<h3 class="mt-5 mb-3">📢 Últimos reportes</h3>
-<div class="row">
-  <% if (reportes && reportes.length > 0) { %>
-    <% reportes.slice(0,3).forEach(r => { %>
-      <div class="col-md-4">
-        <div class="report-card">
-          <h5><%= r.titulo %></h5>
-          <p class="text-muted"><%= r.descripcion.substring(0, 80) %>...</p>
-          <p><strong>Categoría:</strong> 
-            <span class="badge bg-<%= r.categoria_color || 'primary' %>">
-              <%= r.categoria_icono ? r.categoria_icono + ' ' : '' %><%= r.categoria_nombre %>
-            </span>
-          </p>
-          <p><strong>Calle:</strong> <%= r.nombre_calle %></p>
-          <p><span class="badge <%= r.estado === 'Pendiente' ? 'bg-warning' : r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>"><%= r.estado %></span></p>
+<!-- 📢 Últimos reportes - Fondo de iglesia más visible -->
+<section class="mt-5 py-5" style="background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('/images/iglesia-mercedes.jpg'); background-size: cover; background-position: center; background-attachment: fixed;">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+      <h3><i class="bi bi-newspaper"></i> Últimos reportes</h3>
+      <img src="/images/logotipo.png" alt="ComuniSolve" style="height: 60px;">
+    </div>
+    
+    <div class="row g-4">
+      <% if (reportes && reportes.length > 0) { %>
+        <% reportes.slice(0,3).forEach(r => { %>
+          <div class="col-md-4">
+            <div class="report-card">
+              <h5><%= r.titulo %></h5>
+              <p class="text-muted"><%= r.descripcion.substring(0, 80) %>...</p>
+              <p><strong>Categoría:</strong> 
+                <span class="badge bg-<%= r.categoria_color || 'primary' %>">
+                  <%= r.categoria_icono ? r.categoria_icono + ' ' : '' %><%= r.categoria_nombre %>
+                </span>
+              </p>
+              <p><strong>Calle:</strong> <%= r.nombre_calle %></p>
+              <p><span class="badge <%= r.estado === 'Pendiente' ? 'bg-warning' : r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>"><%= r.estado %></span></p>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="col-12">
+          <div class="alert alert-info text-center">No hay reportes registrados aún. ¡Sé el primero en reportar!</div>
         </div>
-      </div>
-    <% }) %>
-  <% } else { %>
-    <p class="text-muted">No hay reportes registrados aún.</p>
-  <% } %>
-</div>
+      <% } %>
+    </div>
 
-<!-- 🔘 Botones de acción -->
-<div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
-  <a href="/reportes" class="btn btn-outline-primary">📄 Ver todos los reportes</a>
-  <a href="/voluntarios" class="btn btn-success">🤝 Únete como voluntario</a>
-  <a href="#" class="btn btn-warning text-white">⭐ Votar / priorizar</a>
-</div>
+    <!-- Botones de acción -->
+    <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
+      <a href="/reportes" class="btn btn-outline-primary"><i class="bi bi-list-ul"></i> Ver todos los reportes</a>
+      <a href="/voluntarios" class="btn btn-success"><i class="bi bi-person-heart"></i> Únete como voluntario</a>
+      <% if (usuario && usuario.rol_id === 4) { %>
+        <a href="/reportes" class="btn btn-warning text-white"><i class="bi bi-star"></i> Votar / priorizar</a>
+      <% } else if (!usuario) { %>
+        <a href="/login" class="btn btn-warning text-white"><i class="bi bi-box-arrow-in-right"></i> Inicia sesión para votar</a>
+      <% } else { %>
+        <a href="/reportes" class="btn btn-secondary"><i class="bi bi-gear"></i> Gestionar reportes</a>
+      <% } %>
+    </div>
+  </div>
+</section>
 
 <!-- Script del mapa -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -106,8 +156,8 @@
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-    const reportes = JSON.parse('<%- JSON.stringify(reportes || []) %>');
-      reportes.forEach(r => {
+  const reportes = JSON.parse('<%- JSON.stringify(reportes || []) %>');
+  reportes.forEach(r => {
     if (r.ubicacion_lat && r.ubicacion_lng) {
       L.marker([r.ubicacion_lat, r.ubicacion_lng])
         .addTo(map)
@@ -115,3 +165,57 @@
     }
   });
 </script>
+
+<!-- CSS adicional -->
+<style>
+  .hero-section {
+    border-bottom: 1px solid #f0e0d0;
+  }
+  .feature-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+  }
+  .feature-icon {
+    background: linear-gradient(135deg, #fce9d8 0%, #fff5ec 100%);
+    display: inline-block;
+    padding: 12px;
+    border-radius: 50%;
+  }
+  .sector-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+  .sector-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    background-color: #fff8f0;
+    border-color: var(--primary-color);
+  }
+  .report-card {
+    transition: transform 0.3s ease;
+    background: white;
+    border-radius: 12px;
+  }
+  .report-card:hover {
+    transform: translateY(-5px);
+  }
+  #map {
+    height: 400px;
+    width: 100%;
+    border-radius: 12px;
+  }
+  @media (max-width: 768px) {
+    .hero-section .display-4 {
+      font-size: 1.8rem;
+    }
+    #map {
+      height: 300px;
+    }
+    .feature-card {
+      margin-bottom: 15px;
+    }
+  }
+</style>

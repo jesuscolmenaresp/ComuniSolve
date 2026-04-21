@@ -17,9 +17,15 @@
             <div class="card-body">
               <h5 class="card-title"><%= v.nombre %></h5>
               <p class="card-text">
-                <strong>Habilidad:</strong> <%= v.habilidad %><br>
+                <strong>🛠️ Habilidad:</strong> <%= v.habilidad %><br>
                 <% if (v.telefono) { %>
-                  <strong>Contacto:</strong> <%= v.telefono %>
+                  <strong>📞 Contacto:</strong> <%= v.telefono %><br>
+                <% } %>
+                <% if (v.calle_nombre) { %>
+                  <strong>📍 Calle:</strong> <%= v.calle_nombre %><br>
+                <% } %>
+                <% if (v.disponibilidad_horaria) { %>
+                  <strong>⏰ Disponibilidad:</strong> <%= v.disponibilidad_horaria %>
                 <% } %>
               </p>
             </div>

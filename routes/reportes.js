@@ -8,6 +8,9 @@ const upload = require('../middleware/uploadMiddleware');
 // Listar reportes
 router.get('/reportes', authMiddleware, reporteController.listarReportes);
 
+// Obtener detalle de reporte (para modal)
+router.get('/reportes/:id/detalle', authMiddleware, reporteController.obtenerDetalle);
+
 // Formulario de reporte
 router.get('/reportar', authMiddleware, reporteController.mostrarFormulario);
 
@@ -23,5 +26,8 @@ router.post('/reportes/:id/asignar-empresa',
   roleMiddleware([1, 2]), 
   reporteController.asignarEmpresa
 );
+
+// 📌 Reportes de mi calle (para ciudadanos)
+router.get('/reportes/mi-calle', authMiddleware, reporteController.reportesMiCalle);
 
 module.exports = router;
