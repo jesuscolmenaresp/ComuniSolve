@@ -6,8 +6,10 @@ const expressLayouts = require('express-ejs-layouts');
 
 const app = express();
 
-// Configurar variables de entorno
-dotenv.config();
+// Configurar variables de entorno - solo en desarrollo
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 // Puerto dinámico para producción
 const PORT = process.env.PORT || 3000;
@@ -16,13 +18,16 @@ const PORT = process.env.PORT || 3000;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Configuración de sesión
 app.use(session({
   secret: process.env.SESSION_SECRET || 'comunisolve-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 1000 * 60 * 60 * 24
+    maxAge: 1000 * 60 * 60 * 24,
+    sameSite: 'lax'
   }
 }));
 
