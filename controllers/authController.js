@@ -12,9 +12,17 @@ exports.mostrarLogin = (req, res) => {
 
 // Login
 exports.login = async (req, res) => {
-  console.log(req.body);
+  console.log('🔍 Login attempt:', req.body);
 
   const { email, password } = req.body;
+
+  // Validar que los campos no estén vacíos
+  if (!email || !password) {
+    return res.render('login', { 
+      error: 'Por favor complete todos los campos',
+      registroExitoso: false
+    });
+  }
 
   try {
     const [usuarios] = await db.query('SELECT * FROM usuarios WHERE email = ?', [email]);
@@ -43,15 +51,14 @@ exports.login = async (req, res) => {
       calle_nombre = calle[0]?.nombre || null;
     }
 
-    // Guardar sesión completa
+    // Guardar sesión (sin rol_nombre porque no existe en la tabla)
     req.session.usuario = {
       id: usuario.id,
       nombre: usuario.nombre,
       email: usuario.email,
       rol_id: usuario.rol_id,
       calle_id: usuario.calle_id,
-      calle_nombre: calle_nombre,  // ← AGREGAR
-      rol_nombre: usuario.rol_nombre
+      calle_nombre: calle_nombre
     };
 
     console.log('✅ Sesión guardada:', {
@@ -64,14 +71,22 @@ exports.login = async (req, res) => {
 
     // Redirigir según el rol
     switch (usuario.rol_id) {
-      case 1: return res.redirect('/admin');
-      case 2: return res.redirect('/lider');
-      case 3: return res.redirect('/jefe');
-      default: return res.redirect('/');
+      case 1: 
+        console.log('Redirigiendo a /admin');
+        return res.redirect('/admin');
+      case 2: 
+        console.log('Redirigiendo a /lider');
+        return res.redirect('/lider');
+      case 3: 
+        console.log('Redirigiendo a /jefe');
+        return res.redirect('/jefe');
+      default: 
+        console.log('Redirigiendo a /');
+        return res.redirect('/');
     }
 
   } catch (err) {
-    console.error(err);
+    console.error('❌ Error en login:', err);
     res.render('login', { 
       error: 'Error al iniciar sesión. Intente nuevamente.',
       registroExitoso: false
@@ -106,7 +121,10 @@ exports.mostrarRegistro = async (req, res) => {
 exports.registrar = async (req, res) => {
   const { nombre, email, password, telefono, calle_id } = req.body;
 
+  console.log('📝 Registro intentado:', { nombre, email, telefono, calle_id });
+
   try {
+    // Verificar si el email ya existe
     const [existente] = await db.query('SELECT id FROM usuarios WHERE email = ?', [email]);
     if (existente.length > 0) {
       const [calles] = await db.query("SELECT * FROM calles ORDER BY nombre");
@@ -117,14 +135,17 @@ exports.registrar = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('✅ Contraseña hasheada correctamente');
+
     await db.query(
       'INSERT INTO usuarios (nombre, email, password, telefono, rol_id, calle_id) VALUES (?, ?, ?, ?, 4, ?)', 
       [nombre, email, hashedPassword, telefono, calle_id || null]
     );
 
+    console.log('✅ Usuario registrado exitosamente');
     res.redirect('/login?registro=exitoso');
   } catch (err) {
-    console.error(err);
+    console.error('❌ Error en registro:', err);
     const [calles] = await db.query("SELECT * FROM calles ORDER BY nombre");
     res.render('registro', { error: 'Error al registrar usuario', calles });
   }
