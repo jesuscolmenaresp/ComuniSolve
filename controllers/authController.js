@@ -16,7 +16,6 @@ exports.login = async (req, res) => {
 
   const { email, password } = req.body;
 
-  // Validar que los campos no estén vacíos
   if (!email || !password) {
     return res.render('login', { 
       error: 'Por favor complete todos los campos',
@@ -44,14 +43,14 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Obtener el nombre de la calle si tiene una asignada
+    // Obtener el nombre de la calle
     let calle_nombre = null;
     if (usuario.calle_id) {
       const [calle] = await db.query('SELECT nombre FROM calles WHERE id = ?', [usuario.calle_id]);
       calle_nombre = calle[0]?.nombre || null;
     }
 
-    // Guardar sesión (sin rol_nombre porque no existe en la tabla)
+    // Guardar sesión
     req.session.usuario = {
       id: usuario.id,
       nombre: usuario.nombre,
@@ -60,22 +59,6 @@ exports.login = async (req, res) => {
       calle_id: usuario.calle_id,
       calle_nombre: calle_nombre
     };
-    // Guardar sesión explícitamente
-    req.session.save((err) => {
-      if (err) {
-        console.error('❌ Error al guardar sesión:', err);
-      } else {
-        console.log('✅ Sesión guardada correctamente');
-      }
-      
-      // Redirigir según el rol
-      switch (usuario.rol_id) {
-        case 1: return res.redirect('/admin');
-        case 2: return res.redirect('/lider');
-        case 3: return res.redirect('/jefe');
-        default: return res.redirect('/');
-      }
-    });
 
     console.log('✅ Sesión guardada:', {
       id: usuario.id,
@@ -85,25 +68,31 @@ exports.login = async (req, res) => {
       calle_nombre: calle_nombre
     });
 
-    // Redirigir según el rol
+    // Determinar redirección según rol
+    let redirectUrl = '/';
     switch (usuario.rol_id) {
-      case 1: 
-        console.log('Redirigiendo a /admin');
-        return res.redirect('/admin');
-      case 2: 
-        console.log('Redirigiendo a /lider');
-        return res.redirect('/lider');
-      case 3: 
-        console.log('Redirigiendo a /jefe');
-        return res.redirect('/jefe');
-      default: 
-        console.log('Redirigiendo a /');
-        return res.redirect('/');
+      case 1: redirectUrl = '/admin'; break;
+      case 2: redirectUrl = '/lider'; break;
+      case 3: redirectUrl = '/jefe'; break;
+      default: redirectUrl = '/';
     }
+
+    // Guardar sesión y redirigir UNA SOLA VEZ
+    req.session.save((err) => {
+      if (err) {
+        console.error('❌ Error al guardar sesión:', err);
+        return res.render('login', { 
+          error: 'Error al iniciar sesión',
+          registroExitoso: false
+        });
+      }
+      console.log('✅ Sesión guardada correctamente, redirigiendo a', redirectUrl);
+      return res.redirect(redirectUrl);
+    });
 
   } catch (err) {
     console.error('❌ Error en login:', err);
-    res.render('login', { 
+    return res.render('login', { 
       error: 'Error al iniciar sesión. Intente nuevamente.',
       registroExitoso: false
     });
