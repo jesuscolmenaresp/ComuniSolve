@@ -9,7 +9,7 @@ const app = express();
 // Configurar variables de entorno
 dotenv.config();
 
-// Puerto dinámico para producción (Render asigna el puerto automáticamente)
+// Puerto dinámico para producción
 const PORT = process.env.PORT || 3000;
 
 // Middlewares
@@ -21,8 +21,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // true en producción (HTTPS)
-    maxAge: 1000 * 60 * 60 * 24 // 24 horas
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 1000 * 60 * 60 * 24
   }
 }));
 
@@ -111,5 +111,4 @@ app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
 });
 
-// Exportar app (para pruebas)
 module.exports = app;
