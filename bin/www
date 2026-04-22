@@ -3,11 +3,14 @@
 const app = require('../app');
 const http = require('http');
 
+// Obtiene el puerto desde el entorno (Render lo asigna automáticamente)
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
+// Crea el servidor
 const server = http.createServer(app);
 
+// Escucha en el puerto
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);

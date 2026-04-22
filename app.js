@@ -106,9 +106,4 @@ app.use(categoriasRoutes);
 
 app.use(auditoriaRoutes);
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
-});
-
 module.exports = app;
