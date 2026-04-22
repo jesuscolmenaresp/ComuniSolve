@@ -60,6 +60,22 @@ exports.login = async (req, res) => {
       calle_id: usuario.calle_id,
       calle_nombre: calle_nombre
     };
+    // Guardar sesión explícitamente
+    req.session.save((err) => {
+      if (err) {
+        console.error('❌ Error al guardar sesión:', err);
+      } else {
+        console.log('✅ Sesión guardada correctamente');
+      }
+      
+      // Redirigir según el rol
+      switch (usuario.rol_id) {
+        case 1: return res.redirect('/admin');
+        case 2: return res.redirect('/lider');
+        case 3: return res.redirect('/jefe');
+        default: return res.redirect('/');
+      }
+    });
 
     console.log('✅ Sesión guardada:', {
       id: usuario.id,

@@ -19,17 +19,26 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Configuración de sesión
-app.use(session({
+// Configuración de sesión MEJORADA para producción
+const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'comunisolve-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 1000 * 60 * 60 * 24,
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24, // 24 horas
     sameSite: 'lax'
   }
-}));
+};
+
+// En producción (Render), configurar secure y proxy
+if (process.env.NODE_ENV === 'production') {
+  sessionConfig.cookie.secure = true; // HTTPS en Render
+  sessionConfig.proxy = true;
+  sessionConfig.trustProxy = 1;
+}
+
+app.use(session(sessionConfig));
 
 // Pasar datos de sesión a todas las vistas
 app.use((req, res, next) => {
