@@ -22,7 +22,7 @@
     <% session.error = null; %>
   <% } %>
 
-  <!-- FILTROS AVANZADOS (visible para todos los roles) -->
+  <!-- FILTROS AVANZADOS -->
   <div class="card mb-4 shadow-sm">
     <div class="card-header bg-light">
       <h5 class="mb-0">
@@ -56,7 +56,7 @@
             </select>
           </div>
           
-          <!-- Categoría (solo para roles 1,2,3) -->
+          <!-- Categoría -->
           <div class="col-md-3">
             <label class="form-label">🏷️ Categoría</label>
             <select name="categoria_id" id="categoriaSelect" class="form-select">
@@ -69,7 +69,7 @@
             </select>
           </div>
           
-          <!-- Calle (solo para roles 1,2,3) -->
+          <!-- Calle -->
           <div class="col-md-3">
             <label class="form-label">📍 Calle</label>
             <select name="calle_id" id="calleSelect" class="form-select">
@@ -121,7 +121,7 @@
     </div>
   </div>
 
-  <!-- TABLA DE REPORTES -->
+  <!-- TABLA DE REPORTES (sin columna detalles) -->
   <div class="table-responsive">
     <table class="table table-striped table-hover table-sm align-middle" id="tablaReportes">
       <thead class="table-dark">
@@ -139,67 +139,59 @@
           <% if (usuario && usuario.rol_id === 4) { %>
             <th>Votar</th>
           <% } %>
-          <th>Detalles</th>
         </tr>
       </thead>
       <tbody>
-        <% if (reportes.length === 0) { %>
-          <tr>
-            <td colspan="9" class="text-center text-muted">No hay reportes registrados.</td>
-          </tr>
-        <% } else { %>
-          <% reportes.forEach(r => { %>
-            <tr class="reporte-fila" data-estado="<%= r.estado %>" data-id="<%= r.id %>" style="cursor: pointer;">
-              <td><strong><%= r.titulo %></strong></td>
-              <td><%= r.descripcion.length > 50 ? r.descripcion.substring(0,50) + '...' : r.descripcion %></td>
-              <td><span class="badge bg-<%= r.categoria_color || 'primary' %>"><%= r.categoria_icono ? r.categoria_icono + ' ' : '' %><%= r.categoria_nombre %></span></td>
-              <td><%= r.nombre_calle %></td>
-              <td><%= new Date(r.fecha).toLocaleDateString() %></td>
-              <td class="text-center"><span class="badge bg-secondary">👍 <%= r.total_votos || 0 %></span></td>
-              <td><span class="badge <%= r.estado === 'Pendiente' ? 'bg-warning' : r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>"><%= r.estado %></span></td>
-              
-              <!-- Acciones -->
-              <% if (usuario && [1,2,3].includes(usuario.rol_id)) { %>
-                <td>
-                  <form action="/reportes/<%= r.id %>/estado" method="POST" class="d-flex gap-1">
-                    <select name="estado" class="form-select form-select-sm" style="width: 100px;">
-                      <option value="Pendiente" <%= r.estado === 'Pendiente' ? 'selected' : '' %>>Pendiente</option>
-                      <option value="En Progreso" <%= r.estado === 'En Progreso' ? 'selected' : '' %>>Progreso</option>
-                      <option value="Resuelto" <%= r.estado === 'Resuelto' ? 'selected' : '' %>>Resuelto</option>
-                    </select>
-                    <button type="submit" class="btn btn-sm btn-success">✔️</button>
-                  </form>
-                </td>
-              <% } %>
+    <% if (reportes.length === 0) { %>
+      <tr>
+        <td colspan="8" class="text-center text-muted">No hay reportes registrados.</td>
+      </tr>
+    <% } else { %>
+      <% reportes.forEach(r => { %>
+        <tr class="reporte-fila" data-estado="<%= r.estado %>" data-id="<%= r.id %>" style="cursor: pointer;">
+          <td><strong><%= r.titulo %></strong></td>
+          <td><%= r.descripcion.length > 50 ? r.descripcion.substring(0,50) + '...' : r.descripcion %></td>
+          <td><span class="badge bg-<%= r.categoria_color || 'primary' %>"><%= r.categoria_icono ? r.categoria_icono + ' ' : '' %><%= r.categoria_nombre %></span></td>
+          <td><%= r.nombre_calle %></td>
+          <td><%= new Date(r.fecha).toLocaleDateString() %></td>
+          <td class="text-center"><span class="badge bg-secondary">👍 <%= r.total_votos || 0 %></span></td>
+          <td><span class="badge <%= r.estado === 'Pendiente' ? 'bg-warning' : r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>"><%= r.estado %></span></td>
+          
+          <!-- Acciones -->
+          <% if (usuario && [1,2,3].includes(usuario.rol_id)) { %>
+            <td>
+              <form action="/reportes/<%= r.id %>/estado" method="POST" class="d-flex gap-1">
+                <select name="estado" class="form-select form-select-sm" style="width: 100px;">
+                  <option value="Pendiente" <%= r.estado === 'Pendiente' ? 'selected' : '' %>>Pendiente</option>
+                  <option value="En Progreso" <%= r.estado === 'En Progreso' ? 'selected' : '' %>>Progreso</option>
+                  <option value="Resuelto" <%= r.estado === 'Resuelto' ? 'selected' : '' %>>Resuelto</option>
+                </select>
+                <button type="submit" class="btn btn-sm btn-success">✔️</button>
+              </form>
+            </td>
+          <% } %>
 
-              <!-- Votar -->
-              <% if (usuario && usuario.rol_id === 4) { %>
-                <td class="text-center">
-                  <% if (!votosUsuario[r.id]) { %>
-                    <form action="/reportes/<%= r.id %>/votar" method="POST">
-                      <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('¿Votar por este reporte?')">👍 Votar</button>
-                    </form>
-                  <% } else { %>
-                    <span class="badge bg-success">✓ Ya votaste</span>
-                  <% } %>
-                </td>
+          <!-- Votar -->
+          <% if (usuario && usuario.rol_id === 4) { %>
+            <td class="text-center">
+              <% if (!votosUsuario[r.id]) { %>
+                <form action="/reportes/<%= r.id %>/votar" method="POST">
+                  <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('¿Votar por este reporte?')">👍 Votar</button>
+                </form>
+              <% } else { %>
+                <span class="badge bg-success">✓ Ya votaste</span>
               <% } %>
-
-              <!-- Botón detalles -->
-              <td class="text-center">
-                <button class="btn btn-sm btn-outline-info ver-detalle" data-id="<%= r.id %>">
-                  🔍 Ver
-                </button>
-              </td>
-            </tr>
-          <% }) %>
-        <% } %>
-      </tbody>
+            </td>
+          <% } %>
+        </tr>
+      <% }) %>
+    <% } %>
+  </tbody>
     </table>
   </div>
 </div>
 
-<!-- MODALES (igual que antes) -->
+<!-- MODALES -->
 <div class="modal fade" id="modalReporteDetalle" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
@@ -272,7 +264,7 @@
     window.location.href = '/reportes';
   });
   
-  // Actualizar enlaces de exportación (solo si existen los botones)
+  // Actualizar enlaces de exportación
   function actualizarEnlacesExportacion() {
     const params = new URLSearchParams();
     const estado = document.getElementById('estadoSelect')?.value;
@@ -320,6 +312,114 @@
   }
   
   actualizarEnlacesExportacion();
+
+  // ========================
+  // DOBLE CLIC PARA VER DETALLES
+  // ========================
+  document.querySelectorAll('.reporte-fila').forEach(fila => {
+    fila.addEventListener('dblclick', async function(e) {
+      // Evitar que se active si se hizo clic en un botón o formulario
+      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target.tagName === 'FORM') return;
+      
+      const id = this.dataset.id;
+      const modalContent = document.getElementById('detalleReporteContent');
+      modalContent.innerHTML = '<div class="text-center">Cargando...</div>';
+      
+      // Ocultar secciones hasta cargar
+      const asignarEmpresaSection = document.getElementById('asignarEmpresaSection');
+      const asignarVoluntarioSection = document.getElementById('asignarVoluntarioSection');
+      if (asignarEmpresaSection) asignarEmpresaSection.style.display = 'none';
+      if (asignarVoluntarioSection) asignarVoluntarioSection.style.display = 'none';
+      
+      try {
+        const response = await fetch(`/reportes/${id}/detalle`);
+        const reporte = await response.json();
+        
+        let imagenHtml = '';
+        if (reporte.imagen) {
+          imagenHtml = `<div class="text-center mt-3">
+                          <img src="${reporte.imagen}" class="img-fluid rounded" style="max-height: 300px; cursor: pointer;" 
+                               onclick="verImagenGrande('${reporte.imagen}')">
+                        </div>`;
+        }
+        
+        let ubicacionHtml = '';
+        if (reporte.ubicacion_lat && reporte.ubicacion_lng) {
+          ubicacionHtml = `<div class="col-6"><strong>📍 Ubicación:</strong> ${reporte.ubicacion_lat}, ${reporte.ubicacion_lng}</div>`;
+        }
+        
+        let empresaHtml = '';
+        if (reporte.empresa_nombre) {
+          empresaHtml = `<div class="col-6"><strong>🏢 Empresa:</strong> <span class="badge bg-info">${escapeHtml(reporte.empresa_nombre)}</span></div>`;
+        } else {
+          empresaHtml = `<div class="col-6"><strong>🏢 Empresa:</strong> <span class="text-muted">No asignada</span></div>`;
+        }
+        
+        let reportadoPorHtml = '';
+        if (reporte.mostrar_nombre && reporte.nombre_usuario) {
+          reportadoPorHtml = `<div class="col-6"><strong>👤 Reportado por:</strong> ${escapeHtml(reporte.nombre_usuario)}</div>`;
+        } else {
+          reportadoPorHtml = `<div class="col-6"><strong>👤 Reportado por:</strong> <span class="text-muted">Anónimo</span></div>`;
+        }
+        
+        modalContent.innerHTML = `
+          <div class="row">
+            <div class="col-12">
+              <h5>${escapeHtml(reporte.titulo)}</h5>
+              <p class="text-muted">${escapeHtml(reporte.descripcion)}</p>
+            </div>
+          </div>
+          <div class="row mt-2">
+            <div class="col-6"><strong>📅 Fecha:</strong> ${new Date(reporte.fecha).toLocaleString()}</div>
+            <div class="col-6"><strong>🏷️ Categoría:</strong> <span class="badge bg-${reporte.categoria_color || 'primary'}">${reporte.categoria_icono || ''} ${reporte.categoria_nombre}</span></div>
+            <div class="col-6"><strong>📍 Calle:</strong> ${escapeHtml(reporte.nombre_calle)}</div>
+            ${reportadoPorHtml}
+            ${ubicacionHtml}
+            ${empresaHtml}
+            <div class="col-6"><strong>👍 Votos:</strong> ${reporte.total_votos || 0}</div>
+            <div class="col-6"><strong>📌 Estado:</strong> <span class="badge ${reporte.estado === 'Pendiente' ? 'bg-warning' : reporte.estado === 'En Progreso' ? 'bg-info' : 'bg-success'}">${reporte.estado}</span></div>
+          </div>
+          ${imagenHtml}
+        `;
+        
+        if (asignarEmpresaSection && (!reporte.empresa_nombre || reporte.empresa_nombre === '' || reporte.empresa_nombre === null)) {
+          asignarEmpresaSection.style.display = 'block';
+          const form = document.getElementById('formAsignarEmpresa');
+          if (form) {
+            form.action = `/reportes/${id}/asignar-empresa`;
+          }
+        }
+        
+        if (asignarVoluntarioSection) {
+          asignarVoluntarioSection.style.display = 'block';
+          document.getElementById('reporte_id_voluntario').value = id;
+          
+          try {
+            const volResponse = await fetch('/api/voluntarios/aprobados');
+            const voluntarios = await volResponse.json();
+            const selectVoluntario = document.querySelector('#formAsignarVoluntario select[name="voluntario_id"]');
+            if (selectVoluntario) {
+              selectVoluntario.innerHTML = '<option value="">-- Seleccionar voluntario --</option>';
+              voluntarios.forEach(v => {
+                selectVoluntario.innerHTML += `<option value="${v.id}">${escapeHtml(v.nombre)} - ${escapeHtml(v.habilidad)}</option>`;
+              });
+              const volForm = document.getElementById('formAsignarVoluntario');
+              if (volForm) {
+                volForm.action = `/voluntarios/asignar-reporte`;
+              }
+            }
+          } catch (err) {
+            console.error('Error cargando voluntarios:', err);
+          }
+        }
+        
+        new bootstrap.Modal(document.getElementById('modalReporteDetalle')).show();
+      } catch (error) {
+        console.error('Error:', error);
+        modalContent.innerHTML = '<div class="alert alert-danger">Error al cargar los detalles</div>';
+      }
+    });
+  });
 </script>
 
 <style>
@@ -327,7 +427,6 @@
   .badge { font-weight: normal; }
   .reporte-fila { cursor: pointer; }
   .reporte-fila:hover { background-color: #fff8f0 !important; }
-  .ver-detalle:hover { transform: scale(1.05); transition: transform 0.2s; }
   .btn-sm { transition: all 0.2s ease; }
   .card-header .btn-link { text-decoration: none; }
 </style>
