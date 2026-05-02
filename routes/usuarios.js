@@ -41,4 +41,7 @@ router.post('/usuarios/:id/eliminar',
   usuarioController.eliminar
 );
 
+router.post('/usuarios/:id/aprobar', authMiddleware, roleMiddleware([1,2]), usuarioController.aprobar);
+router.post('/usuarios/:id/rechazar', authMiddleware, roleMiddleware([1,2]), usuarioController.rechazar);
+
 module.exports = router;

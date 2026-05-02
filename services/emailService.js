@@ -325,6 +325,99 @@ async function enviarNotificacionNuevoVoluntario(administrador, voluntario) {
   }
 }
 
+// 6. Enviar correo cuando un nuevo usuario se registra (pendiente de aprobación)
+async function enviarNotificacionNuevoUsuario(administrador, nuevoUsuario) {
+  const mailOptions = {
+    from: `"ComuniSolve" <${process.env.EMAIL_USER}>`,
+    to: administrador.email,
+    subject: "🆕 Nuevo ciudadano pendiente de aprobación",
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+        <div style="text-align: center;">
+          <img src="${process.env.APP_URL}/images/isologo.png" alt="ComuniSolve" style="max-height: 60px;">
+        </div>
+        <h2 style="color: #fd6704bd; text-align: center;">¡Nuevo ciudadano registrado!</h2>
+        <p><strong>Hola ${administrador.nombre},</strong></p>
+        <p>Un nuevo ciudadano se ha registrado y está esperando tu aprobación:</p>
+        <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 15px 0;">
+          <p><strong>👤 Nombre:</strong> ${nuevoUsuario.nombre}</p>
+          <p><strong>📧 Email:</strong> ${nuevoUsuario.email}</p>
+          <p><strong>📞 Teléfono:</strong> ${nuevoUsuario.telefono || 'No especificado'}</p>
+          <p><strong>📍 Calle:</strong> ${nuevoUsuario.calle}</p>
+        </div>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${process.env.APP_URL}/usuarios" 
+             style="background-color: #fd6704bd; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+             Gestionar usuarios
+          </a>
+        </div>
+        <hr style="border: none; border-top: 1px solid #eee;" />
+        <p style="font-size: 0.7em; color: #aaa; text-align: center;">© ${new Date().getFullYear()} ComuniSolve - Gestión Comunitaria</p>
+      </div>
+    `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Correo de nuevo usuario enviado a:", administrador.email);
+    return { success: true };
+  } catch (error) {
+    console.error("❌ Error enviando email:", error);
+    return { success: false, error };
+  }
+}
+
+// 7. Enviar correo cuando un usuario es aprobado/rechazado
+async function enviarNotificacionEstadoUsuario(usuario, estado, motivo = '') {
+  const mailOptions = {
+    from: `"ComuniSolve" <${process.env.EMAIL_USER}>`,
+    to: usuario.email,
+    subject: estado === 'aprobado' ? '✅ ¡Tu cuenta ha sido aprobada!' : '📋 Actualización de tu cuenta',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+        <div style="text-align: center;">
+          <img src="${process.env.APP_URL}/images/isologo.png" alt="ComuniSolve" style="max-height: 60px;">
+        </div>
+        ${estado === 'aprobado' ? `
+          <h2 style="color: #28a745; text-align: center;">¡Cuenta aprobada!</h2>
+          <p><strong>Hola ${usuario.nombre},</strong></p>
+          <p>Tu cuenta ha sido <strong style="color: #28a745;">APROBADA</strong> por un líder comunitario.</p>
+          <p>Ya puedes iniciar sesión y empezar a reportar problemas en tu comunidad.</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.APP_URL}/login" 
+               style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+               Iniciar sesión
+            </a>
+          </div>
+        ` : `
+          <h2 style="color: #dc3545; text-align: center;">Actualización de tu cuenta</h2>
+          <p><strong>Hola ${usuario.nombre},</strong></p>
+          <p>Tu solicitud de registro ha sido <strong style="color: #dc3545;">RECHAZADA</strong>.</p>
+          ${motivo ? `<p><strong>Motivo:</strong> ${motivo}</p>` : ''}
+          <p>Puedes intentar registrarte nuevamente con información válida.</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.APP_URL}/registro" 
+               style="background-color: #fd6704bd; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+               Volver a registrarse
+            </a>
+          </div>
+        `}
+        <hr style="border: none; border-top: 1px solid #eee;" />
+        <p style="font-size: 0.7em; color: #aaa; text-align: center;">© ${new Date().getFullYear()} ComuniSolve - Gestión Comunitaria</p>
+      </div>
+    `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Correo de usuario ${estado} enviado a:`, usuario.email);
+    return { success: true };
+  } catch (error) {
+    console.error("❌ Error enviando email:", error);
+    return { success: false, error };
+  }
+}
+
 // 8. Notificar a voluntario cuando se le asigna un reporte (ya la tenemos arriba)
 
 module.exports = {
@@ -333,5 +426,8 @@ module.exports = {
   enviarNotificacionEmpresaAsignada,
   enviarNotificacionVoluntario,
   enviarCorreoRecuperacion,
-  enviarNotificacionAsignacionVoluntario  // 👈 NUEVA
+  enviarNotificacionAsignacionVoluntario,
+  enviarNotificacionNuevoVoluntario,
+  enviarNotificacionNuevoUsuario,     // 👈 NUEVO
+  enviarNotificacionEstadoUsuario     // 👈 NUEVO
 };

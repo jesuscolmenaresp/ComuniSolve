@@ -1,5 +1,6 @@
 const db = require('../models/db');
 const bcrypt = require('bcryptjs');
+const { enviarNotificacionNuevoUsuario } = require('../services/emailService');
 
 // Mostrar formulario de login
 exports.mostrarLogin = (req, res) => {
@@ -39,6 +40,18 @@ exports.login = async (req, res) => {
     if (!validPassword) {
       return res.render('login', { 
         error: 'Contraseña incorrecta',
+        registroExitoso: false
+      });
+    }
+
+    // ✅ VERIFICAR ESTADO DEL USUARIO
+    if (usuario.estado !== 'aprobado') {
+      let mensaje = 'Tu cuenta está pendiente de aprobación. Recibirás un correo cuando sea aprobada.';
+      if (usuario.estado === 'rechazado') {
+        mensaje = 'Tu cuenta ha sido rechazada. Contacta al administrador.';
+      }
+      return res.render('login', { 
+        error: mensaje,
         registroExitoso: false
       });
     }
@@ -122,11 +135,36 @@ exports.mostrarRegistro = async (req, res) => {
   }
 };
 
-// Registro de ciudadano
+// Registro de ciudadano (con cédula, confirmación y estado pendiente)
 exports.registrar = async (req, res) => {
-  const { nombre, email, password, telefono, calle_id } = req.body;
+  const { cedula, nombre, email, password, confirm_password, telefono, calle_id } = req.body;
 
-  console.log('📝 Registro intentado:', { nombre, email, telefono, calle_id });
+  // Validar que las contraseñas coincidan
+  if (password !== confirm_password) {
+    const [calles] = await db.query("SELECT * FROM calles ORDER BY nombre");
+    return res.render('registro', { 
+      error: 'Las contraseñas no coinciden', 
+      calles 
+    });
+  }
+
+  // Validar longitud de contraseña
+  if (password.length < 6) {
+    const [calles] = await db.query("SELECT * FROM calles ORDER BY nombre");
+    return res.render('registro', { 
+      error: 'La contraseña debe tener al menos 6 caracteres', 
+      calles 
+    });
+  }
+
+  // Validar cédula (solo números)
+  if (!cedula || !/^\d+$/.test(cedula)) {
+    const [calles] = await db.query("SELECT * FROM calles ORDER BY nombre");
+    return res.render('registro', { 
+      error: 'La cédula debe contener solo números', 
+      calles 
+    });
+  }
 
   try {
     // Verificar si el email ya existe
@@ -139,18 +177,53 @@ exports.registrar = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('✅ Contraseña hasheada correctamente');
+    // Verificar si la cédula ya existe
+    const [cedulaExistente] = await db.query('SELECT id FROM usuarios WHERE cedula = ?', [cedula]);
+    if (cedulaExistente.length > 0) {
+      const [calles] = await db.query("SELECT * FROM calles ORDER BY nombre");
+      return res.render('registro', { 
+        error: 'La cédula ya está registrada', 
+        calles 
+      });
+    }
 
-    await db.query(
-      'INSERT INTO usuarios (nombre, email, password, telefono, rol_id, calle_id) VALUES (?, ?, ?, ?, 4, ?)', 
-      [nombre, email, hashedPassword, telefono, calle_id || null]
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Insertar usuario con estado 'pendiente'
+    const [result] = await db.query(
+      'INSERT INTO usuarios (cedula, nombre, email, password, telefono, rol_id, calle_id, estado, fecha_registro) VALUES (?, ?, ?, ?, ?, 4, ?, "pendiente", NOW())', 
+      [cedula, nombre, email, hashedPassword, telefono, calle_id || null]
     );
 
-    console.log('✅ Usuario registrado exitosamente');
+    // Obtener la calle para saber quiénes deben ser notificados
+    const [calleInfo] = await db.query(`
+      SELECT c.nombre, l.email as lider_email, l.nombre as lider_nombre,
+             u.email as ubch_email, u.nombre as ubch_nombre
+      FROM calles c
+      LEFT JOIN usuarios l ON c.lider_id = l.id
+      LEFT JOIN usuarios u ON u.rol_id = 1
+      WHERE c.id = ?
+    `, [calle_id]);
+
+    // Notificar al líder de la calle
+    if (calleInfo[0]?.lider_email) {
+      await enviarNotificacionNuevoUsuario(
+        { email: calleInfo[0].lider_email, nombre: calleInfo[0].lider_nombre },
+        { cedula, nombre, email, telefono, calle: calleInfo[0].nombre }
+      );
+    }
+
+    // Notificar a UBCH
+    if (calleInfo[0]?.ubch_email) {
+      await enviarNotificacionNuevoUsuario(
+        { email: calleInfo[0].ubch_email, nombre: calleInfo[0].ubch_nombre || 'UBCH' },
+        { cedula, nombre, email, telefono, calle: calleInfo[0].nombre }
+      );
+    }
+
     res.redirect('/login?registro=exitoso');
   } catch (err) {
-    console.error('❌ Error en registro:', err);
+    console.error(err);
     const [calles] = await db.query("SELECT * FROM calles ORDER BY nombre");
     res.render('registro', { error: 'Error al registrar usuario', calles });
   }

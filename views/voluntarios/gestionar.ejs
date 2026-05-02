@@ -1,5 +1,17 @@
-<div class="container mt-4">
-  <h2 class="mb-4">📋 Gestionar Solicitudes de Voluntarios</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">📋 Gestionar Solicitudes de Voluntarios</h2>
+    <div class="d-flex gap-2">
+        <select id="filtroEstadoExport" class="form-select form-select-sm" style="width: 150px;">
+            <option value="todos">Todos los estados</option>
+            <option value="pendiente">Pendientes</option>
+            <option value="aprobado">Aprobados</option>
+            <option value="rechazado">Rechazados</option>
+        </select>
+        <a href="/voluntarios/exportar/excel" id="btnExportarVoluntarios" class="btn btn-success">
+            <i class="bi bi-file-excel"></i> Exportar a Excel
+        </a>
+    </div>
+</div>
 
   <% if (session && session.mensaje) { %>
     <div class="alert alert-success alert-dismissible fade show">
@@ -30,125 +42,145 @@
   </ul>
 
   <div class="tab-content">
-<!-- Pendientes -->
-<div class="tab-pane active" id="pendientes">
-  <div class="table-responsive">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Habilidad</th>
-          <th>Experiencia</th>
-          <th>Disponibilidad</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (solicitudes && solicitudes.length > 0) { %>
-          <% solicitudes.forEach(s => { %>
+    <!-- Pendientes -->
+    <div class="tab-pane active" id="pendientes">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
             <tr>
-              <td><%= new Date(s.fecha_solicitud).toLocaleDateString() %></td>
-              <td><%= s.nombre %></td>
-              <td><%= s.email %></td>
-              <td><%= s.habilidad %></td>
-              <td><%= s.experiencia ? s.experiencia.substring(0, 50) : '—' %></td>
-              <td><%= s.disponibilidad_horaria || '—' %></td>
-              <td>
-                <form action="/voluntarios/<%= s.id %>/aprobar" method="POST" class="d-inline">
-                  <button type="submit" class="btn btn-sm btn-success">✅ Aprobar</button>
-                </form>
-                <form action="/voluntarios/<%= s.id %>/rechazar" method="POST" class="d-inline">
-                  <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Rechazar este voluntario?')">❌ Rechazar</button>
-                </form>
-              </td>
+              <th>Fecha</th>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Habilidad</th>
+              <th>Experiencia</th>
+              <th>Disponibilidad</th>
+              <th>Acciones</th>
             </tr>
-          <% }) %>
-        <% } else { %>
-          <tr><td colspan="7" class="text-center">No hay solicitudes pendientes</td></tr>
-        <% } %>
-      </tbody>
-    </table>
+          </thead>
+          <tbody>
+            <% if (solicitudes && solicitudes.length > 0) { %>
+              <% solicitudes.forEach(s => { %>
+                <tr>
+                  <td><%= new Date(s.fecha_solicitud).toLocaleDateString() %></td>
+                  <td><%= s.nombre %></td>
+                  <td><%= s.email %></td>
+                  <td><%= s.habilidad %></td>
+                  <td><%= s.experiencia ? s.experiencia.substring(0, 50) : '—' %></td>
+                  <td><%= s.disponibilidad_horaria || '—' %></td>
+                  <td>
+                    <form action="/voluntarios/<%= s.id %>/aprobar" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-sm btn-success">✅ Aprobar</button>
+                    </form>
+                    <form action="/voluntarios/<%= s.id %>/rechazar" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Rechazar este voluntario?')">❌ Rechazar</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr><td colspan="7" class="text-center">No hay solicitudes pendientes</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Aprobados -->
+    <div class="tab-pane" id="aprobados">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Habilidad</th>
+              <th>Experiencia</th>
+              <th>Disponibilidad</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (aprobados && aprobados.length > 0) { %>
+              <% aprobados.forEach(v => { %>
+                <tr>
+                  <td><%= v.nombre %></td>
+                  <td><%= v.email %></td>
+                  <td><%= v.habilidad %></td>
+                  <td><%= v.experiencia ? v.experiencia.substring(0, 50) : '—' %></td>
+                  <td><%= v.disponibilidad_horaria || '—' %></td>
+                  <td>
+                    <form action="/voluntarios/<%= v.id %>/cambiar-estado" method="POST" class="d-inline"
+                          onsubmit="return confirm('¿Cambiar este voluntario a RECHAZADO?')">
+                      <input type="hidden" name="nuevo_estado" value="rechazado">
+                      <button type="submit" class="btn btn-sm btn-warning">⚠️ Rechazar</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr><td colspan="6" class="text-center">No hay voluntarios aprobados</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Rechazados -->
+    <div class="tab-pane" id="rechazados">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Habilidad</th>
+              <th>Motivo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (rechazados && rechazados.length > 0) { %>
+              <% rechazados.forEach(v => { %>
+                <tr>
+                  <td><%= new Date(v.fecha_respuesta).toLocaleDateString() %></td>
+                  <td><%= v.nombre %></td>
+                  <td><%= v.email %></td>
+                  <td><%= v.habilidad %></td>
+                  <td>—</td>
+                  <td>
+                    <form action="/voluntarios/<%= v.id %>/cambiar-estado" method="POST" class="d-inline"
+                          onsubmit="return confirm('¿Cambiar este voluntario a APROBADO?')">
+                      <input type="hidden" name="nuevo_estado" value="aprobado">
+                      <button type="submit" class="btn btn-sm btn-success">✅ Aprobar</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr><td colspan="6" class="text-center">No hay solicitudes rechazadas</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- Aprobados -->
-<div class="tab-pane" id="aprobados">
-  <div class="table-responsive">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Habilidad</th>
-          <th>Experiencia</th>
-          <th>Disponibilidad</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (aprobados && aprobados.length > 0) { %>
-          <% aprobados.forEach(v => { %>
-            <tr>
-              <td><%= v.nombre %></td>
-              <td><%= v.email %></td>
-              <td><%= v.habilidad %></td>
-              <td><%= v.experiencia ? v.experiencia.substring(0, 50) : '—' %></td>
-              <td><%= v.disponibilidad_horaria || '—' %></td>
-              <td>
-                <form action="/voluntarios/<%= v.id %>/cambiar-estado" method="POST" class="d-inline"
-                      onsubmit="return confirm('¿Cambiar este voluntario a RECHAZADO?')">
-                  <input type="hidden" name="nuevo_estado" value="rechazado">
-                  <button type="submit" class="btn btn-sm btn-warning">⚠️ Rechazar</button>
-                </form>
-              </td>
-            </tr>
-          <% }) %>
-        <% } else { %>
-          <tr><td colspan="6" class="text-center">No hay voluntarios aprobados</td></tr>
-        <% } %>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- Rechazados -->
-<div class="tab-pane" id="rechazados">
-  <div class="table-responsive">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Habilidad</th>
-          <th>Motivo</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (rechazados && rechazados.length > 0) { %>
-          <% rechazados.forEach(v => { %>
-            <tr>
-              <td><%= new Date(v.fecha_respuesta).toLocaleDateString() %></td>
-              <td><%= v.nombre %></td>
-              <td><%= v.email %></td>
-              <td><%= v.habilidad %></td>
-              <td>—</td>
-              <td>
-                <form action="/voluntarios/<%= v.id %>/cambiar-estado" method="POST" class="d-inline"
-                      onsubmit="return confirm('¿Cambiar este voluntario a APROBADO?')">
-                  <input type="hidden" name="nuevo_estado" value="aprobado">
-                  <button type="submit" class="btn btn-sm btn-success">✅ Aprobar</button>
-                </form>
-              </td>
-            </tr>
-          <% }) %>
-        <% } else { %>
-          <tr><td colspan="6" class="text-center">No hay solicitudes rechazadas</td></tr>
-        <% } %>
-      </tbody>
-    </table>
-  </div>
-</div>
+<script>
+    // Actualizar enlace de exportación según filtro
+    const filtroEstado = document.getElementById('filtroEstadoExport');
+    const btnExportar = document.getElementById('btnExportarVoluntarios');
+    
+    function actualizarEnlaceExportacion() {
+        const estado = filtroEstado.value;
+        if (estado !== 'todos') {
+            btnExportar.href = `/voluntarios/exportar/excel?estado=${estado}`;
+        } else {
+            btnExportar.href = '/voluntarios/exportar/excel';
+        }
+    }
+    
+    filtroEstado.addEventListener('change', actualizarEnlaceExportacion);
+    actualizarEnlaceExportacion();
+</script>

@@ -123,26 +123,23 @@ exports.admin = async (req, res) => {
 };
 
 // ==========================
-// 📌 DASHBOARD LÍDER (simplificado)
+// 📌 DASHBOARD LÍDER (mejorado con gráficos y más datos)
 // ==========================
 exports.lider = async (req, res) => {
   const usuario = req.session.usuario;
-  console.log("📊 Dashboard Líder iniciado para usuario:", usuario?.id);
+  const { fecha_desde, fecha_hasta } = req.query;
   
   try {
-    // Obtener calles que lidera
-    let misCalles = [];
-    try {
-      const [rows] = await db.query(`
-        SELECT id, nombre FROM calles WHERE lider_id = ?
-      `, [usuario.id]);
-      misCalles = rows;
-      console.log("✅ Calles lideradas:", misCalles.length);
-    } catch (err) {
-      console.error("❌ Error obteniendo calles:", err.message);
-    }
+    // 1. Obtener las calles que lidera
+    const [misCalles] = await db.query(`
+      SELECT id, nombre 
+      FROM calles 
+      WHERE lider_id = ?
+      ORDER BY nombre
+    `, [usuario.id]);
     
     const idsCalles = misCalles.map(c => c.id);
+    const nombresCalles = misCalles.map(c => c.nombre);
     
     if (idsCalles.length === 0) {
       return res.render('dashboards/lider', { 
@@ -150,99 +147,119 @@ exports.lider = async (req, res) => {
         misCalles: [],
         porCategoria: [],
         porEstado: [],
+        topCalles: [],
+        voluntarios: [],
         reportesRecientes: [],
-        totales: { total_reportes: 0, pendientes: 0, en_progreso: 0, resueltos: 0 }
+        totales: {
+          total_reportes: 0,
+          pendientes: 0,
+          en_progreso: 0,
+          resueltos: 0
+        },
+        session: req.session
       });
     }
 
-    // Reportes por categoría
-    let porCategoria = [];
-    try {
-      const placeholders = idsCalles.map(() => '?').join(',');
-      const [rows] = await db.query(`
-        SELECT cat.nombre, COUNT(*) as total
-        FROM reportes r
-        INNER JOIN categorias cat ON r.categoria_id = cat.id
-        WHERE r.calle_id IN (${placeholders})
-        GROUP BY cat.id, cat.nombre
-      `, idsCalles);
-      porCategoria = rows;
-    } catch (err) {
-      console.error("❌ Error en categorías líder:", err.message);
+    // Construir filtro de fechas
+    let fechaFilter = '';
+    let fechaParams = [];
+    if (fecha_desde && fecha_hasta) {
+      fechaFilter = ' AND DATE(r.fecha) BETWEEN ? AND ?';
+      fechaParams = [fecha_desde, fecha_hasta];
+    } else if (fecha_desde) {
+      fechaFilter = ' AND DATE(r.fecha) >= ?';
+      fechaParams = [fecha_desde];
+    } else if (fecha_hasta) {
+      fechaFilter = ' AND DATE(r.fecha) <= ?';
+      fechaParams = [fecha_hasta];
     }
 
-    // Reportes por estado
-    let porEstado = [];
-    try {
-      const placeholders = idsCalles.map(() => '?').join(',');
-      const [rows] = await db.query(`
-        SELECT estado, COUNT(*) as total
-        FROM reportes
-        WHERE calle_id IN (${placeholders})
-        GROUP BY estado
-      `, idsCalles);
-      porEstado = rows;
-    } catch (err) {
-      console.error("❌ Error en estados líder:", err.message);
-    }
+    // 2. Reportes por categoría en sus calles (para gráfico)
+    const [porCategoria] = await db.query(`
+      SELECT cat.nombre, cat.color, COUNT(*) as total
+      FROM reportes r
+      INNER JOIN categorias cat ON r.categoria_id = cat.id
+      WHERE r.calle_id IN (?)
+      ${fechaFilter}
+      GROUP BY cat.id, cat.nombre, cat.color
+      ORDER BY total DESC
+    `, [idsCalles, ...fechaParams]);
 
-    // Reportes recientes
-    let reportesRecientes = [];
-    try {
-      const placeholders = idsCalles.map(() => '?').join(',');
-      const [rows] = await db.query(`
-        SELECT r.id, r.titulo, r.descripcion, r.fecha, r.estado,
-               c.nombre as calle
-        FROM reportes r
-        INNER JOIN calles c ON r.calle_id = c.id
-        WHERE r.calle_id IN (${placeholders})
-        ORDER BY r.fecha DESC
-        LIMIT 5
-      `, idsCalles);
-      reportesRecientes = rows;
-    } catch (err) {
-      console.error("❌ Error en reportes recientes líder:", err.message);
-    }
+    // 3. Reportes por estado en sus calles (para gráfico)
+    const [porEstado] = await db.query(`
+      SELECT estado, COUNT(*) as total
+      FROM reportes
+      WHERE calle_id IN (?)
+      ${fechaFilter}
+      GROUP BY estado
+    `, [idsCalles, ...fechaParams]);
 
-    // Totales
-    let totales = { total_reportes: 0, pendientes: 0, en_progreso: 0, resueltos: 0 };
-    try {
-      const placeholders = idsCalles.map(() => '?').join(',');
-      const [totalRow] = await db.query(`
-        SELECT COUNT(*) as total FROM reportes WHERE calle_id IN (${placeholders})
-      `, idsCalles);
-      totales.total_reportes = totalRow[0]?.total || 0;
-      
-      const [pendRow] = await db.query(`
-        SELECT COUNT(*) as total FROM reportes WHERE calle_id IN (${placeholders}) AND estado = 'Pendiente'
-      `, idsCalles);
-      totales.pendientes = pendRow[0]?.total || 0;
-      
-      const [progRow] = await db.query(`
-        SELECT COUNT(*) as total FROM reportes WHERE calle_id IN (${placeholders}) AND estado = 'En Progreso'
-      `, idsCalles);
-      totales.en_progreso = progRow[0]?.total || 0;
-      
-      const [resRow] = await db.query(`
-        SELECT COUNT(*) as total FROM reportes WHERE calle_id IN (${placeholders}) AND estado = 'Resuelto'
-      `, idsCalles);
-      totales.resueltos = resRow[0]?.total || 0;
-    } catch (err) {
-      console.error("❌ Error en totales líder:", err.message);
-    }
+    // 4. Top 5 calles con más reportes
+    const [topCalles] = await db.query(`
+      SELECT c.nombre, COUNT(r.id) as total
+      FROM reportes r
+      INNER JOIN calles c ON r.calle_id = c.id
+      WHERE r.calle_id IN (?)
+      ${fechaFilter}
+      GROUP BY c.id, c.nombre
+      ORDER BY total DESC
+      LIMIT 5
+    `, [idsCalles, ...fechaParams]);
+
+    // 5. Voluntarios aprobados en sus calles
+    const [voluntarios] = await db.query(`
+      SELECT DISTINCT v.nombre, v.habilidad, v.telefono
+      FROM voluntarios v
+      INNER JOIN usuarios u ON v.usuario_id = u.id
+      WHERE u.calle_id IN (?) AND v.estado = 'aprobado'
+      LIMIT 5
+    `, [idsCalles]);
+
+    // 6. Reportes recientes en sus calles (últimos 5)
+    const [reportesRecientes] = await db.query(`
+      SELECT r.id, r.titulo, r.descripcion, r.fecha, r.estado,
+             c.nombre as calle,
+             cat.nombre as categoria,
+             u.nombre as reportado_por
+      FROM reportes r
+      INNER JOIN calles c ON r.calle_id = c.id
+      INNER JOIN categorias cat ON r.categoria_id = cat.id
+      LEFT JOIN usuarios u ON r.usuario_id = u.id
+      WHERE r.calle_id IN (?)
+      ORDER BY r.fecha DESC
+      LIMIT 5
+    `, [idsCalles]);
+
+    // 7. Totales generales en sus calles
+    const [totales] = await db.query(`
+      SELECT 
+        COUNT(*) as total_reportes,
+        SUM(CASE WHEN estado = 'Pendiente' THEN 1 ELSE 0 END) as pendientes,
+        SUM(CASE WHEN estado = 'En Progreso' THEN 1 ELSE 0 END) as en_progreso,
+        SUM(CASE WHEN estado = 'Resuelto' THEN 1 ELSE 0 END) as resueltos
+      FROM reportes
+      WHERE calle_id IN (?)
+      ${fechaFilter}
+    `, [idsCalles, ...fechaParams]);
 
     res.render('dashboards/lider', { 
       usuario,
       misCalles,
+      nombresCalles: JSON.stringify(nombresCalles),
       porCategoria,
       porEstado,
+      topCalles,
+      voluntarios,
       reportesRecientes,
-      totales
+      totales: totales[0] || { total_reportes: 0, pendientes: 0, en_progreso: 0, resueltos: 0 },
+      fecha_desde,
+      fecha_hasta,
+      session: req.session
     });
-    
+
   } catch (err) {
-    console.error("❌ Error FATAL en líder:", err);
-    res.status(500).send("Error al cargar el dashboard: " + err.message);
+    console.error(err);
+    res.status(500).send("Error al cargar el dashboard de líder");
   }
 };
 

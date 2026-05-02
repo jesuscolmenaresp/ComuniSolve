@@ -1,9 +1,17 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>📋 Registro de Auditoría</h2>
-        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalLimpiar">
-            🧹 Limpiar registros antiguos
-        </button>
+        <div class="d-flex gap-2">
+            <a href="/auditoria/exportar/excel" id="btnExportarExcel" class="btn btn-success">
+                <i class="bi bi-file-excel"></i> Exportar a Excel
+            </a>
+            <a href="/auditoria/exportar/pdf" id="btnExportarPDF" class="btn btn-danger">
+                <i class="bi bi-file-pdf"></i> Exportar a PDF
+            </a>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalLimpiar">
+                🧹 Limpiar registros antiguos
+            </button>
+        </div>
     </div>
 
     <% if (session && session.mensaje) { %>
@@ -22,31 +30,60 @@
         <% session.error = null; %>
     <% } %>
 
-    <!-- Filtros -->
-    <div class="row mb-3 g-2">
-        <div class="col-md-4">
-            <select id="filtroAccion" class="form-select">
-                <option value="0">📌 Todas las acciones</option>
-                <option value="CREAR">➕ Crear</option>
-                <option value="EDITAR">✏️ Editar</option>
-                <option value="ELIMINAR">🗑️ Eliminar</option>
-                <option value="ASIGNAR">🏢 Asignar empresa</option>
-                <option value="CAMBIAR_ESTADO">🔄 Cambiar estado</option>
-            </select>
+    <!-- Filtros avanzados -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
         </div>
-        <div class="col-md-4">
-            <input type="text" id="buscarUsuario" class="form-control" placeholder="🔍 Buscar por usuario...">
-        </div>
-        <div class="col-md-4">
-            <button id="limpiarFiltros" class="btn btn-outline-secondary w-100">
-                🧹 Limpiar filtros
-            </button>
+        <div class="card-body">
+            <form id="formFiltros" method="GET" action="/auditoria" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Usuario</label>
+                    <input type="text" name="usuario" id="filtroUsuario" class="form-control" placeholder="Nombre del usuario" value="<%= filters && filters.usuario ? filters.usuario : '' %>">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Acción</label>
+                    <select name="accion" id="filtroAccion" class="form-select">
+                        <option value="todos" <%= (!filters || filters.accion === 'todos' || !filters.accion) ? 'selected' : '' %>>Todos</option>
+                        <option value="CREAR" <%= filters && filters.accion === 'CREAR' ? 'selected' : '' %>>Crear</option>
+                        <option value="EDITAR" <%= filters && filters.accion === 'EDITAR' ? 'selected' : '' %>>Editar</option>
+                        <option value="ELIMINAR" <%= filters && filters.accion === 'ELIMINAR' ? 'selected' : '' %>>Eliminar</option>
+                        <option value="ASIGNAR" <%= filters && filters.accion === 'ASIGNAR' ? 'selected' : '' %>>Asignar empresa</option>
+                        <option value="CAMBIAR_ESTADO" <%= filters && filters.accion === 'CAMBIAR_ESTADO' ? 'selected' : '' %>>Cambiar estado</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Tabla</label>
+                    <select name="tabla" id="filtroTabla" class="form-select">
+                        <option value="todos" <%= (!filters || filters.tabla === 'todos' || !filters.tabla) ? 'selected' : '' %>>Todos</option>
+                        <option value="usuarios" <%= filters && filters.tabla === 'usuarios' ? 'selected' : '' %>>Usuarios</option>
+                        <option value="reportes" <%= filters && filters.tabla === 'reportes' ? 'selected' : '' %>>Reportes</option>
+                        <option value="voluntarios" <%= filters && filters.tabla === 'voluntarios' ? 'selected' : '' %>>Voluntarios</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Fecha desde</label>
+                    <input type="date" name="fecha_desde" id="filtroFechaDesde" class="form-control" value="<%= filters && filters.fecha_desde ? filters.fecha_desde : '' %>">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Fecha hasta</label>
+                    <input type="date" name="fecha_hasta" id="filtroFechaHasta" class="form-control" value="<%= filters && filters.fecha_hasta ? filters.fecha_hasta : '' %>">
+                </div>
+                <div class="col-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                    <button type="button" id="btnLimpiarFiltros" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Limpiar filtros
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
     <div class="table-responsive">
-        <table class="table table-hover table-sm" id="tablaAuditoria">
-            <thead class="table-light">
+        <table class="table table-striped table-hover table-sm" id="tablaAuditoria">
+            <thead class="table-dark">
                 <tr>
                     <th>Fecha</th>
                     <th>Usuario</th>
@@ -54,11 +91,10 @@
                     <th>Tabla</th>
                     <th>Registro ID</th>
                     <th>Detalles</th>
-                </thead>
+                 </thead>
             <tbody>
                 <% if (registros && registros.length > 0) { %>
                     <% registros.forEach(r => { 
-                        // Preparar datos para el modal
                         let datosAnterioresObj = null;
                         let datosNuevosObj = null;
                         
@@ -69,11 +105,7 @@
                             console.error('Error parsing JSON');
                         }
                     %>
-                        <tr data-accion="<%= r.accion %>" data-usuario="<%= r.usuario_nombre ? r.usuario_nombre.toLowerCase() : '' %>"
-                            data-datos-anteriores='<%- JSON.stringify(datosAnterioresObj) %>'
-                            data-datos-nuevos='<%- JSON.stringify(datosNuevosObj) %>'
-                            data-tabla="<%= r.tabla %>"
-                            data-accion-nombre="<%= r.accion %>">
+                        <tr>
                             <td class="small"><%= new Date(r.fecha).toLocaleString() %></td>
                             <td><%= r.usuario_nombre || 'Sistema' %></td>
                             <td>
@@ -82,6 +114,7 @@
                                     r.accion === 'EDITAR' ? 'bg-warning text-dark' : 
                                     r.accion === 'ELIMINAR' ? 'bg-danger' : 
                                     r.accion === 'ASIGNAR' ? 'bg-info' : 
+                                    r.accion === 'CAMBIAR_ESTADO' ? 'bg-primary' : 
                                     'bg-secondary' %>">
                                     <%= r.accion %>
                                 </span>
@@ -95,14 +128,17 @@
                                         data-tabla="<%= r.tabla %>"
                                         data-registro-id="<%= r.registro_id %>"
                                         data-fecha="<%= new Date(r.fecha).toLocaleString() %>"
-                                        data-usuario="<%= r.usuario_nombre || 'Sistema' %>">
+                                        data-usuario="<%= r.usuario_nombre || 'Sistema' %>"
+                                        data-datos-anteriores='<%- JSON.stringify(datosAnterioresObj) %>'
+                                        data-datos-nuevos='<%- JSON.stringify(datosNuevosObj) %>'>
                                     🔍 Ver detalles
                                 </button>
                             </td>
                         </tr>
                     <% }) %>
                 <% } else { %>
-                      <td colspan="6" class="text-center py-5 text-muted">
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
                             No hay registros de auditoría
                         </td>
                     </tr>
@@ -162,110 +198,121 @@
 </div>
 
 <script>
-    // Filtros
-    const filtroAccion = document.getElementById('filtroAccion');
-    const buscarUsuario = document.getElementById('buscarUsuario');
-    const limpiarFiltros = document.getElementById('limpiarFiltros');
-    
-    function aplicarFiltros() {
-        const accion = filtroAccion.value;
-        const texto = buscarUsuario.value.toLowerCase();
+    // Actualizar enlaces de exportación con los filtros actuales
+    function actualizarEnlacesExportacion() {
+        const usuario = document.getElementById('filtroUsuario')?.value || '';
+        const accion = document.getElementById('filtroAccion')?.value || 'todos';
+        const tabla = document.getElementById('filtroTabla')?.value || 'todos';
+        const fechaDesde = document.getElementById('filtroFechaDesde')?.value || '';
+        const fechaHasta = document.getElementById('filtroFechaHasta')?.value || '';
         
-        document.querySelectorAll('#tablaAuditoria tbody tr').forEach(fila => {
-            const dataAccion = fila.dataset.accion;
-            const dataUsuario = fila.dataset.usuario;
-            
-            let mostrar = true;
-            if (accion != 0 && dataAccion !== accion) mostrar = false;
-            if (texto && dataUsuario && !dataUsuario.includes(texto)) mostrar = false;
-            fila.style.display = mostrar ? '' : 'none';
-        });
+        const params = new URLSearchParams();
+        if (usuario) params.append('usuario', usuario);
+        if (accion && accion !== 'todos') params.append('accion', accion);
+        if (tabla && tabla !== 'todos') params.append('tabla', tabla);
+        if (fechaDesde) params.append('fecha_desde', fechaDesde);
+        if (fechaHasta) params.append('fecha_hasta', fechaHasta);
+        
+        const queryString = params.toString();
+        const excelBtn = document.getElementById('btnExportarExcel');
+        const pdfBtn = document.getElementById('btnExportarPDF');
+        
+        if (excelBtn) excelBtn.href = `/auditoria/exportar/excel${queryString ? '?' + queryString : ''}`;
+        if (pdfBtn) pdfBtn.href = `/auditoria/exportar/pdf${queryString ? '?' + queryString : ''}`;
     }
     
-    filtroAccion.addEventListener('change', aplicarFiltros);
-    buscarUsuario.addEventListener('keyup', aplicarFiltros);
-    limpiarFiltros.addEventListener('click', () => {
-        filtroAccion.value = '0';
-        buscarUsuario.value = '';
-        aplicarFiltros();
+    // Escuchar cambios en los filtros
+    const filtros = ['filtroUsuario', 'filtroAccion', 'filtroTabla', 'filtroFechaDesde', 'filtroFechaHasta'];
+    filtros.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('change', actualizarEnlacesExportacion);
+            element.addEventListener('keyup', actualizarEnlacesExportacion);
+        }
     });
     
+    // Limpiar filtros
+    document.getElementById('btnLimpiarFiltros')?.addEventListener('click', () => {
+        window.location.href = '/auditoria';
+    });
+    
+    // Inicializar enlaces
+    actualizarEnlacesExportacion();
+
     // Función para formatear datos de forma legible
     function formatearDatos(datos, titulo, icono) {
         if (!datos || Object.keys(datos).length === 0) return '';
         
-        let html = `<h6 class="mt-3">${icono} ${titulo}:</h6>
-                    <div class="table-responsive">
-                        <table class="table table-sm table-bordered">`;
+        let html = `<div class="mt-3">
+                        <div class="fw-bold mb-2">${icono} ${titulo}:</div>
+                        <table class="table table-sm table-bordered bg-light">
+                            <thead>
+                                <tr><th>Campo</th><th>Valor</th></td>
+                            </thead>
+                            <tbody>`;
         
         for (const [key, value] of Object.entries(datos)) {
-            // Traducir nombres de campos
             let campo = key;
             switch(key) {
-                case 'nombre': campo = 'Nombre'; break;
-                case 'email': campo = 'Email'; break;
-                case 'telefono': campo = 'Teléfono'; break;
-                case 'rol_id': campo = 'Rol ID'; break;
-                case 'calle_id': campo = 'Calle ID'; break;
-                case 'estado': campo = 'Estado'; break;
-                case 'empresa_id': campo = 'Empresa ID'; break;
-                case 'categoria': campo = 'Categoría'; break;
-                case 'descripcion': campo = 'Descripción'; break;
+                case 'nombre': campo = '👤 Nombre'; break;
+                case 'email': campo = '📧 Email'; break;
+                case 'telefono': campo = '📞 Teléfono'; break;
+                case 'rol_id': campo = '🎭 Rol ID'; break;
+                case 'calle_id': campo = '📍 Calle ID'; break;
+                case 'estado': campo = '📌 Estado'; break;
+                case 'empresa_id': campo = '🏢 Empresa ID'; break;
+                case 'categoria': campo = '🏷️ Categoría'; break;
+                case 'cedula': campo = '🆔 Cédula'; break;
+                case 'password': campo = '🔑 Contraseña'; break;
                 default: campo = key.charAt(0).toUpperCase() + key.slice(1);
             }
             
             let valor = value;
-            if (value === null) valor = '<span class="text-muted">(vacío)</span>';
-            if (value === '') valor = '<span class="text-muted">(vacío)</span>';
+            if (value === null || value === '') valor = '<span class="text-muted">(vacío)</span>';
+            if (key === 'password') valor = '••••••••';
             
-            html += `<tr>
-                        <td class="fw-bold" style="width: 40%">${campo}</td>
-                        <td>${valor}</td>
-                     </tr>`;
+            html += `<tr><td class="fw-bold" style="width: 40%">${campo}</td><td>${valor}</td></tr>`;
         }
         
-        html += `</table></div>`;
+        html += `</tbody></table></div>`;
         return html;
     }
     
     // Ver detalles
     document.querySelectorAll('.ver-detalle').forEach(btn => {
         btn.addEventListener('click', function() {
-            const fila = this.closest('tr');
             const accion = this.dataset.accion;
             const tabla = this.dataset.tabla;
             const registroId = this.dataset.registroId;
             const fecha = this.dataset.fecha;
             const usuario = this.dataset.usuario;
             
-            // Obtener datos de la fila
             let datosAnteriores = null;
             let datosNuevos = null;
             
             try {
-                if (fila.dataset.datosAnteriores && fila.dataset.datosAnteriores !== 'null') {
-                    datosAnteriores = JSON.parse(fila.dataset.datosAnteriores);
+                if (this.dataset.datosAnteriores && this.dataset.datosAnteriores !== 'null' && this.dataset.datosAnteriores !== 'undefined') {
+                    datosAnteriores = JSON.parse(this.dataset.datosAnteriores);
                 }
-                if (fila.dataset.datosNuevos && fila.dataset.datosNuevos !== 'null') {
-                    datosNuevos = JSON.parse(fila.dataset.datosNuevos);
+                if (this.dataset.datosNuevos && this.dataset.datosNuevos !== 'null' && this.dataset.datosNuevos !== 'undefined') {
+                    datosNuevos = JSON.parse(this.dataset.datosNuevos);
                 }
             } catch(e) {
                 console.error('Error al parsear datos:', e);
             }
             
-            // Construir contenido
             let html = `
                 <div class="mb-3">
                     <div class="row">
-                        <div class="col-4 fw-bold">Fecha:</div>
+                        <div class="col-4 fw-bold">📅 Fecha:</div>
                         <div class="col-8">${fecha}</div>
                     </div>
                     <div class="row mt-2">
-                        <div class="col-4 fw-bold">Usuario:</div>
+                        <div class="col-4 fw-bold">👤 Usuario:</div>
                         <div class="col-8">${usuario}</div>
                     </div>
                     <div class="row mt-2">
-                        <div class="col-4 fw-bold">Acción:</div>
+                        <div class="col-4 fw-bold">⚡ Acción:</div>
                         <div class="col-8">
                             <span class="badge ${accion === 'CREAR' ? 'bg-success' : accion === 'EDITAR' ? 'bg-warning' : accion === 'ELIMINAR' ? 'bg-danger' : 'bg-info'}">
                                 ${accion}
@@ -273,44 +320,45 @@
                         </div>
                     </div>
                     <div class="row mt-2">
-                        <div class="col-4 fw-bold">Tabla:</div>
+                        <div class="col-4 fw-bold">📋 Tabla:</div>
                         <div class="col-8">${tabla}</div>
                     </div>
                     <div class="row mt-2">
-                        <div class="col-4 fw-bold">Registro ID:</div>
+                        <div class="col-4 fw-bold">🔢 Registro ID:</div>
                         <div class="col-8">${registroId || '—'}</div>
                     </div>
                 </div>
             `;
             
-            // Mostrar datos según la acción
             if (accion === 'CREAR' && datosNuevos) {
-                html += formatearDatos(datosNuevos, 'Datos creados', '✅');
+                html += formatearDatos(datosNuevos, 'DATOS CREADOS', '✅');
             } 
             else if (accion === 'EDITAR') {
-                if (datosAnteriores) {
-                    html += formatearDatos(datosAnteriores, 'Datos anteriores', '📄');
+                if (datosAnteriores && Object.keys(datosAnteriores).length > 0) {
+                    html += formatearDatos(datosAnteriores, 'DATOS ANTERIORES', '📄');
+                } else {
+                    html += `<div class="alert alert-info mt-2">No se registraron datos anteriores</div>`;
                 }
-                if (datosNuevos) {
-                    html += formatearDatos(datosNuevos, 'Datos nuevos', '🆕');
+                if (datosNuevos && Object.keys(datosNuevos).length > 0) {
+                    html += formatearDatos(datosNuevos, 'DATOS NUEVOS', '🆕');
                 }
             }
             else if (accion === 'ELIMINAR' && datosAnteriores) {
-                html += formatearDatos(datosAnteriores, 'Datos eliminados', '🗑️');
+                html += formatearDatos(datosAnteriores, 'DATOS ELIMINADOS', '🗑️');
             }
             else if (accion === 'ASIGNAR' && datosNuevos) {
-                html += formatearDatos(datosNuevos, 'Asignación realizada', '🏢');
+                html += formatearDatos(datosNuevos, 'ASIGNACIÓN REALIZADA', '🏢');
             }
             else if (accion === 'CAMBIAR_ESTADO') {
-                if (datosAnteriores) {
-                    html += formatearDatos(datosAnteriores, 'Estado anterior', '📄');
+                if (datosAnteriores && Object.keys(datosAnteriores).length > 0) {
+                    html += formatearDatos(datosAnteriores, 'ESTADO ANTERIOR', '📄');
                 }
-                if (datosNuevos) {
-                    html += formatearDatos(datosNuevos, 'Estado nuevo', '🆕');
+                if (datosNuevos && Object.keys(datosNuevos).length > 0) {
+                    html += formatearDatos(datosNuevos, 'ESTADO NUEVO', '🆕');
                 }
             }
             
-            if (!datosAnteriores && !datosNuevos) {
+            if ((!datosAnteriores || Object.keys(datosAnteriores).length === 0) && (!datosNuevos || Object.keys(datosNuevos).length === 0)) {
                 html += `<div class="alert alert-info mt-3">No hay datos detallados disponibles para este registro.</div>`;
             }
             

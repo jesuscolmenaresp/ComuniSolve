@@ -1,12 +1,14 @@
 <%
-// Preparar datos para Chart.js (solo si hay datos)
+// Preparar datos para Chart.js
 let categoriasLabels = [];
 let categoriasDatos = [];
 let estadosLabels = [];
 let estadosDatos = [];
+let callesLabels = [];
+let callesDatos = [];
 
 if (porCategoria && porCategoria.length > 0) {
-  categoriasLabels = porCategoria.map(item => item.categoria);
+  categoriasLabels = porCategoria.map(item => item.nombre);
   categoriasDatos = porCategoria.map(item => item.total);
 }
 
@@ -14,14 +16,21 @@ if (porEstado && porEstado.length > 0) {
   estadosLabels = porEstado.map(item => item.estado);
   estadosDatos = porEstado.map(item => item.total);
 }
+
+if (topCalles && topCalles.length > 0) {
+  callesLabels = topCalles.map(item => item.nombre);
+  callesDatos = topCalles.map(item => item.total);
+}
 %>
 
 <div class="container mt-4">
-  <h2 class="mb-4">👨‍💼 Panel de Líder Comunitario</h2>
-  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>👨‍💼 Panel de Líder Comunitario</h2>
+  </div>
+
   <!-- Información de calles a cargo -->
   <div class="alert alert-info">
-    <strong>Calles a tu cargo:</strong> 
+    <i class="bi bi-geo-alt-fill"></i> <strong>Calles a tu cargo:</strong>
     <% if (misCalles && misCalles.length > 0) { %>
       <%= misCalles.map(c => c.nombre).join(', ') %>
     <% } else { %>
@@ -34,7 +43,7 @@ if (porEstado && porEstado.length > 0) {
     <div class="col-md-3">
       <div class="card text-white bg-primary">
         <div class="card-body">
-          <h5 class="card-title">Total Reportes</h5>
+          <h5 class="card-title"><i class="bi bi-file-text"></i> Total Reportes</h5>
           <h2><%= totales.total_reportes || 0 %></h2>
         </div>
       </div>
@@ -42,7 +51,7 @@ if (porEstado && porEstado.length > 0) {
     <div class="col-md-3">
       <div class="card text-white bg-warning">
         <div class="card-body">
-          <h5 class="card-title">Pendientes</h5>
+          <h5 class="card-title"><i class="bi bi-clock-history"></i> Pendientes</h5>
           <h2><%= totales.pendientes || 0 %></h2>
         </div>
       </div>
@@ -50,7 +59,7 @@ if (porEstado && porEstado.length > 0) {
     <div class="col-md-3">
       <div class="card text-white bg-info">
         <div class="card-body">
-          <h5 class="card-title">En Progreso</h5>
+          <h5 class="card-title"><i class="bi bi-arrow-repeat"></i> En Progreso</h5>
           <h2><%= totales.en_progreso || 0 %></h2>
         </div>
       </div>
@@ -58,20 +67,19 @@ if (porEstado && porEstado.length > 0) {
     <div class="col-md-3">
       <div class="card text-white bg-success">
         <div class="card-body">
-          <h5 class="card-title">Resueltos</h5>
+          <h5 class="card-title"><i class="bi bi-check-circle"></i> Resueltos</h5>
           <h2><%= totales.resueltos || 0 %></h2>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Gráficas (solo si hay datos) -->
-  <% if (porCategoria && porCategoria.length > 0) { %>
+  <!-- Gráficas -->
   <div class="row mb-4">
     <div class="col-md-6">
-      <div class="card">
+      <div class="card h-100">
         <div class="card-header">
-          <h5>📊 Reportes por Categoría (tus calles)</h5>
+          <h5>📊 Reportes por Categoría</h5>
         </div>
         <div class="card-body">
           <canvas id="chartCategoria" style="max-height: 300px;"></canvas>
@@ -79,9 +87,9 @@ if (porEstado && porEstado.length > 0) {
       </div>
     </div>
     <div class="col-md-6">
-      <div class="card">
+      <div class="card h-100">
         <div class="card-header">
-          <h5>📈 Reportes por Estado (tus calles)</h5>
+          <h5>📈 Reportes por Estado</h5>
         </div>
         <div class="card-body">
           <canvas id="chartEstado" style="max-height: 300px;"></canvas>
@@ -89,7 +97,20 @@ if (porEstado && porEstado.length > 0) {
       </div>
     </div>
   </div>
-  <% } %>
+
+  <!-- Top Calles -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5>🏘️ Top Calles con más Reportes</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="chartCalles" style="max-height: 300px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Reportes recientes -->
   <div class="row mb-4">
@@ -135,7 +156,7 @@ if (porEstado && porEstado.length > 0) {
                   <% }) %>
                 <% } else { %>
                   <tr>
-                    <td colspan="7" class="text-center">No hay reportes en tus calles</td>
+                    <td colspan="7" class="text-center">No hay reportes recientes en tus calles</td>
                   </tr>
                 <% } %>
               </tbody>
@@ -150,44 +171,78 @@ if (porEstado && porEstado.length > 0) {
   <div class="row">
     <div class="col-12">
       <div class="card">
-        <div class="card-header">
+        <div class="card-header bg-light">
           <h5>⚡ Acciones Rápidas</h5>
         </div>
         <div class="card-body">
-          <a href="/reportes" class="btn btn-primary">Ver todos los reportes</a>
-          <a href="/voluntarios/gestionar" class="btn btn-success">Gestionar voluntarios</a>
+          <a href="/reportes" class="btn btn-primary"><i class="bi bi-list-ul"></i> Ver todos los reportes</a>
+          <a href="/voluntarios/gestionar" class="btn btn-success"><i class="bi bi-person-check"></i> Gestionar voluntarios</a>
+          <a href="/usuarios" class="btn btn-info text-white"><i class="bi bi-people"></i> Gestionar usuarios</a>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Chart.js (solo si hay datos) -->
-<% if (porCategoria && porCategoria.length > 0) { %>
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  // Datos desde el servidor
+  const categoriasLabels = JSON.parse('<%- JSON.stringify(categoriasLabels) %>');
+  const categoriasDatos = JSON.parse('<%- JSON.stringify(categoriasDatos) %>');
+  const estadosLabels = JSON.parse('<%- JSON.stringify(estadosLabels) %>');
+  const estadosDatos = JSON.parse('<%- JSON.stringify(estadosDatos) %>');
+  const callesLabels = JSON.parse('<%- JSON.stringify(callesLabels) %>');
+  const callesDatos = JSON.parse('<%- JSON.stringify(callesDatos) %>');
+
   // Gráfico de Categorías
-  new Chart(document.getElementById('chartCategoria'), {
-    type: 'pie',
-    data: {
-      labels: JSON.parse('<%- JSON.stringify(categoriasLabels) %>'),
-      datasets: [{
-        data: JSON.parse('<%- JSON.stringify(categoriasDatos) %>'),
-        backgroundColor: ['#0d6efd', '#ffc107', '#198754', '#dc3545']
-      }]
-    }
-  });
+  if (categoriasLabels.length > 0) {
+    new Chart(document.getElementById('chartCategoria'), {
+      type: 'pie',
+      data: {
+        labels: categoriasLabels,
+        datasets: [{
+          data: categoriasDatos,
+          backgroundColor: ['#0d6efd', '#ffc107', '#198754', '#dc3545', '#6c757d', '#fd7e14', '#20c997']
+        }]
+      }
+    });
+  }
 
   // Gráfico de Estados
-  new Chart(document.getElementById('chartEstado'), {
-    type: 'doughnut',
-    data: {
-      labels: JSON.parse('<%- JSON.stringify(estadosLabels) %>'),
-      datasets: [{
-        data: JSON.parse('<%- JSON.stringify(estadosDatos) %>'),
-        backgroundColor: ['#ffc107', '#0dcaf0', '#198754']
-      }]
-    }
-  });
+  if (estadosLabels.length > 0) {
+    new Chart(document.getElementById('chartEstado'), {
+      type: 'doughnut',
+      data: {
+        labels: estadosLabels,
+        datasets: [{
+          data: estadosDatos,
+          backgroundColor: ['#ffc107', '#0dcaf0', '#198754']
+        }]
+      }
+    });
+  }
+
+  // Gráfico de Calles
+  if (callesLabels.length > 0) {
+    new Chart(document.getElementById('chartCalles'), {
+      type: 'bar',
+      data: {
+        labels: callesLabels,
+        datasets: [{
+          label: 'Reportes',
+          data: callesDatos,
+          backgroundColor: '#0d6efd'
+        }]
+      },
+      options: {
+        scales: { y: { beginAtZero: true, stepSize: 1 } }
+      }
+    });
+  }
 </script>
-<% } %>
+
+<style>
+  .card-header { background-color: #f8f9fa; }
+  .btn { margin-right: 5px; margin-bottom: 5px; }
+</style>

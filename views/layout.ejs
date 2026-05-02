@@ -84,6 +84,15 @@
                 </ul>
               </li>
             <% } %>
+
+            <!-- 🔹 MI PERFIL - Visible para todos los usuarios logueados -->
+            <% if (usuario) { %>
+              <li class="nav-item">
+                <a class="nav-link" href="/perfil">
+                  <i class="bi bi-person-circle"></i> Mi Perfil
+                </a>
+              </li>
+            <% } %>
             
             <!-- Login / Registro / Logout -->
             <% if (!usuario) { %>

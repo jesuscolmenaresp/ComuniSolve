@@ -24,7 +24,7 @@
 
   <!-- Filtros mejorados -->
   <div class="row mb-3 g-2">
-    <div class="col-md-4">
+    <div class="col-md-3">
       <select id="filtroRol" class="form-select">
         <option value="0">📌 Todos los roles</option>
         <option value="1">🏛️ UBCH</option>
@@ -33,10 +33,18 @@
         <option value="4">🧑‍🤝‍🧑 Ciudadano</option>
       </select>
     </div>
+    <div class="col-md-3">
+      <select id="filtroEstado" class="form-select">
+        <option value="todos">📌 Todos los estados</option>
+        <option value="pendiente">⏳ Pendientes</option>
+        <option value="aprobado">✅ Aprobados</option>
+        <option value="rechazado">❌ Rechazados</option>
+      </select>
+    </div>
     <div class="col-md-4">
       <input type="text" id="buscarUsuario" class="form-control" placeholder="🔍 Buscar por nombre o email...">
     </div>
-    <div class="col-md-4">
+    <div class="col-md-2">
       <button id="limpiarFiltros" class="btn btn-outline-secondary w-100">
         🧹 Limpiar filtros
       </button>
@@ -47,19 +55,21 @@
     <table class="table table-hover table-sm align-middle" id="tablaUsuarios">
       <thead class="table-light">
         <tr>
-          <th>ID</th>
+          <th>Cédula</th>
           <th>Nombre</th>
           <th>Email</th>
           <th>Teléfono</th>
           <th>Rol</th>
           <th>Asignación</th>
+          <th>Estado</th>
           <th>Acciones</th>
          </thead>
       <tbody>
         <% if (usuarios && usuarios.length > 0) { %>
           <% usuarios.forEach(u => { %>
-            <tr data-rol="<%= u.rol_id %>" 
+            <tr data-rol="<%= u.rol_id %>" data-estado="<%= u.estado %>"
                 data-id="<%= u.id %>"
+                data-cedula="<%= u.cedula || '' %>"
                 data-nombre="<%= u.nombre %>"
                 data-email="<%= u.email %>"
                 data-telefono="<%= u.telefono || 'No registrado' %>"
@@ -68,7 +78,7 @@
                 data-calle-nombre="<%= u.calle_nombre || '' %>"
                 data-comunidades="<%= JSON.stringify(u.comunidades_atiende || []) %>"
                 style="cursor: pointer;">
-              <td class="text-muted small"><%= u.id %></td>
+              <td class="small"><%= u.cedula || '—' %></td>
               <td class="fw-semibold"><%= u.nombre %></td>
               <td><%= u.email %></td>
               <td><%= u.telefono || '—' %></td>
@@ -107,6 +117,49 @@
                   <span class="text-muted small">— Sin asignación —</span>
                 <% } %>
               </td>
+              <!-- Columna Estado con botones de acción -->
+              <td class="text-center">
+                <span class="badge <%= 
+                  u.estado === 'aprobado' ? 'bg-success' : 
+                  u.estado === 'pendiente' ? 'bg-warning' : 
+                  'bg-danger' %>">
+                  <%= u.estado === 'aprobado' ? '✅ Aprobado' : u.estado === 'pendiente' ? '⏳ Pendiente' : '❌ Rechazado' %>
+                </span>
+                <% if (u.estado === 'pendiente') { %>
+                  <div class="mt-1">
+                    <form action="/usuarios/<%= u.id %>/aprobar" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-sm btn-success" title="Aprobar">
+                        ✅
+                      </button>
+                    </form>
+                    <button type="button" class="btn btn-sm btn-danger" title="Rechazar"
+                            data-bs-toggle="modal" data-bs-target="#modalRechazar<%= u.id %>">
+                      ❌
+                    </button>
+                  </div>
+                  <!-- Modal para motivo de rechazo -->
+                  <div class="modal fade" id="modalRechazar<%= u.id %>" tabindex="-1">
+                    <div class="modal-dialog modal-sm">
+                      <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                          <h6 class="modal-title">Rechazar usuario</h6>
+                          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form action="/usuarios/<%= u.id %>/rechazar" method="POST">
+                          <div class="modal-body">
+                            <label class="form-label">Motivo (opcional):</label>
+                            <textarea name="motivo" class="form-control" rows="2" placeholder="Ej: No vive en la calle indicada"></textarea>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-sm btn-danger">Rechazar</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                <% } %>
+              </td>
               <td>
                 <div class="btn-group btn-group-sm" role="group">
                   <a href="/usuarios/<%= u.id %>/editar" class="btn btn-warning" title="Editar">
@@ -126,7 +179,7 @@
           <% }) %>
         <% } else { %>
           <tr>
-            <td colspan="7" class="text-center py-5 text-muted">
+            <td colspan="8" class="text-center py-5 text-muted">
               <i class="bi bi-people"></i> No hay usuarios registrados
             </td>
           </tr>
@@ -172,7 +225,7 @@
       </div>
       <div class="modal-body">
         <div id="detalleUsuarioContent">
-          <!-- Contenido cargado dinámicamente con JavaScript -->
+          <!-- Contenido cargado dinámicamente -->
         </div>
       </div>
       <div class="modal-footer">
@@ -184,39 +237,40 @@
 </div>
 
 <script>
-  // Filtro por rol
+  // Filtros
   const filtroRol = document.getElementById('filtroRol');
+  const filtroEstado = document.getElementById('filtroEstado');
   const buscarUsuario = document.getElementById('buscarUsuario');
   const limpiarFiltros = document.getElementById('limpiarFiltros');
   const filas = () => document.querySelectorAll('#tablaUsuarios tbody tr');
 
   function aplicarFiltros() {
     const rol = filtroRol.value;
+    const estado = filtroEstado.value;
     const texto = buscarUsuario.value.toLowerCase();
     
     filas().forEach(fila => {
       const dataRol = fila.dataset.rol;
+      const dataEstado = fila.dataset.estado;
       const dataNombre = fila.dataset.nombre?.toLowerCase() || '';
       const dataEmail = fila.dataset.email?.toLowerCase() || '';
       
       let mostrar = true;
       
-      if (rol != 0 && dataRol != rol) {
-        mostrar = false;
-      }
-      
-      if (texto && !dataNombre.includes(texto) && !dataEmail.includes(texto)) {
-        mostrar = false;
-      }
+      if (rol != 0 && dataRol != rol) mostrar = false;
+      if (estado !== 'todos' && dataEstado !== estado) mostrar = false;
+      if (texto && !dataNombre.includes(texto) && !dataEmail.includes(texto)) mostrar = false;
       
       fila.style.display = mostrar ? '' : 'none';
     });
   }
 
   filtroRol.addEventListener('change', aplicarFiltros);
+  filtroEstado.addEventListener('change', aplicarFiltros);
   buscarUsuario.addEventListener('keyup', aplicarFiltros);
   limpiarFiltros.addEventListener('click', () => {
     filtroRol.value = '0';
+    filtroEstado.value = 'todos';
     buscarUsuario.value = '';
     aplicarFiltros();
   });
@@ -224,10 +278,10 @@
   // Doble clic para mostrar detalles
   document.querySelectorAll('#tablaUsuarios tbody tr').forEach(fila => {
     fila.addEventListener('dblclick', function(e) {
-      // Evitar que se active si se hizo clic en un botón
       if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
       
       const id = this.dataset.id;
+      const cedula = this.dataset.cedula;
       const nombre = this.dataset.nombre;
       const email = this.dataset.email;
       const telefono = this.dataset.telefono;
@@ -237,10 +291,13 @@
       const calleNombre = this.dataset.calleNombre;
       const comunidades = JSON.parse(this.dataset.comunidades || '[]');
       
-      // Construir contenido del modal
       let contenido = `
         <div class="mb-3">
           <div class="row">
+            <div class="col-4 fw-bold">Cédula:</div>
+            <div class="col-8">${cedula || '—'}</div>
+          </div>
+          <div class="row mt-2">
             <div class="col-4 fw-bold">Nombre:</div>
             <div class="col-8">${nombre}</div>
           </div>
@@ -263,7 +320,6 @@
         </div>
       `;
       
-      // Contenido específico según el rol
       if (rolId == 1 && comunidades.length > 0) {
         contenido += `
           <div class="card mt-3">
@@ -323,11 +379,9 @@
       document.getElementById('detalleUsuarioContent').innerHTML = contenido;
       document.getElementById('btnEditarUsuario').href = `/usuarios/${id}/editar`;
       
-      const modal = new bootstrap.Modal(document.getElementById('modalUsuarioDetalle'));
-      modal.show();
+      new bootstrap.Modal(document.getElementById('modalUsuarioDetalle')).show();
     });
   });
 </script>
 
-<!-- Bootstrap Icons (si no lo tienes) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

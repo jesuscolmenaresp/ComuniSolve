@@ -14,9 +14,20 @@
           <% } %>
 
           <form method="POST" action="/registro">
+            <!-- Cédula -->
+            <div class="mb-3">
+              <label class="form-label">Cédula de identidad *</label>
+              <div class="input-group">
+                <span class="input-group-text">🆔</span>
+                <input type="text" name="cedula" class="form-control" 
+                       placeholder="Ej: 12345678" required>
+              </div>
+              <small class="text-muted">Solo números, sin puntos ni letras</small>
+            </div>
+
             <!-- Nombre -->
             <div class="mb-3">
-              <label class="form-label">Nombre completo:</label>
+              <label class="form-label">Nombre completo *</label>
               <div class="input-group">
                 <span class="input-group-text">👤</span>
                 <input type="text" name="nombre" class="form-control" 
@@ -26,7 +37,7 @@
 
             <!-- Correo -->
             <div class="mb-3">
-              <label class="form-label">Correo electrónico:</label>
+              <label class="form-label">Correo electrónico *</label>
               <div class="input-group">
                 <span class="input-group-text">📧</span>
                 <input type="email" name="email" class="form-control" 
@@ -36,18 +47,28 @@
 
             <!-- Contraseña -->
             <div class="mb-3">
-              <label class="form-label">Contraseña:</label>
+              <label class="form-label">Contraseña *</label>
               <div class="input-group">
                 <span class="input-group-text">🔑</span>
-                <input type="password" name="password" class="form-control" 
+                <input type="password" name="password" id="password" class="form-control" 
                        placeholder="Mínimo 6 caracteres" required>
               </div>
-              <small class="text-muted">Mínimo 6 caracteres</small>
+            </div>
+
+            <!-- Confirmar contraseña -->
+            <div class="mb-3">
+              <label class="form-label">Confirmar contraseña *</label>
+              <div class="input-group">
+                <span class="input-group-text">🔑</span>
+                <input type="password" name="confirm_password" id="confirm_password" class="form-control" 
+                       placeholder="Repite tu contraseña" required>
+              </div>
+              <small class="text-muted" id="passwordHelp"></small>
             </div>
 
             <!-- Teléfono -->
             <div class="mb-3">
-              <label class="form-label">Teléfono:</label>
+              <label class="form-label">Teléfono *</label>
               <div class="input-group">
                 <span class="input-group-text">📱</span>
                 <input type="text" name="telefono" class="form-control" 
@@ -57,7 +78,7 @@
 
             <!-- Calle -->
             <div class="mb-4">
-              <label class="form-label">¿A qué calle perteneces?</label>
+              <label class="form-label">¿A qué calle perteneces? *</label>
               <div class="input-group">
                 <span class="input-group-text">📍</span>
                 <select name="calle_id" class="form-select" required>
@@ -71,11 +92,12 @@
                   <% } %>
                 </select>
               </div>
+              <small class="text-muted">Tu solicitud será revisada por un líder comunitario</small>
             </div>
 
             <!-- Botón -->
             <div class="d-grid gap-2">
-              <button type="submit" class="btn btn-success">
+              <button type="submit" class="btn btn-success" id="btnRegistro">
                 ✅ Registrarse
               </button>
             </div>
@@ -92,3 +114,35 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Validar que las contraseñas coincidan antes de enviar
+  document.querySelector('form').addEventListener('submit', function(e) {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    
+    if (password !== confirmPassword) {
+      e.preventDefault();
+      document.getElementById('passwordHelp').innerHTML = '<span class="text-danger">❌ Las contraseñas no coinciden</span>';
+    }
+  });
+  
+  // Validar en tiempo real
+  document.getElementById('confirm_password').addEventListener('keyup', function() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = this.value;
+    
+    if (password === confirmPassword && password !== '') {
+      document.getElementById('passwordHelp').innerHTML = '<span class="text-success">✅ Las contraseñas coinciden</span>';
+    } else if (password !== confirmPassword && confirmPassword !== '') {
+      document.getElementById('passwordHelp').innerHTML = '<span class="text-danger">❌ Las contraseñas no coinciden</span>';
+    } else {
+      document.getElementById('passwordHelp').innerHTML = '';
+    }
+  });
+
+  // Validar cédula solo números
+  document.querySelector('input[name="cedula"]').addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '');
+  });
+</script>

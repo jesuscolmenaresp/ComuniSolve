@@ -99,6 +99,8 @@ const categoriasRoutes = require('./routes/categorias');
 
 const auditoriaRoutes = require('./routes/auditoria');
 
+const perfilRoutes = require('./routes/perfil');
+
 app.use('/', indexRouter);
 app.use(authRoutes);
 app.use(reporteRoutes);
@@ -119,5 +121,7 @@ app.use(empresasRoutes);
 app.use(categoriasRoutes);
 
 app.use(auditoriaRoutes);
+
+app.use(perfilRoutes);
 
 module.exports = app;

@@ -3,6 +3,7 @@ const router = express.Router();
 const voluntarioController = require('../controllers/voluntarioController');
 const authMiddleware = require('../middleware/authMiddleware');
 const roleMiddleware = require('../middleware/roleMiddleware');
+const exportController = require('../controllers/exportController');
 const db = require('../models/db');
 
 // 📌 Redirigir según si ya es voluntario o no
@@ -88,5 +89,8 @@ router.post('/voluntarios/:id/cambiar-estado',
     roleMiddleware([1, 2]), 
     voluntarioController.cambiarEstadoVoluntario
 );
+
+// Exportar voluntarios (solo UBCH)
+router.get('/voluntarios/exportar/excel', authMiddleware, roleMiddleware([1]), exportController.exportarVoluntariosExcel);
 
 module.exports = router;

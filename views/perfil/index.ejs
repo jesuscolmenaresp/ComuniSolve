@@ -1,0 +1,129 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-person-circle"></i> Mi Perfil</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="rounded-circle bg-light d-inline-flex p-3" style="font-size: 3rem;">
+                            <i class="bi bi-person-fill text-primary"></i>
+                        </div>
+                    </div>
+                    <h4><%= user.nombre %></h4>
+                    <p class="text-muted"><%= user.rol_nombre %></p>
+                    <hr>
+                    <div class="text-start">
+                        <p><strong><i class="bi bi-card-text"></i> Cédula:</strong> <%= user.cedula || 'No registrada' %></p>
+                        <p><strong><i class="bi bi-envelope"></i> Email:</strong> <%= user.email %></p>
+                        <p><strong><i class="bi bi-telephone"></i> Teléfono:</strong> <%= user.telefono || 'No registrado' %></p>
+                        <% if (user.calle_nombre) { %>
+                            <p><strong><i class="bi bi-geo-alt"></i> Calle:</strong> <%= user.calle_nombre %></p>
+                        <% } %>
+                        <p><strong><i class="bi bi-calendar"></i> Registrado:</strong> <%= new Date(user.fecha_registro).toLocaleDateString() %></p>
+                    </div>
+                    <div class="d-grid gap-2 mt-3">
+                        <a href="/perfil/editar" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Editar perfil
+                        </a>
+                        <a href="/perfil/cambiar-password" class="btn btn-outline-primary">
+                            <i class="bi bi-key"></i> Cambiar contraseña
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <!-- Estadísticas -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-white bg-primary">
+                        <div class="card-body text-center">
+                            <h2><%= stats.mis_reportes || 0 %></h2>
+                            <small>Reportes creados</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-success">
+                        <div class="card-body text-center">
+                            <h2><%= stats.mis_votos || 0 %></h2>
+                            <small>Votos emitidos</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-info">
+                        <div class="card-body text-center">
+                            <h2><%= stats.soy_voluntario ? '✅ Sí' : '❌ No' %></h2>
+                            <small>Voluntario</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Información adicional según rol -->
+            <% if (user.rol_id === 2 && callesLideradas.length > 0) { %>
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="bi bi-geo-alt"></i> Calles que lidero</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap gap-2">
+                            <% callesLideradas.forEach(calle => { %>
+                                <span class="badge bg-primary">📍 <%= calle %></span>
+                            <% }) %>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            
+            <% if (user.rol_id === 1 && comunidadesAtiende.length > 0) { %>
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="bi bi-building"></i> Comunidades que atiendo</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap gap-2">
+                            <% comunidadesAtiende.forEach(com => { %>
+                                <span class="badge bg-secondary">🏘️ <%= com %></span>
+                            <% }) %>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            
+            <!-- Últimos reportes del usuario -->
+            <div class="card shadow">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="bi bi-file-text"></i> Mis últimos reportes</h5>
+                </div>
+                <div class="card-body">
+                    <% if (ultimosReportes && ultimosReportes.length > 0) { %>
+                        <div class="list-group">
+                            <% ultimosReportes.forEach(r => { %>
+                                <a href="/reportes" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong><%= r.titulo %></strong>
+                                            <span class="badge <%= r.estado === 'Pendiente' ? 'bg-warning' : r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %> ms-2">
+                                                <%= r.estado %>
+                                            </span>
+                                        </div>
+                                        <small class="text-muted"><%= new Date(r.fecha).toLocaleDateString() %></small>
+                                    </div>
+                                </a>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted">No has creado reportes aún.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

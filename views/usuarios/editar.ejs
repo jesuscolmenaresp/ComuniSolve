@@ -11,6 +11,14 @@
   <form action="/usuarios/<%= usuario.id %>/editar" method="POST" class="card p-4 shadow-sm">
     <div class="row">
       <div class="col-md-6 mb-3">
+        <label class="form-label">Cédula de identidad</label>
+        <input type="text" name="cedula" class="form-control" 
+               value="<%= usuario.cedula || '' %>" 
+               placeholder="12345678">
+        <small class="text-muted">Solo números</small>
+      </div>
+
+      <div class="col-md-6 mb-3">
         <label class="form-label">Nombre completo *</label>
         <input type="text" name="nombre" class="form-control" 
                value="<%= usuario.nombre %>" required>

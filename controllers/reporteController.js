@@ -18,21 +18,19 @@ const {
 */
 
 // ==========================
-// 📌 LISTAR REPORTES (CON VOTOS)
+// 📌 LISTAR REPORTES (CON FILTROS AVANZADOS)
 // ==========================
 exports.listarReportes = async (req, res) => {
   const usuario = req.session.usuario;
-
+  
+  // Obtener parámetros de filtro
+  const { search, estado, categoria_id, calle_id, fecha_desde, fecha_hasta } = req.query;
+  
   try {
     let query = `
       SELECT r.id, r.titulo, r.descripcion, r.fecha, r.estado,
              r.mostrar_nombre, r.imagen, r.ubicacion_lat, r.ubicacion_lng,
-             CASE 
-               WHEN r.mostrar_nombre = 1 THEN u.nombre 
-               ELSE NULL 
-             END AS nombre_usuario,
-             u.telefono AS usuario_telefono,
-             u.email AS usuario_email,
+             u.nombre AS nombre_usuario,
              j.nombre AS nombre_jefe,
              c.nombre AS nombre_calle,
              cat.id AS categoria_id,
@@ -49,40 +47,73 @@ exports.listarReportes = async (req, res) => {
       INNER JOIN calles c ON r.calle_id = c.id
       INNER JOIN categorias cat ON r.categoria_id = cat.id
       LEFT JOIN empresas e ON r.empresa_id = e.id
+      WHERE 1=1
     `;
     
     let params = [];
 
+    // Filtros de rol
     if (!usuario) {
       return res.redirect('/login');
     }
 
     if (usuario.rol_id === 3) { 
-      // Jefe de calle: solo reportes de su calle
-      query += " WHERE r.calle_id = ?";
+      query += " AND r.calle_id = ?";
       params.push(usuario.calle_id);
     } 
     else if (usuario.rol_id === 2) { 
-      // Líder: reportes de calles que lidera
-      query += " WHERE r.calle_id IN (SELECT id FROM calles WHERE lider_id = ?)";
+      query += " AND r.calle_id IN (SELECT id FROM calles WHERE lider_id = ?)";
       params.push(usuario.id);
     } 
     else if (usuario.rol_id === 4) {
-      // Ciudadano: SOLO reportes de SU calle (para votar y priorizar)
       if (usuario.calle_id) {
-        query += " WHERE r.calle_id = ?";
-        params.push(usuario.calle_id);
+        query += " AND (r.calle_id = ? OR r.usuario_id = ?)";
+        params.push(usuario.calle_id, usuario.id);
       } else {
-        query += " WHERE 1 = 0"; // No muestra nada si no tiene calle
+        query += " AND r.usuario_id = ?";
+        params.push(usuario.id);
       }
     }
-    // UBCH (rol 1) ve todos sin filtro
+
+    // Filtro por búsqueda
+    if (search && search.trim() !== '') {
+      query += " AND (r.titulo LIKE ? OR r.descripcion LIKE ?)";
+      params.push(`%${search}%`, `%${search}%`);
+    }
+
+    // Filtro por estado
+    if (estado && estado !== 'todos') {
+      query += " AND r.estado = ?";
+      params.push(estado);
+    }
+
+    // Filtro por categoría
+    if (categoria_id && categoria_id !== 'todos') {
+      query += " AND r.categoria_id = ?";
+      params.push(categoria_id);
+    }
+
+    // Filtro por calle
+    if (calle_id && calle_id !== 'todos') {
+      query += " AND r.calle_id = ?";
+      params.push(calle_id);
+    }
+
+    // Filtro por fecha
+    if (fecha_desde) {
+      query += " AND DATE(r.fecha) >= ?";
+      params.push(fecha_desde);
+    }
+    if (fecha_hasta) {
+      query += " AND DATE(r.fecha) <= ?";
+      params.push(fecha_hasta);
+    }
 
     query += " ORDER BY total_votos DESC, r.fecha DESC";
     
     const [reportes] = await db.query(query, params);
     
-    // Obtener votos del usuario actual
+    // Votos del usuario
     let votosUsuario = {};
     if (usuario && usuario.rol_id === 4) {
       const [misVotos] = await db.query(
@@ -94,13 +125,24 @@ exports.listarReportes = async (req, res) => {
       });
     }
     
+    // Obtener empresas, categorías y calles para los selects
     const [empresas] = await db.query('SELECT * FROM empresas ORDER BY nombre');
+    const [categorias] = await db.query('SELECT * FROM categorias ORDER BY nombre');
+    const [calles] = await db.query('SELECT * FROM calles ORDER BY nombre');
     
     res.render('reportes', { 
       reportes, 
       empresas,
+      categorias,
+      calles,
       usuario,
       votosUsuario,
+      search,
+      estado,
+      categoria_id,
+      calle_id,
+      fecha_desde,
+      fecha_hasta,
       session: req.session
     });
   } catch (err) {

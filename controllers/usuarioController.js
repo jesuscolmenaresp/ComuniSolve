@@ -10,6 +10,11 @@ exports.listar = async (req, res) => {
       FROM usuarios u
       INNER JOIN roles r ON u.rol_id = r.id
       ORDER BY 
+        CASE u.estado
+          WHEN 'pendiente' THEN 1
+          WHEN 'aprobado' THEN 2
+          WHEN 'rechazado' THEN 3
+        END,
         CASE 
           WHEN u.rol_id = 1 THEN 1
           WHEN u.rol_id = 2 THEN 2
@@ -22,7 +27,6 @@ exports.listar = async (req, res) => {
     // Para cada usuario, obtener sus calles y comunidades
     for (let usuario of usuarios) {
       if (usuario.rol_id === 2) {
-        // Líder: obtener todas las calles que lidera
         const [calles] = await db.query(`
           SELECT nombre 
           FROM calles 
@@ -32,7 +36,6 @@ exports.listar = async (req, res) => {
         usuario.calles_lideradas = calles.map(c => c.nombre);
       } 
       else if (usuario.rol_id === 3) {
-        // Jefe: obtener su calle asignada
         const [calle] = await db.query(`
           SELECT nombre 
           FROM calles 
@@ -41,7 +44,6 @@ exports.listar = async (req, res) => {
         usuario.calle_nombre = calle[0]?.nombre;
       }
       else if (usuario.rol_id === 4) {
-        // Ciudadano: obtener su calle asignada
         const [calle] = await db.query(`
           SELECT nombre 
           FROM calles 
@@ -50,7 +52,6 @@ exports.listar = async (req, res) => {
         usuario.calle_nombre = calle[0]?.nombre;
       }
       else if (usuario.rol_id === 1) {
-        // UBCH: obtener las comunidades que atiende
         const [comunidades] = await db.query(`
           SELECT c.nombre 
           FROM comunidades c
@@ -100,9 +101,9 @@ exports.formCrear = async (req, res) => {
   }
 };
 
-// 📌 Guardar nuevo usuario
+// 📌 Guardar nuevo usuario (con cédula)
 exports.crear = async (req, res) => {
-  const { nombre, email, password, telefono, rol_id, calle_id, calles_lider, comunidades } = req.body;
+  const { cedula, nombre, email, password, telefono, rol_id, calle_id, calles_lider, comunidades } = req.body;
 
   try {
     // Verificar si el email ya existe
@@ -110,6 +111,15 @@ exports.crear = async (req, res) => {
     if (existente.length > 0) {
       req.session.error = 'El email ya está registrado';
       return res.redirect('/usuarios/nuevo');
+    }
+
+    // Verificar si la cédula ya existe
+    if (cedula && cedula.trim() !== '') {
+      const [cedulaExistente] = await db.query('SELECT id FROM usuarios WHERE cedula = ?', [cedula]);
+      if (cedulaExistente.length > 0) {
+        req.session.error = 'La cédula ya está registrada';
+        return res.redirect('/usuarios/nuevo');
+      }
     }
 
     // Encriptar contraseña
@@ -121,16 +131,15 @@ exports.crear = async (req, res) => {
     await connection.beginTransaction();
 
     try {
-      // Insertar usuario - GUARDAR calle_id para jefes y ciudadanos
       let calleAsignada = null;
       if (rol_id == 3 || rol_id == 4) {
         calleAsignada = calle_id || null;
       }
 
       const [result] = await connection.query(
-        `INSERT INTO usuarios (nombre, email, password, telefono, rol_id, calle_id) 
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [nombre, email, passwordHash, telefono || null, rol_id, calleAsignada]
+        `INSERT INTO usuarios (cedula, nombre, email, password, telefono, rol_id, calle_id) 
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [cedula || null, nombre, email, passwordHash, telefono || null, rol_id, calleAsignada]
       );
 
       const nuevoUsuarioId = result.insertId;
@@ -159,14 +168,13 @@ exports.crear = async (req, res) => {
 
       await connection.commit();
 
-      // Registrar en auditoría
       await registrarAuditoria(
         req.session.usuario,
         'CREAR',
         'usuarios',
         nuevoUsuarioId,
         null,
-        { nombre, email, rol_id, calle_id: calleAsignada }
+        { cedula, nombre, email, rol_id, calle_id: calleAsignada }
       );
 
       req.session.mensaje = 'Usuario creado exitosamente';
@@ -195,14 +203,12 @@ exports.formEditar = async (req, res) => {
       return res.status(404).send('Usuario no encontrado');
     }
 
-    // Si es líder, obtener las calles que lidera
     let callesLideradas = [];
     if (usuario[0].rol_id === 2) {
       const [calles] = await db.query('SELECT id FROM calles WHERE lider_id = ?', [id]);
       callesLideradas = calles.map(c => c.id);
     }
 
-    // Si es UBCH, obtener las comunidades asignadas
     let comunidadesAsignadas = [];
     if (usuario[0].rol_id === 1) {
       const [comunidades] = await db.query(
@@ -238,14 +244,13 @@ exports.formEditar = async (req, res) => {
   }
 };
 
-// 📌 Actualizar usuario
+// 📌 Actualizar usuario (con cédula)
 exports.actualizar = async (req, res) => {
   const { id } = req.params;
   const { 
-    nombre, email, telefono, rol_id, 
+    cedula, nombre, email, telefono, rol_id, 
     password, 
-    calle_jefe_id,      // Para jefes
-    calle_ciudadano_id, // Para ciudadanos
+    calle_jefe_id, calle_ciudadano_id, 
     calles_lider, 
     comunidades 
   } = req.body;
@@ -255,15 +260,17 @@ exports.actualizar = async (req, res) => {
     await connection.beginTransaction();
 
     try {
-      // Obtener datos anteriores antes de actualizar
       const [usuarioAnterior] = await connection.query(
-        'SELECT nombre, email, telefono, rol_id, calle_id FROM usuarios WHERE id = ?',
+        'SELECT nombre, email, telefono, rol_id, calle_id, cedula FROM usuarios WHERE id = ?',
         [id]
       );
 
       let updates = [];
       let params = [];
 
+      updates.push('cedula = ?');
+      params.push(cedula || null);
+      
       updates.push('nombre = ?');
       params.push(nombre);
       
@@ -278,14 +285,11 @@ exports.actualizar = async (req, res) => {
 
       let nuevaCalleId = null;
       
-      // Determinar qué calle_id usar según el rol
       if (rol_id == 3) {
-        // Jefe
         nuevaCalleId = calle_jefe_id || null;
         updates.push('calle_id = ?');
         params.push(nuevaCalleId);
       } else if (rol_id == 4) {
-        // Ciudadano
         nuevaCalleId = calle_ciudadano_id || null;
         updates.push('calle_id = ?');
         params.push(nuevaCalleId);
@@ -293,7 +297,6 @@ exports.actualizar = async (req, res) => {
         updates.push('calle_id = NULL');
       }
 
-      // Si hay nueva contraseña
       if (password && password.trim() !== '') {
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);
@@ -341,9 +344,8 @@ exports.actualizar = async (req, res) => {
 
       await connection.commit();
 
-      // Registrar en auditoría
       const datosNuevos = { 
-        nombre, email, telefono, rol_id, 
+        cedula, nombre, email, telefono, rol_id, 
         calle_id: nuevaCalleId,
         calles_lider: calles_lider || [],
         comunidades: comunidades || []
@@ -380,13 +382,11 @@ exports.eliminar = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Verificar que no sea el mismo usuario logueado
     if (parseInt(id) === req.session.usuario.id) {
       req.session.error = 'No puedes eliminarte a ti mismo';
       return res.redirect('/usuarios');
     }
 
-    // Obtener datos del usuario antes de eliminar
     const [usuarioAEliminar] = await db.query(
       'SELECT nombre, email, rol_id FROM usuarios WHERE id = ?',
       [id]
@@ -394,7 +394,6 @@ exports.eliminar = async (req, res) => {
 
     await db.query('DELETE FROM usuarios WHERE id = ?', [id]);
 
-    // Registrar en auditoría
     await registrarAuditoria(
       req.session.usuario,
       'ELIMINAR',
@@ -409,6 +408,84 @@ exports.eliminar = async (req, res) => {
   } catch (err) {
     console.error(err);
     req.session.error = 'Error al eliminar usuario';
+    res.redirect('/usuarios');
+  }
+};
+
+// 📌 Aprobar ciudadano
+exports.aprobar = async (req, res) => {
+  const { id } = req.params;
+  const adminId = req.session.usuario.id;
+
+  try {
+    const [usuario] = await db.query('SELECT email, nombre FROM usuarios WHERE id = ?', [id]);
+    
+    if (usuario.length === 0) {
+      req.session.error = 'Usuario no encontrado';
+      return res.redirect('/usuarios');
+    }
+
+    await db.query(
+      `UPDATE usuarios 
+       SET estado = 'aprobado', fecha_aprobacion = NOW(), aprobado_por = ? 
+       WHERE id = ?`,
+      [adminId, id]
+    );
+
+    await registrarAuditoria(
+      req.session.usuario,
+      'EDITAR',
+      'usuarios',
+      id,
+      { estado: 'pendiente' },
+      { estado: 'aprobado' }
+    );
+
+    const { enviarNotificacionEstadoUsuario } = require('../services/emailService');
+    await enviarNotificacionEstadoUsuario(usuario[0], 'aprobado');
+
+    req.session.mensaje = 'Usuario aprobado exitosamente';
+    res.redirect('/usuarios');
+  } catch (err) {
+    console.error(err);
+    req.session.error = 'Error al aprobar usuario';
+    res.redirect('/usuarios');
+  }
+};
+
+// 📌 Rechazar ciudadano
+exports.rechazar = async (req, res) => {
+  const { id } = req.params;
+  const adminId = req.session.usuario.id;
+  const { motivo } = req.body;
+
+  try {
+    const [usuario] = await db.query('SELECT email, nombre FROM usuarios WHERE id = ?', [id]);
+
+    await db.query(
+      `UPDATE usuarios 
+       SET estado = 'rechazado', fecha_aprobacion = NOW(), aprobado_por = ? 
+       WHERE id = ?`,
+      [adminId, id]
+    );
+
+    await registrarAuditoria(
+      req.session.usuario,
+      'EDITAR',
+      'usuarios',
+      id,
+      { estado: 'pendiente' },
+      { estado: 'rechazado', motivo }
+    );
+
+    const { enviarNotificacionEstadoUsuario } = require('../services/emailService');
+    await enviarNotificacionEstadoUsuario(usuario[0], 'rechazado', motivo);
+
+    req.session.mensaje = 'Usuario rechazado';
+    res.redirect('/usuarios');
+  } catch (err) {
+    console.error(err);
+    req.session.error = 'Error al rechazar usuario';
     res.redirect('/usuarios');
   }
 };

@@ -1,5 +1,5 @@
 <div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <h2>📋 Lista de Reportes</h2>
     <a href="/reportar" class="btn btn-primary">
       ➕ Crear nuevo reporte
@@ -22,22 +22,106 @@
     <% session.error = null; %>
   <% } %>
 
-  <!-- Pestañas de filtro por estado -->
-  <ul class="nav nav-tabs mb-3" id="reportesTabs">
-    <li class="nav-item"><a class="nav-link active" data-estado="todos" href="#">Todos</a></li>
-    <li class="nav-item"><a class="nav-link" data-estado="Pendiente" href="#">Pendientes</a></li>
-    <li class="nav-item"><a class="nav-link" data-estado="En Progreso" href="#">En Progreso</a></li>
-    <li class="nav-item"><a class="nav-link" data-estado="Resuelto" href="#">Resueltos</a></li>
-  </ul>
-
-  <!-- Buscador -->
-  <div class="row mb-3">
-    <div class="col-md-6">
-      <input type="text" id="buscarReporte" class="form-control" 
-             placeholder="🔍 Buscar por título o descripción...">
+  <!-- FILTROS AVANZADOS (visible para todos los roles) -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">
+        <i class="bi bi-funnel"></i> Filtros avanzados
+        <button class="btn btn-sm btn-link float-end" type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse">
+          <i class="bi bi-chevron-down"></i>
+        </button>
+      </h5>
+    </div>
+    <div class="collapse show" id="filtrosCollapse">
+      <div class="card-body">
+        <form id="formFiltros" method="GET" action="/reportes" class="row g-3">
+          <!-- Búsqueda por texto -->
+          <div class="col-md-4">
+            <label class="form-label">🔍 Buscar</label>
+            <div class="input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+              <input type="text" name="search" id="searchInput" class="form-control" 
+                     placeholder="Título o descripción..." value="<%= search || '' %>">
+            </div>
+          </div>
+          
+          <!-- Estado -->
+          <div class="col-md-2">
+            <label class="form-label">📌 Estado</label>
+            <select name="estado" id="estadoSelect" class="form-select">
+              <option value="todos">Todos</option>
+              <option value="Pendiente">⏳ Pendiente</option>
+              <option value="En Progreso">🔄 En Progreso</option>
+              <option value="Resuelto">✅ Resuelto</option>
+            </select>
+          </div>
+          
+          <!-- Categoría (solo para roles 1,2,3) -->
+          <div class="col-md-3">
+            <label class="form-label">🏷️ Categoría</label>
+            <select name="categoria_id" id="categoriaSelect" class="form-select">
+              <option value="todos">Todas</option>
+              <% if (categorias && categorias.length > 0) { %>
+                <% categorias.forEach(c => { %>
+                  <option value="<%= c.id %>"><%= c.nombre %></option>
+                <% }) %>
+              <% } %>
+            </select>
+          </div>
+          
+          <!-- Calle (solo para roles 1,2,3) -->
+          <div class="col-md-3">
+            <label class="form-label">📍 Calle</label>
+            <select name="calle_id" id="calleSelect" class="form-select">
+              <option value="todos">Todas</option>
+              <% if (calles && calles.length > 0) { %>
+                <% calles.forEach(c => { %>
+                  <option value="<%= c.id %>"><%= c.nombre %></option>
+                <% }) %>
+              <% } %>
+            </select>
+          </div>
+          
+          <!-- Fecha desde -->
+          <div class="col-md-3">
+            <label class="form-label">📅 Desde</label>
+            <input type="date" name="fecha_desde" id="fechaDesde" class="form-control" value="<%= fecha_desde || '' %>">
+          </div>
+          
+          <!-- Fecha hasta -->
+          <div class="col-md-3">
+            <label class="form-label">📅 Hasta</label>
+            <input type="date" name="fecha_hasta" id="fechaHasta" class="form-control" value="<%= fecha_hasta || '' %>">
+          </div>
+          
+          <!-- Botones -->
+          <div class="col-12 d-flex gap-2 justify-content-end">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-search"></i> Filtrar
+            </button>
+            <button type="button" id="btnLimpiarFiltros" class="btn btn-secondary">
+              <i class="bi bi-x-circle"></i> Limpiar
+            </button>
+            
+            <!-- EXPORTACIÓN (solo para roles 1,2,3) -->
+            <% if (usuario && [1,2,3].includes(usuario.rol_id)) { %>
+              <div class="btn-group">
+                <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
+                  <i class="bi bi-download"></i> Exportar
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a href="#" id="btnExportarExcel" class="dropdown-item"><i class="bi bi-file-excel text-success"></i> Excel</a></li>
+                  <li><a href="#" id="btnExportarPDF" class="dropdown-item"><i class="bi bi-file-pdf text-danger"></i> PDF</a></li>
+                </ul>
+              </div>
+            <% } %>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
+  <!-- TABLA DE REPORTES -->
   <div class="table-responsive">
     <table class="table table-striped table-hover table-sm align-middle" id="tablaReportes">
       <thead class="table-dark">
@@ -115,7 +199,7 @@
   </div>
 </div>
 
-<!-- Modal de detalles del reporte -->
+<!-- MODALES (igual que antes) -->
 <div class="modal fade" id="modalReporteDetalle" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
@@ -127,7 +211,6 @@
         <div class="text-center">Cargando...</div>
       </div>
       <div class="modal-footer d-flex flex-wrap gap-2 justify-content-between">
-        <!-- Botón para asignar empresa (solo para UBCH y Líder) -->
         <% if (usuario && [1,2].includes(usuario.rol_id) && empresas && empresas.length > 0) { %>
           <div id="asignarEmpresaSection" style="display: none;" class="me-auto">
             <form id="formAsignarEmpresa" method="POST" class="d-flex gap-2 align-items-center">
@@ -137,14 +220,11 @@
                   <option value="<%= e.id %>"><%= e.nombre %></option>
                 <% }) %>
               </select>
-              <button type="submit" class="btn btn-sm btn-primary">
-                🏢 Asignar empresa
-              </button>
+              <button type="submit" class="btn btn-sm btn-primary">🏢 Asignar empresa</button>
             </form>
           </div>
         <% } %>
         
-        <!-- Botón para asignar voluntario (solo para UBCH y Líder) -->
         <% if (usuario && [1,2].includes(usuario.rol_id)) { %>
           <div id="asignarVoluntarioSection" style="display: none;" class="me-auto">
             <form id="formAsignarVoluntario" method="POST" class="d-flex gap-2 align-items-center">
@@ -152,9 +232,7 @@
               <select name="voluntario_id" class="form-select form-select-sm" style="width: 220px;" required>
                 <option value="">-- Seleccionar voluntario --</option>
               </select>
-              <button type="submit" class="btn btn-sm btn-success">
-                👥 Asignar voluntario
-              </button>
+              <button type="submit" class="btn btn-sm btn-success">👥 Asignar voluntario</button>
             </form>
           </div>
         <% } %>
@@ -165,7 +243,6 @@
   </div>
 </div>
 
-<!-- Modal para ver imagen grande -->
 <div class="modal fade" id="modalImagen" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -180,157 +257,77 @@
   </div>
 </div>
 
-<!-- Scripts -->
 <script>
-  // Filtro por pestañas de estado
-  document.querySelectorAll('#reportesTabs .nav-link').forEach(tab => {
-    tab.addEventListener('click', function(e) {
-      e.preventDefault();
-      document.querySelectorAll('#reportesTabs .nav-link').forEach(t => t.classList.remove('active'));
-      this.classList.add('active');
-      const estadoFiltro = this.dataset.estado;
-      document.querySelectorAll('.reporte-fila').forEach(fila => {
-        fila.style.display = (estadoFiltro === 'todos' || fila.dataset.estado === estadoFiltro) ? '' : 'none';
-      });
-    });
+  // Preseleccionar valores de los filtros
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('estado')) document.getElementById('estadoSelect').value = urlParams.get('estado');
+  if (urlParams.get('categoria_id')) document.getElementById('categoriaSelect').value = urlParams.get('categoria_id');
+  if (urlParams.get('calle_id')) document.getElementById('calleSelect').value = urlParams.get('calle_id');
+  if (urlParams.get('search')) document.getElementById('searchInput').value = urlParams.get('search');
+  if (urlParams.get('fecha_desde')) document.getElementById('fechaDesde').value = urlParams.get('fecha_desde');
+  if (urlParams.get('fecha_hasta')) document.getElementById('fechaHasta').value = urlParams.get('fecha_hasta');
+  
+  // Limpiar filtros
+  document.getElementById('btnLimpiarFiltros').addEventListener('click', function() {
+    window.location.href = '/reportes';
   });
-
-  // Buscador
-  document.getElementById('buscarReporte').addEventListener('keyup', function() {
-    const texto = this.value.toLowerCase();
-    document.querySelectorAll('.reporte-fila').forEach(fila => {
-      if (fila.style.display !== 'none') {
-        const titulo = fila.cells[0].textContent.toLowerCase();
-        const descripcion = fila.cells[1].textContent.toLowerCase();
-        fila.style.display = (titulo.includes(texto) || descripcion.includes(texto)) ? '' : 'none';
-      }
-    });
+  
+  // Actualizar enlaces de exportación (solo si existen los botones)
+  function actualizarEnlacesExportacion() {
+    const params = new URLSearchParams();
+    const estado = document.getElementById('estadoSelect')?.value;
+    const categoriaId = document.getElementById('categoriaSelect')?.value;
+    const calleId = document.getElementById('calleSelect')?.value;
+    const search = document.getElementById('searchInput')?.value;
+    const fechaDesde = document.getElementById('fechaDesde')?.value;
+    const fechaHasta = document.getElementById('fechaHasta')?.value;
+    
+    if (estado && estado !== 'todos') params.append('estado', estado);
+    if (categoriaId && categoriaId !== 'todos') params.append('categoria_id', categoriaId);
+    if (calleId && calleId !== 'todos') params.append('calle_id', calleId);
+    if (search) params.append('search', search);
+    if (fechaDesde) params.append('fecha_desde', fechaDesde);
+    if (fechaHasta) params.append('fecha_hasta', fechaHasta);
+    
+    const queryString = params.toString();
+    const excelBtn = document.getElementById('btnExportarExcel');
+    const pdfBtn = document.getElementById('btnExportarPDF');
+    
+    if (excelBtn) excelBtn.href = `/reportes/exportar/excel${queryString ? '?' + queryString : ''}`;
+    if (pdfBtn) pdfBtn.href = `/reportes/exportar/pdf${queryString ? '?' + queryString : ''}`;
+  }
+  
+  // Escuchar cambios en los filtros
+  const filtros = ['estadoSelect', 'categoriaSelect', 'calleSelect', 'searchInput', 'fechaDesde', 'fechaHasta'];
+  filtros.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.addEventListener('change', actualizarEnlacesExportacion);
+      element.addEventListener('keyup', actualizarEnlacesExportacion);
+    }
   });
-
-  // Función para ver imagen grande
+  
   function verImagenGrande(src) {
     document.getElementById('imagenGrande').src = src;
     new bootstrap.Modal(document.getElementById('modalImagen')).show();
   }
-
-  // Ver detalles del reporte
-  document.querySelectorAll('.ver-detalle').forEach(btn => {
-    btn.addEventListener('click', async function(e) {
-      e.stopPropagation();
-      const id = this.dataset.id;
-      const modalContent = document.getElementById('detalleReporteContent');
-      modalContent.innerHTML = '<div class="text-center">Cargando...</div>';
-      
-      const asignarEmpresaSection = document.getElementById('asignarEmpresaSection');
-      const asignarVoluntarioSection = document.getElementById('asignarVoluntarioSection');
-      if (asignarEmpresaSection) asignarEmpresaSection.style.display = 'none';
-      if (asignarVoluntarioSection) asignarVoluntarioSection.style.display = 'none';
-      
-      try {
-        const response = await fetch(`/reportes/${id}/detalle`);
-        const reporte = await response.json();
-        
-        let imagenHtml = '';
-        if (reporte.imagen) {
-          imagenHtml = `<div class="text-center mt-3">
-                          <img src="${reporte.imagen}" class="img-fluid rounded" style="max-height: 300px; cursor: pointer;" 
-                               onclick="verImagenGrande('${reporte.imagen}')">
-                        </div>`;
-        }
-        
-        let ubicacionHtml = '';
-        if (reporte.ubicacion_lat && reporte.ubicacion_lng) {
-          ubicacionHtml = `<div class="col-6"><strong>📍 Ubicación:</strong> ${reporte.ubicacion_lat}, ${reporte.ubicacion_lng}</div>`;
-        }
-        
-        let empresaHtml = '';
-        if (reporte.empresa_nombre) {
-          empresaHtml = `<div class="col-6"><strong>🏢 Empresa:</strong> <span class="badge bg-info">${escapeHtml(reporte.empresa_nombre)}</span></div>`;
-        } else {
-          empresaHtml = `<div class="col-6"><strong>🏢 Empresa:</strong> <span class="text-muted">No asignada</span></div>`;
-        }
-        
-        // Quién reportó (solo si mostró su nombre)
-        let reportadoPorHtml = '';
-        if (reporte.mostrar_nombre && reporte.nombre_usuario) {
-          reportadoPorHtml = `<div class="col-6"><strong>👤 Reportado por:</strong> ${escapeHtml(reporte.nombre_usuario)}</div>`;
-        } else {
-          reportadoPorHtml = `<div class="col-6"><strong>👤 Reportado por:</strong> <span class="text-muted">Anónimo</span></div>`;
-        }
-        
-        modalContent.innerHTML = `
-          <div class="row">
-            <div class="col-12">
-              <h5>${escapeHtml(reporte.titulo)}</h5>
-              <p class="text-muted">${escapeHtml(reporte.descripcion)}</p>
-            </div>
-          </div>
-          <div class="row mt-2">
-            <div class="col-6"><strong>📅 Fecha:</strong> ${new Date(reporte.fecha).toLocaleString()}</div>
-            <div class="col-6"><strong>🏷️ Categoría:</strong> <span class="badge bg-${reporte.categoria_color || 'primary'}">${reporte.categoria_icono || ''} ${reporte.categoria_nombre}</span></div>
-            <div class="col-6"><strong>📍 Calle:</strong> ${escapeHtml(reporte.nombre_calle)}</div>
-            ${reportadoPorHtml}
-            ${ubicacionHtml}
-            ${empresaHtml}
-            <div class="col-6"><strong>👍 Votos:</strong> ${reporte.total_votos || 0}</div>
-            <div class="col-6"><strong>📌 Estado:</strong> <span class="badge ${reporte.estado === 'Pendiente' ? 'bg-warning' : reporte.estado === 'En Progreso' ? 'bg-info' : 'bg-success'}">${reporte.estado}</span></div>
-          </div>
-          ${imagenHtml}
-        `;
-        
-        if (asignarEmpresaSection && (!reporte.empresa_nombre || reporte.empresa_nombre === '' || reporte.empresa_nombre === null)) {
-          asignarEmpresaSection.style.display = 'block';
-          const form = document.getElementById('formAsignarEmpresa');
-          if (form) {
-            form.action = `/reportes/${id}/asignar-empresa`;
-          }
-        }
-        
-        if (asignarVoluntarioSection) {
-          asignarVoluntarioSection.style.display = 'block';
-          document.getElementById('reporte_id_voluntario').value = id;
-          
-          try {
-            const volResponse = await fetch('/api/voluntarios/aprobados');
-            const voluntarios = await volResponse.json();
-            const selectVoluntario = document.querySelector('#formAsignarVoluntario select[name="voluntario_id"]');
-            if (selectVoluntario) {
-              selectVoluntario.innerHTML = '<option value="">-- Seleccionar voluntario --</option>';
-              voluntarios.forEach(v => {
-                selectVoluntario.innerHTML += `<option value="${v.id}">${escapeHtml(v.nombre)} - ${escapeHtml(v.habilidad)}</option>`;
-              });
-              const volForm = document.getElementById('formAsignarVoluntario');
-              if (volForm) {
-                volForm.action = `/voluntarios/asignar-reporte`;
-              }
-            }
-          } catch (err) {
-            console.error('Error cargando voluntarios:', err);
-          }
-        }
-        
-        new bootstrap.Modal(document.getElementById('modalReporteDetalle')).show();
-      } catch (error) {
-        console.error('Error:', error);
-        modalContent.innerHTML = '<div class="alert alert-danger">Error al cargar los detalles</div>';
-      }
-    });
-  });
-
+  
   function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
   }
+  
+  actualizarEnlacesExportacion();
 </script>
 
 <style>
   .table-sm td, .table-sm th { padding: 0.5rem; vertical-align: middle; }
   .badge { font-weight: normal; }
-  .nav-tabs .nav-link { padding: 0.3rem 0.8rem; }
   .reporte-fila { cursor: pointer; }
   .reporte-fila:hover { background-color: #fff8f0 !important; }
   .ver-detalle:hover { transform: scale(1.05); transition: transform 0.2s; }
   .btn-sm { transition: all 0.2s ease; }
+  .card-header .btn-link { text-decoration: none; }
 </style>

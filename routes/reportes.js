@@ -4,6 +4,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 const roleMiddleware = require('../middleware/roleMiddleware');
 const reporteController = require('../controllers/reporteController');
 const upload = require('../middleware/uploadMiddleware');
+const exportController = require('../controllers/exportController');
 
 // Listar reportes
 router.get('/reportes', authMiddleware, reporteController.listarReportes);
@@ -29,5 +30,12 @@ router.post('/reportes/:id/asignar-empresa',
 
 // 📌 Reportes de mi calle (para ciudadanos)
 router.get('/reportes/mi-calle', authMiddleware, reporteController.reportesMiCalle);
+
+// Exportar reportes
+router.get('/reportes/exportar/excel', authMiddleware, roleMiddleware([1, 2]), exportController.exportarReportesExcel);
+router.get('/reportes/exportar/pdf', authMiddleware, roleMiddleware([1, 2]), exportController.exportarReportesPDF);
+
+// Exportar voluntarios (solo UBCH)
+router.get('/voluntarios/exportar/excel', authMiddleware, roleMiddleware([1]), exportController.exportarVoluntariosExcel);
 
 module.exports = router;
