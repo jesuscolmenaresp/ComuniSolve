@@ -1,10 +1,5 @@
 const db = require('../models/db');
 const { registrarAuditoria } = require('../middleware/auditoriaMiddleware');
-const { 
-  enviarNotificacionNuevoReporte, 
-  enviarNotificacionCambioEstado, 
-  enviarNotificacionEmpresaAsignada 
-} = require('../services/emailService');
 
 /*
   📌 Controlador de reportes
@@ -26,7 +21,6 @@ exports.listarReportes = async (req, res) => {
   const { search, estado, categoria_id, calle_id, fecha_desde, fecha_hasta } = req.query;
   
   try {
-    // Consulta PRINCIPAL: SIN LEFT JOIN empresas (se obtienen después)
     let query = `
       SELECT r.id, r.titulo, r.descripcion, r.fecha, r.estado,
              r.mostrar_nombre, r.imagen, r.ubicacion_lat, r.ubicacion_lng,
@@ -71,7 +65,6 @@ exports.listarReportes = async (req, res) => {
       }
     }
 
-    // Filtros
     if (search && search.trim() !== '') {
       query += " AND (r.titulo LIKE ? OR r.descripcion LIKE ?)";
       params.push(`%${search}%`, `%${search}%`);
@@ -97,12 +90,10 @@ exports.listarReportes = async (req, res) => {
       params.push(fecha_hasta);
     }
 
-    // ⚡ CAMBIO IMPORTANTE: Ordenar por fecha (más rápido que por votos)
     query += " ORDER BY r.fecha DESC LIMIT 100";
     
     const [reportes] = await db.query(query, params);
     
-    // Obtener nombres de empresas para los reportes (solo los necesarios)
     const empresasIds = [...new Set(reportes.filter(r => r.empresa_id).map(r => r.empresa_id))];
     let empresasMap = {};
     if (empresasIds.length > 0) {
@@ -113,7 +104,6 @@ exports.listarReportes = async (req, res) => {
       empresasMap = Object.fromEntries(empresas.map(e => [e.id, { nombre: e.nombre, contacto: e.contacto }]));
     }
     
-    // Agregar datos de empresa a cada reporte
     reportes.forEach(r => {
       if (r.empresa_id && empresasMap[r.empresa_id]) {
         r.empresa_nombre = empresasMap[r.empresa_id].nombre;
@@ -124,7 +114,6 @@ exports.listarReportes = async (req, res) => {
       }
     });
     
-    // Votos del usuario
     let votosUsuario = {};
     if (usuario && usuario.rol_id === 4) {
       const [misVotos] = await db.query(
@@ -136,7 +125,6 @@ exports.listarReportes = async (req, res) => {
       });
     }
     
-    // Datos para selects (simples y rápidos)
     const [empresas] = await db.query('SELECT id, nombre FROM empresas ORDER BY nombre LIMIT 20');
     const [categorias] = await db.query('SELECT id, nombre, icono, color FROM categorias ORDER BY nombre');
     const [calles] = await db.query('SELECT id, nombre FROM calles ORDER BY nombre');
@@ -247,7 +235,7 @@ exports.mostrarFormulario = async (req, res) => {
 };
 
 // ==========================
-// 📌 GUARDAR REPORTE (con notificaciones)
+// 📌 GUARDAR REPORTE (SIN NOTIFICACIONES - VERSIÓN RÁPIDA)
 // ==========================
 exports.guardarReporte = async (req, res) => {
   const { titulo, descripcion, categoria_id, calle_id, mostrar_nombre, ubicacion_lat, ubicacion_lng } = req.body;
@@ -255,12 +243,8 @@ exports.guardarReporte = async (req, res) => {
   const imagen = req.file ? "/uploads/reportes/" + req.file.filename : null;
 
   try {
-    const [calle] = await db.query("SELECT jefe_id, nombre FROM calles WHERE id = ?", [calle_id]);
+    const [calle] = await db.query("SELECT jefe_id FROM calles WHERE id = ?", [calle_id]);
     const jefe_id = calle[0]?.jefe_id || null;
-    const nombre_calle = calle[0]?.nombre || '';
-
-    const [categoria] = await db.query("SELECT nombre FROM categorias WHERE id = ?", [categoria_id]);
-    const categoria_nombre = categoria[0]?.nombre || '';
 
     await db.query(
       `INSERT INTO reportes 
@@ -280,46 +264,18 @@ exports.guardarReporte = async (req, res) => {
       ]
     );
 
-    const [nuevoReporte] = await db.query(`
-      SELECT r.*, c.nombre as nombre_calle, cat.nombre as categoria_nombre
-      FROM reportes r
-      INNER JOIN calles c ON r.calle_id = c.id
-      INNER JOIN categorias cat ON r.categoria_id = cat.id
-      ORDER BY r.id DESC LIMIT 1
-    `);
-
-    const reporteInfo = nuevoReporte[0];
-
-    if (!mostrar_nombre && jefe_id) {
-      const [jefe] = await db.query('SELECT email, nombre FROM usuarios WHERE id = ?', [jefe_id]);
-      if (jefe.length > 0 && jefe[0].email) {
-        await enviarNotificacionNuevoReporte(reporteInfo, jefe[0], 'jefe');
-      }
-    }
-    
-    if (mostrar_nombre) {
-      const [lider] = await db.query(`
-        SELECT u.email, u.nombre 
-        FROM calles c
-        INNER JOIN usuarios u ON c.lider_id = u.id
-        WHERE c.id = ?
-      `, [calle_id]);
-      if (lider.length > 0 && lider[0].email) {
-        await enviarNotificacionNuevoReporte(reporteInfo, lider[0], 'líder');
-      }
-    }
-
     req.session.mensaje = 'Reporte enviado exitosamente';
     res.redirect("/reportes");
+    
   } catch (err) {
-    console.error(err);
+    console.error('Error al guardar reporte:', err);
     req.session.error = 'Error al enviar el reporte';
     res.redirect("/reportar");
   }
 };
 
 // ==========================
-// 📌 CAMBIAR ESTADO DE REPORTE (con notificaciones)
+// 📌 CAMBIAR ESTADO DE REPORTE
 // ==========================
 exports.cambiarEstado = async (req, res) => {
   const { id } = req.params;
@@ -369,18 +325,6 @@ exports.cambiarEstado = async (req, res) => {
       { estado }
     );
 
-    const [ciudadano] = await db.query('SELECT email, nombre FROM usuarios WHERE id = ?', [reporte.usuario_id]);
-    if (ciudadano.length > 0 && ciudadano[0].email && ciudadano[0].email !== usuario.email) {
-      const reporteInfo = {
-        titulo: reporte.titulo,
-        descripcion: reporte.descripcion,
-        nombre_calle: reporte.nombre_calle,
-        estado: estado,
-        fecha: new Date()
-      };
-      await enviarNotificacionCambioEstado(reporteInfo, ciudadano[0], reporte.estado_anterior, estado);
-    }
-
     req.session.mensaje = 'Estado actualizado correctamente';
     res.redirect('/reportes');
   } catch (err) {
@@ -390,7 +334,7 @@ exports.cambiarEstado = async (req, res) => {
 };
 
 // ==========================
-// 📌 ASIGNAR EMPRESA A REPORTE (con notificaciones)
+// 📌 ASIGNAR EMPRESA A REPORTE
 // ==========================
 exports.asignarEmpresa = async (req, res) => {
   const { id } = req.params;
@@ -403,14 +347,6 @@ exports.asignarEmpresa = async (req, res) => {
       return res.redirect('/reportes');
     }
 
-    const [reporteInfo] = await db.query(`
-      SELECT r.*, c.nombre as nombre_calle, u.email as ciudadano_email, u.nombre as ciudadano_nombre
-      FROM reportes r
-      INNER JOIN calles c ON r.calle_id = c.id
-      INNER JOIN usuarios u ON r.usuario_id = u.id
-      WHERE r.id = ?
-    `, [id]);
-    
     const [empresa] = await db.query('SELECT * FROM empresas WHERE id = ?', [empresa_id]);
     
     await db.query('UPDATE reportes SET empresa_id = ? WHERE id = ?', [empresa_id || null, id]);
@@ -423,14 +359,6 @@ exports.asignarEmpresa = async (req, res) => {
       { empresa_id: null },
       { empresa_id, empresa_nombre: empresa[0]?.nombre }
     );
-
-    if (reporteInfo.length > 0 && empresa.length > 0 && reporteInfo[0].ciudadano_email) {
-      await enviarNotificacionEmpresaAsignada(
-        { titulo: reporteInfo[0].titulo }, 
-        { email: reporteInfo[0].ciudadano_email, nombre: reporteInfo[0].ciudadano_nombre }, 
-        { nombre: empresa[0].nombre, contacto: empresa[0].contacto, telefono: empresa[0].telefono }
-      );
-    }
 
     req.session.mensaje = 'Empresa asignada correctamente';
     res.redirect('/reportes');
@@ -523,11 +451,9 @@ exports.reportesMiCalle = async (req, res) => {
 exports.listarReportesRapido = async (req, res) => {
   const usuario = req.session.usuario;
   
-  // Obtener parámetros de la URL (para los filtros)
   const { search, estado, categoria_id, calle_id, fecha_desde, fecha_hasta } = req.query;
   
   try {
-    // Consulta mínima: SOLO datos básicos
     let query = `
       SELECT r.id, r.titulo, r.descripcion, r.fecha, r.estado,
              r.mostrar_nombre, r.imagen,
@@ -565,7 +491,6 @@ exports.listarReportesRapido = async (req, res) => {
       params.push(usuario.id);
     }
 
-    // Aplicar filtros desde la URL
     if (search && search.trim() !== '') {
       query += " AND (r.titulo LIKE ? OR r.descripcion LIKE ?)";
       params.push(`%${search}%`, `%${search}%`);
@@ -595,7 +520,6 @@ exports.listarReportesRapido = async (req, res) => {
     
     const [reportes] = await db.query(query, params);
     
-    // Votos del usuario
     let votosUsuario = {};
     if (usuario && usuario.rol_id === 4) {
       const [misVotos] = await db.query(
@@ -607,7 +531,6 @@ exports.listarReportesRapido = async (req, res) => {
       });
     }
     
-    // Datos mínimos para filtros
     const [categorias] = await db.query('SELECT id, nombre FROM categorias ORDER BY nombre');
     const [calles] = await db.query('SELECT id, nombre FROM calles ORDER BY nombre');
     
