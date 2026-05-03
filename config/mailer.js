@@ -1,15 +1,35 @@
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
+const dotenv = require('dotenv');
 
-// Verificar que la API key existe
-if (!process.env.RESEND_API_KEY) {
-  console.error('❌ ERROR: RESEND_API_KEY no está definida en variables de entorno');
-  console.log('⚠️ Los correos NO funcionarán. Agrega RESEND_API_KEY en tus variables de entorno');
-}
+dotenv.config();
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Configuración ESPECÍFICA para Render con Gmail
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  // Configuración que hace que funcione en Render
+  pool: true,
+  maxConnections: 1,
+  rateDelta: 1000,
+  rateLimit: 5,
+  socketTimeout: 60000,
+  connectionTimeout: 60000,
+});
 
-// Email de origen (para pruebas, no requiere verificación de dominio)
-// Si verificas tu dominio después, cambia por: hola@tudominio.com
-const EMAIL_FROM = 'onboarding@resend.dev';
+// Verificar conexión (solo log, no bloquea)
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('❌ Error en configuración de correo:', error.message);
+    console.log('⚠️ Los correos no funcionarán. Verifica:');
+    console.log('   1. EMAIL_USER y EMAIL_PASS en variables de entorno');
+    console.log('   2. Contraseña de aplicación de Gmail SIN ESPACIOS');
+    console.log('   3. Que la contraseña sea de "Aplicación" no la normal');
+  } else {
+    console.log('✅ Nodemailer listo para enviar correos');
+  }
+});
 
-module.exports = { resend, EMAIL_FROM };
+module.exports = transporter;
