@@ -17,99 +17,55 @@ const {
    - obtenerDetalle   -> GET /reportes/:id/detalle
 */
 
-// ==========================// ==========================
-// 📌 LISTAR REPORTES (CON FILTROS AVANZADOS)
+// 📌 LISTAR REPORTES (VERSIÓN RÁPIDA)
 // ==========================
 exports.listarReportes = async (req, res) => {
   const usuario = req.session.usuario;
   
-  // Obtener parámetros de filtro
-  const { search, estado, categoria_id, calle_id, fecha_desde, fecha_hasta } = req.query;
-  
   try {
+    // Consulta SIMPLE y RÁPIDA
     let query = `
       SELECT r.id, r.titulo, r.descripcion, r.fecha, r.estado,
-             r.mostrar_nombre, r.imagen, r.ubicacion_lat, r.ubicacion_lng,
+             r.mostrar_nombre, r.imagen,
              u.nombre AS nombre_usuario,
-             j.nombre AS nombre_jefe,
              c.nombre AS nombre_calle,
-             cat.id AS categoria_id,
              cat.nombre AS categoria_nombre,
              cat.icono AS categoria_icono,
              cat.color AS categoria_color,
-             e.id AS empresa_id,
-             e.nombre AS empresa_nombre,
-             e.contacto AS empresa_contacto,
              (SELECT COUNT(*) FROM votos v WHERE v.reporte_id = r.id) AS total_votos
       FROM reportes r
       LEFT JOIN usuarios u ON r.usuario_id = u.id
-      LEFT JOIN usuarios j ON r.jefe_calle_id = j.id
       INNER JOIN calles c ON r.calle_id = c.id
       INNER JOIN categorias cat ON r.categoria_id = cat.id
-      LEFT JOIN empresas e ON r.empresa_id = e.id
-      WHERE 1=1
     `;
     
     let params = [];
 
-    // Filtros de rol
     if (!usuario) {
       return res.redirect('/login');
     }
 
-    if (usuario.rol_id === 3) { 
-      query += " AND r.calle_id = ?";
+    // Filtros simples por rol
+    if (usuario.rol_id === 3 && usuario.calle_id) {
+      query += " WHERE r.calle_id = ?";
       params.push(usuario.calle_id);
     } 
-    else if (usuario.rol_id === 2) { 
-      query += " AND r.calle_id IN (SELECT id FROM calles WHERE lider_id = ?)";
+    else if (usuario.rol_id === 2) {
+      query += " WHERE r.calle_id IN (SELECT id FROM calles WHERE lider_id = ?)";
       params.push(usuario.id);
     } 
     else if (usuario.rol_id === 4) {
       if (usuario.calle_id) {
-        query += " AND (r.calle_id = ? OR r.usuario_id = ?)";
-        params.push(usuario.calle_id, usuario.id);
+        query += " WHERE r.calle_id = ?";
+        params.push(usuario.calle_id);
       } else {
-        query += " AND r.usuario_id = ?";
+        query += " WHERE r.usuario_id = ?";
         params.push(usuario.id);
       }
     }
 
-    // Filtro por búsqueda
-    if (search && search.trim() !== '') {
-      query += " AND (r.titulo LIKE ? OR r.descripcion LIKE ?)";
-      params.push(`%${search}%`, `%${search}%`);
-    }
-
-    // Filtro por estado
-    if (estado && estado !== 'todos') {
-      query += " AND r.estado = ?";
-      params.push(estado);
-    }
-
-    // Filtro por categoría
-    if (categoria_id && categoria_id !== 'todos') {
-      query += " AND r.categoria_id = ?";
-      params.push(categoria_id);
-    }
-
-    // Filtro por calle
-    if (calle_id && calle_id !== 'todos') {
-      query += " AND r.calle_id = ?";
-      params.push(calle_id);
-    }
-
-    // Filtro por fecha
-    if (fecha_desde) {
-      query += " AND DATE(r.fecha) >= ?";
-      params.push(fecha_desde);
-    }
-    if (fecha_hasta) {
-      query += " AND DATE(r.fecha) <= ?";
-      params.push(fecha_hasta);
-    }
-
-    query += " ORDER BY total_votos DESC, r.fecha DESC LIMIT 100"; // 👈 LIMITACIÓN para rendimiento
+    // ORDENAR y LIMITAR para rapidez
+    query += " ORDER BY r.fecha DESC LIMIT 50";
     
     const [reportes] = await db.query(query, params);
     
@@ -125,28 +81,21 @@ exports.listarReportes = async (req, res) => {
       });
     }
     
-    // Obtener empresas, categorías y calles para los selects
-    const [empresas] = await db.query('SELECT * FROM empresas ORDER BY nombre LIMIT 50');
-    const [categorias] = await db.query('SELECT * FROM categorias ORDER BY nombre');
-    const [calles] = await db.query('SELECT * FROM calles ORDER BY nombre');
+    // Datos para filtros (simplificados)
+    const [categorias] = await db.query('SELECT id, nombre FROM categorias ORDER BY nombre');
+    const [calles] = await db.query('SELECT id, nombre FROM calles ORDER BY nombre');
     
     res.render('reportes', { 
       reportes, 
-      empresas,
       categorias,
       calles,
       usuario,
       votosUsuario,
-      search,
-      estado,
-      categoria_id,
-      calle_id,
-      fecha_desde,
-      fecha_hasta,
+      empresas: [],  // Vacío para rapidez
       session: req.session
     });
   } catch (err) {
-    console.error(err);
+    console.error('Error en listarReportes:', err);
     res.status(500).send("Error al obtener reportes");
   }
 };
