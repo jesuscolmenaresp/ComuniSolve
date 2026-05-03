@@ -14,6 +14,24 @@ if (process.env.NODE_ENV !== 'production') {
 // Puerto dinámico para producción
 const PORT = process.env.PORT || 3000;
 
+// Timeout global para peticiones lentas (30 segundos)
+app.use((req, res, next) => {
+  req.setTimeout(30000, () => {
+    res.status(504).send('La petición ha tardado demasiado. Intente nuevamente.');
+  });
+  res.setTimeout(30000, () => {
+    if (!res.headersSent) {
+      res.status(504).send('La petición ha tardado demasiado. Intente nuevamente.');
+    }
+  });
+  next();
+});
+
+// Health check endpoint (para Render)
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // Middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -26,14 +44,14 @@ const sessionConfig = {
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24, // 24 horas
+    maxAge: 1000 * 60 * 60 * 24,
     sameSite: 'lax'
   }
 };
 
 // En producción (Render), configurar secure y proxy
 if (process.env.NODE_ENV === 'production') {
-  sessionConfig.cookie.secure = true; // HTTPS en Render
+  sessionConfig.cookie.secure = true;
   sessionConfig.proxy = true;
   sessionConfig.trustProxy = 1;
 }

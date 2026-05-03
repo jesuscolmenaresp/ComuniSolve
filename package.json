@@ -1,8 +1,8 @@
 {
   "name": "comunisolve",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Software de Gestión Comunitaria - Comuna Socialista Nuestra Señora de las Mercedes",
+  "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
@@ -10,7 +10,7 @@
     "build": "npm install"
   },
   "keywords": [],
-  "author": "",
+  "author": "Jesús Colmenares",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -28,5 +28,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }

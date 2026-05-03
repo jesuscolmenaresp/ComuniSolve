@@ -17,7 +17,7 @@ const {
    - obtenerDetalle   -> GET /reportes/:id/detalle
 */
 
-// ==========================
+// ==========================// ==========================
 // 📌 LISTAR REPORTES (CON FILTROS AVANZADOS)
 // ==========================
 exports.listarReportes = async (req, res) => {
@@ -109,7 +109,7 @@ exports.listarReportes = async (req, res) => {
       params.push(fecha_hasta);
     }
 
-    query += " ORDER BY total_votos DESC, r.fecha DESC";
+    query += " ORDER BY total_votos DESC, r.fecha DESC LIMIT 100"; // 👈 LIMITACIÓN para rendimiento
     
     const [reportes] = await db.query(query, params);
     
@@ -126,7 +126,7 @@ exports.listarReportes = async (req, res) => {
     }
     
     // Obtener empresas, categorías y calles para los selects
-    const [empresas] = await db.query('SELECT * FROM empresas ORDER BY nombre');
+    const [empresas] = await db.query('SELECT * FROM empresas ORDER BY nombre LIMIT 50');
     const [categorias] = await db.query('SELECT * FROM categorias ORDER BY nombre');
     const [calles] = await db.query('SELECT * FROM calles ORDER BY nombre');
     
