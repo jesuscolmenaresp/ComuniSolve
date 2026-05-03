@@ -523,6 +523,9 @@ exports.reportesMiCalle = async (req, res) => {
 exports.listarReportesRapido = async (req, res) => {
   const usuario = req.session.usuario;
   
+  // Obtener parámetros de la URL (para los filtros)
+  const { search, estado, categoria_id, calle_id, fecha_desde, fecha_hasta } = req.query;
+  
   try {
     // Consulta mínima: SOLO datos básicos
     let query = `
@@ -541,7 +544,9 @@ exports.listarReportesRapido = async (req, res) => {
     
     let params = [];
 
-    if (!usuario) return res.redirect('/login');
+    if (!usuario) {
+      return res.redirect('/login');
+    }
 
     if (usuario.rol_id === 3 && usuario.calle_id) {
       query += " AND r.calle_id = ?";
@@ -558,6 +563,32 @@ exports.listarReportesRapido = async (req, res) => {
     else if (usuario.rol_id === 4) {
       query += " AND r.usuario_id = ?";
       params.push(usuario.id);
+    }
+
+    // Aplicar filtros desde la URL
+    if (search && search.trim() !== '') {
+      query += " AND (r.titulo LIKE ? OR r.descripcion LIKE ?)";
+      params.push(`%${search}%`, `%${search}%`);
+    }
+    if (estado && estado !== 'todos') {
+      query += " AND r.estado = ?";
+      params.push(estado);
+    }
+    if (categoria_id && categoria_id !== 'todos') {
+      query += " AND r.categoria_id = ?";
+      params.push(categoria_id);
+    }
+    if (calle_id && calle_id !== 'todos') {
+      query += " AND r.calle_id = ?";
+      params.push(calle_id);
+    }
+    if (fecha_desde) {
+      query += " AND DATE(r.fecha) >= ?";
+      params.push(fecha_desde);
+    }
+    if (fecha_hasta) {
+      query += " AND DATE(r.fecha) <= ?";
+      params.push(fecha_hasta);
     }
 
     query += " ORDER BY r.fecha DESC LIMIT 50";
@@ -587,10 +618,16 @@ exports.listarReportesRapido = async (req, res) => {
       empresas: [],
       usuario,
       votosUsuario,
+      search: search || '',
+      estado: estado || 'todos',
+      categoria_id: categoria_id || 'todos',
+      calle_id: calle_id || 'todos',
+      fecha_desde: fecha_desde || '',
+      fecha_hasta: fecha_hasta || '',
       session: req.session
     });
   } catch (err) {
     console.error('Error en listarReportesRapido:', err);
-    res.status(500).send("Error al obtener reportes");
+    res.status(500).send("Error al obtener reportes: " + err.message);
   }
 };
