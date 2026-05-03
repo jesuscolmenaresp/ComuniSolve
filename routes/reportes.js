@@ -6,10 +6,7 @@ const reporteController = require('../controllers/reporteController');
 const upload = require('../middleware/uploadMiddleware');
 const exportController = require('../controllers/exportController');
 
-// 📌 Ruta RÁPIDA para reportes (sin joins pesados)
-router.get('/reportes/rapido', authMiddleware, reporteController.listarReportesRapido);
-
-// Listar reportes (normal)
+// 📌 Listar reportes (versión rápida)
 router.get('/reportes', authMiddleware, reporteController.listarReportesRapido);
 
 // Obtener detalle de reporte (para modal)
@@ -37,8 +34,5 @@ router.get('/reportes/mi-calle', authMiddleware, reporteController.reportesMiCal
 // Exportar reportes
 router.get('/reportes/exportar/excel', authMiddleware, roleMiddleware([1, 2]), exportController.exportarReportesExcel);
 router.get('/reportes/exportar/pdf', authMiddleware, roleMiddleware([1, 2]), exportController.exportarReportesPDF);
-
-// Exportar voluntarios (solo UBCH)
-router.get('/voluntarios/exportar/excel', authMiddleware, roleMiddleware([1]), exportController.exportarVoluntariosExcel);
 
 module.exports = router;

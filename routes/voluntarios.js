@@ -14,12 +14,10 @@ router.get('/voluntarios', authMiddleware, async (req, res) => {
             [req.session.usuario.id]
         );
         
-        // Si ya es voluntario (aprobado, pendiente o rechazado), ir a mi perfil
         if (existe.length > 0) {
             return res.redirect('/voluntarios/mi-perfil');
         }
         
-        // Si no, mostrar formulario de registro
         voluntarioController.mostrarFormulario(req, res);
     } catch (err) {
         console.error(err);
@@ -33,7 +31,7 @@ router.get('/voluntarios/publico', voluntarioController.listarVoluntariosPublico
 // 📌 Mi perfil de voluntario
 router.get('/voluntarios/mi-perfil', authMiddleware, voluntarioController.miPerfil);
 
-// 📌 Formulario para editar (solo si ya es voluntario) - CORREGIDO
+// 📌 Formulario para editar
 router.get('/voluntarios/editar', authMiddleware, voluntarioController.mostrarEdicion);
 
 // 📌 Guardar/actualizar registro
