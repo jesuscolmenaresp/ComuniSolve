@@ -1,5 +1,10 @@
 const db = require('../models/db');
 const { registrarAuditoria } = require('../middleware/auditoriaMiddleware');
+const { 
+  enviarNotificacionNuevoReporte, 
+  enviarNotificacionCambioEstado, 
+  enviarNotificacionEmpresaAsignada 
+} = require('../services/emailService');
 
 /*
   📌 Controlador de reportes
@@ -235,7 +240,7 @@ exports.mostrarFormulario = async (req, res) => {
 };
 
 // ==========================
-// 📌 GUARDAR REPORTE (SIN NOTIFICACIONES - VERSIÓN RÁPIDA)
+// 📌 GUARDAR REPORTE (CON NOTIFICACIONES EN SEGUNDO PLANO)
 // ==========================
 exports.guardarReporte = async (req, res) => {
   const { titulo, descripcion, categoria_id, calle_id, mostrar_nombre, ubicacion_lat, ubicacion_lng } = req.body;
@@ -243,7 +248,7 @@ exports.guardarReporte = async (req, res) => {
   const imagen = req.file ? "/uploads/reportes/" + req.file.filename : null;
 
   try {
-    const [calle] = await db.query("SELECT jefe_id FROM calles WHERE id = ?", [calle_id]);
+    const [calle] = await db.query("SELECT jefe_id, nombre FROM calles WHERE id = ?", [calle_id]);
     const jefe_id = calle[0]?.jefe_id || null;
 
     await db.query(
@@ -264,6 +269,43 @@ exports.guardarReporte = async (req, res) => {
       ]
     );
 
+    // Obtener el reporte recién creado para las notificaciones (después del INSERT)
+    const [nuevoReporte] = await db.query(`
+      SELECT r.*, c.nombre as nombre_calle, cat.nombre as categoria_nombre
+      FROM reportes r
+      INNER JOIN calles c ON r.calle_id = c.id
+      INNER JOIN categorias cat ON r.categoria_id = cat.id
+      ORDER BY r.id DESC LIMIT 1
+    `);
+
+    const reporteInfo = nuevoReporte[0];
+
+    // ✅ NOTIFICACIONES EN SEGUNDO PLANO (sin bloquear la respuesta)
+    setImmediate(async () => {
+      try {
+        if (!mostrar_nombre && jefe_id) {
+          const [jefe] = await db.query('SELECT email, nombre FROM usuarios WHERE id = ?', [jefe_id]);
+          if (jefe.length > 0 && jefe[0].email) {
+            await enviarNotificacionNuevoReporte(reporteInfo, jefe[0], 'jefe');
+          }
+        }
+        
+        if (mostrar_nombre) {
+          const [lider] = await db.query(`
+            SELECT u.email, u.nombre 
+            FROM calles c
+            INNER JOIN usuarios u ON c.lider_id = u.id
+            WHERE c.id = ?
+          `, [calle_id]);
+          if (lider.length > 0 && lider[0].email) {
+            await enviarNotificacionNuevoReporte(reporteInfo, lider[0], 'líder');
+          }
+        }
+      } catch (err) {
+        console.error('Error enviando notificación de nuevo reporte:', err);
+      }
+    });
+
     req.session.mensaje = 'Reporte enviado exitosamente';
     res.redirect("/reportes");
     
@@ -275,7 +317,7 @@ exports.guardarReporte = async (req, res) => {
 };
 
 // ==========================
-// 📌 CAMBIAR ESTADO DE REPORTE
+// 📌 CAMBIAR ESTADO DE REPORTE (CON NOTIFICACIONES EN SEGUNDO PLANO)
 // ==========================
 exports.cambiarEstado = async (req, res) => {
   const { id } = req.params;
@@ -325,6 +367,25 @@ exports.cambiarEstado = async (req, res) => {
       { estado }
     );
 
+    // ✅ NOTIFICACIÓN EN SEGUNDO PLANO
+    setImmediate(async () => {
+      try {
+        const [ciudadano] = await db.query('SELECT email, nombre FROM usuarios WHERE id = ?', [reporte.usuario_id]);
+        if (ciudadano.length > 0 && ciudadano[0].email && ciudadano[0].email !== usuario.email) {
+          const reporteInfo = {
+            titulo: reporte.titulo,
+            descripcion: reporte.descripcion,
+            nombre_calle: reporte.nombre_calle,
+            estado: estado,
+            fecha: new Date()
+          };
+          await enviarNotificacionCambioEstado(reporteInfo, ciudadano[0], reporte.estado_anterior, estado);
+        }
+      } catch (err) {
+        console.error('Error enviando notificación de cambio de estado:', err);
+      }
+    });
+
     req.session.mensaje = 'Estado actualizado correctamente';
     res.redirect('/reportes');
   } catch (err) {
@@ -334,7 +395,7 @@ exports.cambiarEstado = async (req, res) => {
 };
 
 // ==========================
-// 📌 ASIGNAR EMPRESA A REPORTE
+// 📌 ASIGNAR EMPRESA A REPORTE (CON NOTIFICACIONES EN SEGUNDO PLANO)
 // ==========================
 exports.asignarEmpresa = async (req, res) => {
   const { id } = req.params;
@@ -347,6 +408,14 @@ exports.asignarEmpresa = async (req, res) => {
       return res.redirect('/reportes');
     }
 
+    const [reporteInfo] = await db.query(`
+      SELECT r.*, c.nombre as nombre_calle, u.email as ciudadano_email, u.nombre as ciudadano_nombre
+      FROM reportes r
+      INNER JOIN calles c ON r.calle_id = c.id
+      INNER JOIN usuarios u ON r.usuario_id = u.id
+      WHERE r.id = ?
+    `, [id]);
+    
     const [empresa] = await db.query('SELECT * FROM empresas WHERE id = ?', [empresa_id]);
     
     await db.query('UPDATE reportes SET empresa_id = ? WHERE id = ?', [empresa_id || null, id]);
@@ -359,6 +428,21 @@ exports.asignarEmpresa = async (req, res) => {
       { empresa_id: null },
       { empresa_id, empresa_nombre: empresa[0]?.nombre }
     );
+
+    // ✅ NOTIFICACIÓN EN SEGUNDO PLANO
+    setImmediate(async () => {
+      try {
+        if (reporteInfo.length > 0 && empresa.length > 0 && reporteInfo[0].ciudadano_email) {
+          await enviarNotificacionEmpresaAsignada(
+            { titulo: reporteInfo[0].titulo }, 
+            { email: reporteInfo[0].ciudadano_email, nombre: reporteInfo[0].ciudadano_nombre }, 
+            { nombre: empresa[0].nombre, contacto: empresa[0].contacto, telefono: empresa[0].telefono }
+          );
+        }
+      } catch (err) {
+        console.error('Error enviando notificación de empresa asignada:', err);
+      }
+    });
 
     req.session.mensaje = 'Empresa asignada correctamente';
     res.redirect('/reportes');
