@@ -1,33 +1,64 @@
 const nodemailer = require('nodemailer');
+const { getAccessToken } = require('./oauth2');
 const dotenv = require('dotenv');
 
 dotenv.config();
 
-// Configuración para Render que SÍ funciona
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true, // IMPORTANTE: true para puerto 465
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  // Timeouts más agresivos
-  connectionTimeout: 30000,
-  greetingTimeout: 30000,
-  socketTimeout: 30000,
-});
+// Función para crear transporter con token fresco
+async function createTransporter() {
+  try {
+    const accessToken = await getAccessToken();
+    
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        type: 'OAuth2',
+        user: process.env.EMAIL_USER,
+        clientId: process.env.GMAIL_CLIENT_ID,
+        clientSecret: process.env.GMAIL_CLIENT_SECRET,
+        refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+        accessToken: accessToken,
+      },
+      connectionTimeout: 30000,
+      socketTimeout: 30000,
+    });
 
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('❌ Error en configuración de correo:', error.message);
-    console.log('⚠️ Posibles soluciones:');
-    console.log('   1. Verifica que la "Contraseña de aplicación" sea correcta');
-    console.log('   2. En Gmail, permite "Acceso de aplicaciones menos seguras"? (ya no aplica)');
-    console.log('   3. La cuenta necesita verificación en https://myaccount.google.com/security');
-  } else {
-    console.log('✅ Nodemailer listo para enviar correos');
+    return transporter;
+  } catch (error) {
+    console.error('❌ Error creando transporter:', error.message);
+    throw error;
   }
+}
+
+// Crear una instancia inicial (se renovará automáticamente)
+let transporterPromise = createTransporter();
+
+// Verificar cada 50 minutos (antes de que expire el token de 1 hora)
+setInterval(async () => {
+  try {
+    transporterPromise = createTransporter();
+    const transporter = await transporterPromise;
+    await transporter.verify();
+    console.log('✅ Token de acceso renovado correctamente');
+  } catch (error) {
+    console.error('❌ Error renovando token:', error.message);
+  }
+}, 50 * 60 * 1000);
+
+// Verificación inicial
+transporterPromise.then(async (transporter) => {
+  try {
+    await transporter.verify();
+    console.log('✅ Nodemailer con OAuth2 listo para enviar correos');
+  } catch (error) {
+    console.error('❌ Error en configuración de correo:', error.message);
+  }
+}).catch(err => {
+  console.error('❌ Error inicializando email:', err.message);
 });
 
-module.exports = transporter;
+module.exports = async () => {
+  return await transporterPromise;
+};

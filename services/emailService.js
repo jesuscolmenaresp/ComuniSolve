@@ -1,6 +1,24 @@
-const transporter = require('../config/mailer');
+const getTransporter = require('../config/mailer');
 const db = require('../models/db');
 const jwt = require('jsonwebtoken');
+
+// Helper para enviar emails con reintentos
+async function sendEmailWithRetry(mailOptions, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const transporter = await getTransporter();
+      const info = await transporter.sendMail(mailOptions);
+      console.log(`✅ Email enviado a: ${mailOptions.to}`);
+      return { success: true };
+    } catch (error) {
+      console.error(`❌ Intento ${i + 1} fallido:`, error.message);
+      if (i === retries - 1) {
+        return { success: false, error: error.message };
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+}
 
 // ========================================
 // NOTIFICACIONES DEL SISTEMA
@@ -46,14 +64,7 @@ async function enviarNotificacionNuevoReporte(reporte, destinatario, tipoDestina
     `,
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Correo nuevo reporte enviado a:", destinatario.email);
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Error enviando email:", error.message);
-    return { success: false, error: error.message };
-  }
+  return sendEmailWithRetry(mailOptions);
 }
 
 // 2. Enviar correo cuando cambia el estado
@@ -93,14 +104,7 @@ async function enviarNotificacionCambioEstado(reporte, destinatario, estadoAnter
     `,
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Correo cambio estado enviado a:", destinatario.email);
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Error enviando email:", error.message);
-    return { success: false, error: error.message };
-  }
+  return sendEmailWithRetry(mailOptions);
 }
 
 // 3. Enviar correo cuando se asigna empresa
@@ -135,14 +139,7 @@ async function enviarNotificacionEmpresaAsignada(reporte, destinatario, empresa)
     `,
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Correo empresa asignada enviado a:", destinatario.email);
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Error enviando email:", error.message);
-    return { success: false, error: error.message };
-  }
+  return sendEmailWithRetry(mailOptions);
 }
 
 // 4. Enviar correo cuando se aprueba/rechaza voluntario
@@ -186,19 +183,8 @@ async function enviarNotificacionVoluntario(voluntario, estado, motivo = '') {
     `,
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Correo de voluntario ${estado} enviado a:`, voluntario.email);
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Error enviando email:", error.message);
-    return { success: false, error: error.message };
-  }
+  return sendEmailWithRetry(mailOptions);
 }
-
-// ========================================
-// RECUPERACIÓN DE CONTRASEÑA
-// ========================================
 
 // 5. Enviar correo de recuperación de contraseña
 async function enviarCorreoRecuperacion(usuario, token) {
@@ -230,14 +216,7 @@ async function enviarCorreoRecuperacion(usuario, token) {
     `,
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Correo de recuperación enviado a:", usuario.email);
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Error enviando correo de recuperación:", error.message);
-    return { success: false, error: error.message };
-  }
+  return sendEmailWithRetry(mailOptions);
 }
 
 // 6. Enviar correo cuando se asigna un reporte a un voluntario
@@ -273,14 +252,7 @@ async function enviarNotificacionAsignacionVoluntario(voluntario, reporte) {
     `,
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Correo de asignación de voluntario enviado a:", voluntario.email);
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Error enviando email de asignación:", error.message);
-    return { success: false, error: error.message };
-  }
+  return sendEmailWithRetry(mailOptions);
 }
 
 // 7. Notificar a líder/jefe/UBCH cuando hay un nuevo voluntario pendiente
@@ -315,17 +287,10 @@ async function enviarNotificacionNuevoVoluntario(administrador, voluntario) {
     `,
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Correo de nuevo voluntario enviado a:", administrador.email);
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Error enviando email:", error.message);
-    return { success: false, error: error.message };
-  }
+  return sendEmailWithRetry(mailOptions);
 }
 
-// 8. Enviar correo cuando un nuevo usuario se registra (pendiente de aprobación)
+// 8. Enviar correo cuando un nuevo usuario se registra
 async function enviarNotificacionNuevoUsuario(administrador, nuevoUsuario) {
   const mailOptions = {
     from: `"ComuniSolve" <${process.env.EMAIL_USER}>`,
@@ -357,14 +322,7 @@ async function enviarNotificacionNuevoUsuario(administrador, nuevoUsuario) {
     `,
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Correo de nuevo usuario enviado a:", administrador.email);
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Error enviando email:", error.message);
-    return { success: false, error: error.message };
-  }
+  return sendEmailWithRetry(mailOptions);
 }
 
 // 9. Enviar correo cuando un usuario es aprobado/rechazado
@@ -408,14 +366,7 @@ async function enviarNotificacionEstadoUsuario(usuario, estado, motivo = '') {
     `,
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Correo de usuario ${estado} enviado a:`, usuario.email);
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Error enviando email:", error.message);
-    return { success: false, error: error.message };
-  }
+  return sendEmailWithRetry(mailOptions);
 }
 
 module.exports = {
