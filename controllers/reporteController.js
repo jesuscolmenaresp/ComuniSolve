@@ -17,26 +17,34 @@ const {
    - obtenerDetalle   -> GET /reportes/:id/detalle
 */
 
-// 📌 LISTAR REPORTES (VERSIÓN RÁPIDA)
+// ==========================
+// 📌 LISTAR REPORTES (OPTIMIZADO - MÁS RÁPIDO)
 // ==========================
 exports.listarReportes = async (req, res) => {
   const usuario = req.session.usuario;
   
+  const { search, estado, categoria_id, calle_id, fecha_desde, fecha_hasta } = req.query;
+  
   try {
-    // Consulta SIMPLE y RÁPIDA
+    // Consulta PRINCIPAL: SIN LEFT JOIN empresas (se obtienen después)
     let query = `
       SELECT r.id, r.titulo, r.descripcion, r.fecha, r.estado,
-             r.mostrar_nombre, r.imagen,
+             r.mostrar_nombre, r.imagen, r.ubicacion_lat, r.ubicacion_lng,
+             r.empresa_id,
              u.nombre AS nombre_usuario,
+             j.nombre AS nombre_jefe,
              c.nombre AS nombre_calle,
+             cat.id AS categoria_id,
              cat.nombre AS categoria_nombre,
              cat.icono AS categoria_icono,
              cat.color AS categoria_color,
              (SELECT COUNT(*) FROM votos v WHERE v.reporte_id = r.id) AS total_votos
       FROM reportes r
       LEFT JOIN usuarios u ON r.usuario_id = u.id
+      LEFT JOIN usuarios j ON r.jefe_calle_id = j.id
       INNER JOIN calles c ON r.calle_id = c.id
       INNER JOIN categorias cat ON r.categoria_id = cat.id
+      WHERE 1=1
     `;
     
     let params = [];
@@ -45,29 +53,76 @@ exports.listarReportes = async (req, res) => {
       return res.redirect('/login');
     }
 
-    // Filtros simples por rol
-    if (usuario.rol_id === 3 && usuario.calle_id) {
-      query += " WHERE r.calle_id = ?";
+    if (usuario.rol_id === 3) { 
+      query += " AND r.calle_id = ?";
       params.push(usuario.calle_id);
     } 
-    else if (usuario.rol_id === 2) {
-      query += " WHERE r.calle_id IN (SELECT id FROM calles WHERE lider_id = ?)";
+    else if (usuario.rol_id === 2) { 
+      query += " AND r.calle_id IN (SELECT id FROM calles WHERE lider_id = ?)";
       params.push(usuario.id);
     } 
     else if (usuario.rol_id === 4) {
       if (usuario.calle_id) {
-        query += " WHERE r.calle_id = ?";
-        params.push(usuario.calle_id);
+        query += " AND (r.calle_id = ? OR r.usuario_id = ?)";
+        params.push(usuario.calle_id, usuario.id);
       } else {
-        query += " WHERE r.usuario_id = ?";
+        query += " AND r.usuario_id = ?";
         params.push(usuario.id);
       }
     }
 
-    // ORDENAR y LIMITAR para rapidez
-    query += " ORDER BY r.fecha DESC LIMIT 50";
+    // Filtros
+    if (search && search.trim() !== '') {
+      query += " AND (r.titulo LIKE ? OR r.descripcion LIKE ?)";
+      params.push(`%${search}%`, `%${search}%`);
+    }
+    if (estado && estado !== 'todos') {
+      query += " AND r.estado = ?";
+      params.push(estado);
+    }
+    if (categoria_id && categoria_id !== 'todos') {
+      query += " AND r.categoria_id = ?";
+      params.push(categoria_id);
+    }
+    if (calle_id && calle_id !== 'todos') {
+      query += " AND r.calle_id = ?";
+      params.push(calle_id);
+    }
+    if (fecha_desde) {
+      query += " AND DATE(r.fecha) >= ?";
+      params.push(fecha_desde);
+    }
+    if (fecha_hasta) {
+      query += " AND DATE(r.fecha) <= ?";
+      params.push(fecha_hasta);
+    }
+
+    // ⚡ CAMBIO IMPORTANTE: Ordenar por fecha (más rápido que por votos)
+    query += " ORDER BY r.fecha DESC LIMIT 100";
     
     const [reportes] = await db.query(query, params);
+    
+    // Obtener nombres de empresas para los reportes (solo los necesarios)
+    const empresasIds = [...new Set(reportes.filter(r => r.empresa_id).map(r => r.empresa_id))];
+    let empresasMap = {};
+    if (empresasIds.length > 0) {
+      const [empresas] = await db.query(
+        `SELECT id, nombre, contacto FROM empresas WHERE id IN (${empresasIds.map(() => '?').join(',')})`,
+        empresasIds
+      );
+      empresasMap = Object.fromEntries(empresas.map(e => [e.id, { nombre: e.nombre, contacto: e.contacto }]));
+    }
+    
+    // Agregar datos de empresa a cada reporte
+    reportes.forEach(r => {
+      if (r.empresa_id && empresasMap[r.empresa_id]) {
+        r.empresa_nombre = empresasMap[r.empresa_id].nombre;
+        r.empresa_contacto = empresasMap[r.empresa_id].contacto;
+      } else {
+        r.empresa_nombre = null;
+        r.empresa_contacto = null;
+      }
+    });
     
     // Votos del usuario
     let votosUsuario = {};
@@ -81,17 +136,24 @@ exports.listarReportes = async (req, res) => {
       });
     }
     
-    // Datos para filtros (simplificados)
-    const [categorias] = await db.query('SELECT id, nombre FROM categorias ORDER BY nombre');
+    // Datos para selects (simples y rápidos)
+    const [empresas] = await db.query('SELECT id, nombre FROM empresas ORDER BY nombre LIMIT 20');
+    const [categorias] = await db.query('SELECT id, nombre, icono, color FROM categorias ORDER BY nombre');
     const [calles] = await db.query('SELECT id, nombre FROM calles ORDER BY nombre');
     
     res.render('reportes', { 
       reportes, 
+      empresas,
       categorias,
       calles,
       usuario,
       votosUsuario,
-      empresas: [],  // Vacío para rapidez
+      search,
+      estado,
+      categoria_id,
+      calle_id,
+      fecha_desde,
+      fecha_hasta,
       session: req.session
     });
   } catch (err) {
@@ -197,7 +259,6 @@ exports.guardarReporte = async (req, res) => {
     const jefe_id = calle[0]?.jefe_id || null;
     const nombre_calle = calle[0]?.nombre || '';
 
-    // Obtener nombre de categoría
     const [categoria] = await db.query("SELECT nombre FROM categorias WHERE id = ?", [categoria_id]);
     const categoria_nombre = categoria[0]?.nombre || '';
 
@@ -219,7 +280,6 @@ exports.guardarReporte = async (req, res) => {
       ]
     );
 
-    // Obtener el reporte recién creado para la notificación
     const [nuevoReporte] = await db.query(`
       SELECT r.*, c.nombre as nombre_calle, cat.nombre as categoria_nombre
       FROM reportes r
@@ -230,7 +290,6 @@ exports.guardarReporte = async (req, res) => {
 
     const reporteInfo = nuevoReporte[0];
 
-    // NOTIFICACIÓN: Si es anónimo, notificar al jefe de calle
     if (!mostrar_nombre && jefe_id) {
       const [jefe] = await db.query('SELECT email, nombre FROM usuarios WHERE id = ?', [jefe_id]);
       if (jefe.length > 0 && jefe[0].email) {
@@ -238,7 +297,6 @@ exports.guardarReporte = async (req, res) => {
       }
     }
     
-    // NOTIFICACIÓN: Si es identificado, notificar al líder de la calle
     if (mostrar_nombre) {
       const [lider] = await db.query(`
         SELECT u.email, u.nombre 
@@ -302,7 +360,6 @@ exports.cambiarEstado = async (req, res) => {
 
     await db.query("UPDATE reportes SET estado = ? WHERE id = ?", [estado, id]);
     
-    // Registrar en auditoría
     await registrarAuditoria(
       usuario,
       'CAMBIAR_ESTADO',
@@ -312,7 +369,6 @@ exports.cambiarEstado = async (req, res) => {
       { estado }
     );
 
-    // NOTIFICACIÓN: Notificar al ciudadano que creó el reporte
     const [ciudadano] = await db.query('SELECT email, nombre FROM usuarios WHERE id = ?', [reporte.usuario_id]);
     if (ciudadano.length > 0 && ciudadano[0].email && ciudadano[0].email !== usuario.email) {
       const reporteInfo = {
@@ -347,7 +403,6 @@ exports.asignarEmpresa = async (req, res) => {
       return res.redirect('/reportes');
     }
 
-    // Obtener información del reporte y la empresa
     const [reporteInfo] = await db.query(`
       SELECT r.*, c.nombre as nombre_calle, u.email as ciudadano_email, u.nombre as ciudadano_nombre
       FROM reportes r
@@ -369,7 +424,6 @@ exports.asignarEmpresa = async (req, res) => {
       { empresa_id, empresa_nombre: empresa[0]?.nombre }
     );
 
-    // NOTIFICACIÓN: Notificar al ciudadano que se asignó una empresa
     if (reporteInfo.length > 0 && empresa.length > 0 && reporteInfo[0].ciudadano_email) {
       await enviarNotificacionEmpresaAsignada(
         { titulo: reporteInfo[0].titulo }, 
@@ -398,7 +452,6 @@ exports.reportesMiCalle = async (req, res) => {
       return res.redirect('/login');
     }
 
-    // Obtener el nombre de la calle del usuario
     let calle_nombre = usuario.calle_nombre;
     if (!calle_nombre && usuario.calle_id) {
       const [calle] = await db.query('SELECT nombre FROM calles WHERE id = ?', [usuario.calle_id]);
@@ -415,7 +468,6 @@ exports.reportesMiCalle = async (req, res) => {
       });
     }
 
-    // Obtener todos los reportes de la calle del ciudadano
     const [reportes] = await db.query(`
       SELECT r.id, r.titulo, r.descripcion, r.fecha, r.estado,
              r.mostrar_nombre, r.imagen,
@@ -437,7 +489,6 @@ exports.reportesMiCalle = async (req, res) => {
       ORDER BY total_votos DESC, r.fecha DESC
     `, [usuario.id, usuario.calle_id]);
     
-    // Obtener votos del usuario actual
     const [misVotos] = await db.query(
       'SELECT reporte_id FROM votos WHERE usuario_id = ?',
       [usuario.id]
@@ -447,7 +498,6 @@ exports.reportesMiCalle = async (req, res) => {
       votosUsuario[v.reporte_id] = true;
     });
     
-    // Actualizar calle_nombre en la sesión si no estaba
     if (!usuario.calle_nombre && calle_nombre) {
       req.session.usuario.calle_nombre = calle_nombre;
     }
