@@ -6,15 +6,17 @@ const expressLayouts = require('express-ejs-layouts');
 
 const app = express();
 
-// Configurar variables de entorno - solo en desarrollo
+// Configurar variables de entorno - SOLO en desarrollo (NO en producción)
+// En producción, Render inyecta las variables automáticamente
 if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
+  console.log('📝 Desarrollo: cargando variables desde .env');
+} else {
+  console.log('🚀 Producción: usando variables de entorno del sistema (Render)');
 }
 
 // Puerto dinámico para producción
 const PORT = process.env.PORT || 3000;
-
-// Timeout global para peticiones lentas (30 segundos)
 
 // Health check endpoint (para Render)
 app.get('/health', (req, res) => {
@@ -136,6 +138,16 @@ app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
   console.log(`📦 Entorno: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🕒 ${new Date().toLocaleString()}`);
+  
+  // Mostrar qué variables de entorno están configuradas (sin mostrar valores)
+  if (process.env.NODE_ENV === 'production') {
+    console.log('🔧 Variables de entorno detectadas:');
+    console.log(`   - EMAIL_USER: ${process.env.EMAIL_USER ? '✅' : '❌'}`);
+    console.log(`   - GMAIL_CLIENT_ID: ${process.env.GMAIL_CLIENT_ID ? '✅' : '❌'}`);
+    console.log(`   - GMAIL_CLIENT_SECRET: ${process.env.GMAIL_CLIENT_SECRET ? '✅' : '❌'}`);
+    console.log(`   - GMAIL_REFRESH_TOKEN: ${process.env.GMAIL_REFRESH_TOKEN ? '✅' : '❌'}`);
+    console.log(`   - DB_HOST: ${process.env.DB_HOST ? '✅' : '❌'}`);
+  }
 });
 
 module.exports = app;
