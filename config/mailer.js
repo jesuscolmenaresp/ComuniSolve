@@ -1,37 +1,15 @@
-const nodemailer = require('nodemailer');
-const dotenv = require('dotenv');
+const { Resend } = require('resend');
 
-dotenv.config();
+// Verificar que la API key existe
+if (!process.env.RESEND_API_KEY) {
+  console.error('❌ ERROR: RESEND_API_KEY no está definida en variables de entorno');
+  console.log('⚠️ Los correos NO funcionarán. Agrega RESEND_API_KEY en tus variables de entorno');
+}
 
-// Configuración del transporte de Gmail - VERSIÓN MEJORADA PARA RENDER
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,  // CAMBIAR de 465 a 587
-  secure: false, // false para puerto 587 (STARTTLS)
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  // Configuraciones adicionales para evitar timeouts
-  connectionTimeout: 30000, // 30 segundos
-  greetingTimeout: 30000,
-  socketTimeout: 30000,
-  tls: {
-    rejectUnauthorized: false // Solo para pruebas, en producción quitar
-  }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Verificar conexión (con manejo de errores)
-transporter.verify()
-  .then(() => {
-    console.log('✅ Nodemailer listo para enviar correos usando Gmail SMTP');
-  })
-  .catch((err) => {
-    console.error('❌ Error en configuración de Nodemailer:', err.message);
-    console.log('⚠️ Los correos no funcionarán. Verifica:');
-    console.log('   1. EMAIL_USER y EMAIL_PASS en variables de entorno');
-    console.log('   2. Que la contraseña de aplicación sea correcta');
-    console.log('   3. Render permite conexiones salientes al puerto 587');
-  });
+// Email de origen (para pruebas, no requiere verificación de dominio)
+// Si verificas tu dominio después, cambia por: hola@tudominio.com
+const EMAIL_FROM = 'onboarding@resend.dev';
 
-module.exports = transporter;
+module.exports = { resend, EMAIL_FROM };

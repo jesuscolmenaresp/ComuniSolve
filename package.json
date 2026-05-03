@@ -24,7 +24,8 @@
     "multer": "^2.0.2",
     "mysql2": "^3.14.2",
     "nodemailer": "^7.0.13",
-    "pdfkit": "^0.18.0"
+    "pdfkit": "^0.18.0",
+    "resend": "^6.12.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
