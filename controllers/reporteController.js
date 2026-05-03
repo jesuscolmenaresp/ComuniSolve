@@ -516,3 +516,81 @@ exports.reportesMiCalle = async (req, res) => {
     res.status(500).send("Error al obtener reportes de tu calle");
   }
 };
+
+// ==========================
+// 📌 LISTAR REPORTES - VERSIÓN ULTRA RÁPIDA
+// ==========================
+exports.listarReportesRapido = async (req, res) => {
+  const usuario = req.session.usuario;
+  
+  try {
+    // Consulta mínima: SOLO datos básicos
+    let query = `
+      SELECT r.id, r.titulo, r.descripcion, r.fecha, r.estado,
+             r.mostrar_nombre, r.imagen,
+             c.nombre AS nombre_calle,
+             cat.nombre AS categoria_nombre,
+             cat.icono AS categoria_icono,
+             cat.color AS categoria_color,
+             (SELECT COUNT(*) FROM votos v WHERE v.reporte_id = r.id) AS total_votos
+      FROM reportes r
+      INNER JOIN calles c ON r.calle_id = c.id
+      INNER JOIN categorias cat ON r.categoria_id = cat.id
+      WHERE 1=1
+    `;
+    
+    let params = [];
+
+    if (!usuario) return res.redirect('/login');
+
+    if (usuario.rol_id === 3 && usuario.calle_id) {
+      query += " AND r.calle_id = ?";
+      params.push(usuario.calle_id);
+    } 
+    else if (usuario.rol_id === 2) {
+      query += " AND r.calle_id IN (SELECT id FROM calles WHERE lider_id = ?)";
+      params.push(usuario.id);
+    } 
+    else if (usuario.rol_id === 4 && usuario.calle_id) {
+      query += " AND r.calle_id = ?";
+      params.push(usuario.calle_id);
+    }
+    else if (usuario.rol_id === 4) {
+      query += " AND r.usuario_id = ?";
+      params.push(usuario.id);
+    }
+
+    query += " ORDER BY r.fecha DESC LIMIT 50";
+    
+    const [reportes] = await db.query(query, params);
+    
+    // Votos del usuario
+    let votosUsuario = {};
+    if (usuario && usuario.rol_id === 4) {
+      const [misVotos] = await db.query(
+        'SELECT reporte_id FROM votos WHERE usuario_id = ?',
+        [usuario.id]
+      );
+      misVotos.forEach(v => {
+        votosUsuario[v.reporte_id] = true;
+      });
+    }
+    
+    // Datos mínimos para filtros
+    const [categorias] = await db.query('SELECT id, nombre FROM categorias ORDER BY nombre');
+    const [calles] = await db.query('SELECT id, nombre FROM calles ORDER BY nombre');
+    
+    res.render('reportes', { 
+      reportes, 
+      categorias,
+      calles,
+      empresas: [],
+      usuario,
+      votosUsuario,
+      session: req.session
+    });
+  } catch (err) {
+    console.error('Error en listarReportesRapido:', err);
+    res.status(500).send("Error al obtener reportes");
+  }
+};

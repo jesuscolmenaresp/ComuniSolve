@@ -6,8 +6,11 @@ const reporteController = require('../controllers/reporteController');
 const upload = require('../middleware/uploadMiddleware');
 const exportController = require('../controllers/exportController');
 
-// Listar reportes
-router.get('/reportes', authMiddleware, reporteController.listarReportes);
+// 📌 Ruta RÁPIDA para reportes (sin joins pesados)
+router.get('/reportes/rapido', authMiddleware, reporteController.listarReportesRapido);
+
+// Listar reportes (normal)
+router.get('/reportes', authMiddleware, reporteController.listarReportesRapido);
 
 // Obtener detalle de reporte (para modal)
 router.get('/reportes/:id/detalle', authMiddleware, reporteController.obtenerDetalle);
@@ -28,7 +31,7 @@ router.post('/reportes/:id/asignar-empresa',
   reporteController.asignarEmpresa
 );
 
-// 📌 Reportes de mi calle (para ciudadanos)
+// Reportes de mi calle (para ciudadanos)
 router.get('/reportes/mi-calle', authMiddleware, reporteController.reportesMiCalle);
 
 // Exportar reportes
