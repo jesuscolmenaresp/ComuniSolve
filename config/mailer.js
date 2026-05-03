@@ -3,30 +3,28 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-// Configuración ESPECÍFICA para Render con Gmail
+// Configuración para Render que SÍ funciona
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true, // IMPORTANTE: true para puerto 465
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  // Configuración que hace que funcione en Render
-  pool: true,
-  maxConnections: 1,
-  rateDelta: 1000,
-  rateLimit: 5,
-  socketTimeout: 60000,
-  connectionTimeout: 60000,
+  // Timeouts más agresivos
+  connectionTimeout: 30000,
+  greetingTimeout: 30000,
+  socketTimeout: 30000,
 });
 
-// Verificar conexión (solo log, no bloquea)
 transporter.verify((error, success) => {
   if (error) {
     console.error('❌ Error en configuración de correo:', error.message);
-    console.log('⚠️ Los correos no funcionarán. Verifica:');
-    console.log('   1. EMAIL_USER y EMAIL_PASS en variables de entorno');
-    console.log('   2. Contraseña de aplicación de Gmail SIN ESPACIOS');
-    console.log('   3. Que la contraseña sea de "Aplicación" no la normal');
+    console.log('⚠️ Posibles soluciones:');
+    console.log('   1. Verifica que la "Contraseña de aplicación" sea correcta');
+    console.log('   2. En Gmail, permite "Acceso de aplicaciones menos seguras"? (ya no aplica)');
+    console.log('   3. La cuenta necesita verificación en https://myaccount.google.com/security');
   } else {
     console.log('✅ Nodemailer listo para enviar correos');
   }
