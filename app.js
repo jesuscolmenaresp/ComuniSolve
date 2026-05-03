@@ -58,7 +58,7 @@ app.use(async (req, res, next) => {
       res.locals.esVoluntario = voluntario.length > 0;
       res.locals.estadoVoluntario = voluntario[0]?.estado || null;
     } catch (err) {
-      console.error('Error al verificar voluntario:', err);
+      console.error('Error al verificar voluntario:', err.message);
       res.locals.esVoluntario = false;
       res.locals.estadoVoluntario = null;
     }
@@ -123,5 +123,12 @@ app.use(categoriasRoutes);
 app.use(auditoriaRoutes);
 
 app.use(perfilRoutes);
+
+// Iniciar servidor
+app.listen(PORT, () => {
+  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`📦 Entorno: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🕒 ${new Date().toLocaleString()}`);
+});
 
 module.exports = app;

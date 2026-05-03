@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www"
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "ping": "node ping.js",
+    "build": "npm install"
   },
   "keywords": [],
   "author": "",
