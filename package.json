@@ -24,6 +24,7 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
     "mysql2": "^3.14.2",
+    "node-mailjet": "^6.0.11",
     "nodemailer": "^7.0.13",
     "pdfkit": "^0.18.0",
     "resend": "^6.12.2"

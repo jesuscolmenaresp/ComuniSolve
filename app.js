@@ -140,14 +140,13 @@ app.listen(PORT, () => {
   console.log(`🕒 ${new Date().toLocaleString()}`);
   
   // Mostrar qué variables de entorno están configuradas (sin mostrar valores)
-  if (process.env.NODE_ENV === 'production') {
-    console.log('🔧 Variables de entorno detectadas:');
-    console.log(`   - EMAIL_USER: ${process.env.EMAIL_USER ? '✅' : '❌'}`);
-    console.log(`   - GMAIL_CLIENT_ID: ${process.env.GMAIL_CLIENT_ID ? '✅' : '❌'}`);
-    console.log(`   - GMAIL_CLIENT_SECRET: ${process.env.GMAIL_CLIENT_SECRET ? '✅' : '❌'}`);
-    console.log(`   - GMAIL_REFRESH_TOKEN: ${process.env.GMAIL_REFRESH_TOKEN ? '✅' : '❌'}`);
-    console.log(`   - DB_HOST: ${process.env.DB_HOST ? '✅' : '❌'}`);
-  }
+if (process.env.NODE_ENV === 'production') {
+  console.log('🔧 Variables de entorno detectadas:');
+  console.log(`   - MAILJET_API_KEY: ${process.env.MAILJET_API_KEY ? '✅' : '❌'}`);
+  console.log(`   - MAILJET_SECRET_KEY: ${process.env.MAILJET_SECRET_KEY ? '✅' : '❌'}`);
+  console.log(`   - MAILJET_FROM_EMAIL: ${process.env.MAILJET_FROM_EMAIL ? '✅' : '❌'}`);
+  console.log(`   - DB_HOST: ${process.env.DB_HOST ? '✅' : '❌'}`);
+}
 });
 
 module.exports = app;
