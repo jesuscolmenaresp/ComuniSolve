@@ -6,8 +6,7 @@ const expressLayouts = require('express-ejs-layouts');
 
 const app = express();
 
-// Configurar variables de entorno - SOLO en desarrollo (NO en producción)
-// En producción, Render inyecta las variables automáticamente
+// Configurar variables de entorno - SOLO en desarrollo
 if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
   console.log('📝 Desarrollo: cargando variables desde .env');
@@ -15,10 +14,18 @@ if (process.env.NODE_ENV !== 'production') {
   console.log('🚀 Producción: usando variables de entorno del sistema (Render)');
 }
 
+// Timeout global para peticiones (evita cold starts eternos)
+app.use((req, res, next) => {
+  res.setTimeout(30000, () => {
+    res.status(504).send('Tiempo de espera agotado. Por favor, recarga la página.');
+  });
+  next();
+});
+
 // Puerto dinámico para producción
 const PORT = process.env.PORT || 3000;
 
-// Health check endpoint (para Render)
+// Health check endpoint (para Render y UptimeRobot)
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
@@ -139,14 +146,13 @@ app.listen(PORT, () => {
   console.log(`📦 Entorno: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🕒 ${new Date().toLocaleString()}`);
   
-  // Mostrar qué variables de entorno están configuradas (sin mostrar valores)
-if (process.env.NODE_ENV === 'production') {
-  console.log('🔧 Variables de entorno detectadas:');
-  console.log(`   - MAILJET_API_KEY: ${process.env.MAILJET_API_KEY ? '✅' : '❌'}`);
-  console.log(`   - MAILJET_SECRET_KEY: ${process.env.MAILJET_SECRET_KEY ? '✅' : '❌'}`);
-  console.log(`   - MAILJET_FROM_EMAIL: ${process.env.MAILJET_FROM_EMAIL ? '✅' : '❌'}`);
-  console.log(`   - DB_HOST: ${process.env.DB_HOST ? '✅' : '❌'}`);
-}
+  if (process.env.NODE_ENV === 'production') {
+    console.log('🔧 Variables de entorno detectadas:');
+    console.log(`   - MAILJET_API_KEY: ${process.env.MAILJET_API_KEY ? '✅' : '❌'}`);
+    console.log(`   - MAILJET_SECRET_KEY: ${process.env.MAILJET_SECRET_KEY ? '✅' : '❌'}`);
+    console.log(`   - MAILJET_FROM_EMAIL: ${process.env.MAILJET_FROM_EMAIL ? '✅' : '❌'}`);
+    console.log(`   - DB_HOST: ${process.env.DB_HOST ? '✅' : '❌'}`);
+  }
 });
 
 module.exports = app;

@@ -2,7 +2,7 @@ const mysql = require('mysql2');
 const dotenv = require('dotenv');
 dotenv.config();
 
-// Configuración optimizada para Render + TiDB
+// Configuración optimizada para Render + TiDB con timeouts
 const poolConfig = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -13,7 +13,9 @@ const poolConfig = {
   connectionLimit: 10,
   queueLimit: 0,
   enableKeepAlive: true,
-  keepAliveInitialDelay: 10000
+  keepAliveInitialDelay: 10000,
+  connectTimeout: 10000,      // 10 segundos para conectar (evita cold starts eternos)
+  acquireTimeout: 10000       // 10 segundos para adquirir conexión
 };
 
 // SSL para TiDB
