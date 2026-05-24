@@ -1,131 +1,228 @@
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>🏘️ Reportes de mi calle: <span class="text-primary"><%= usuario.calle_nombre || 'No asignada' %></span></h2>
-    <a href="/reportar" class="btn btn-primary">
-      ➕ Crear nuevo reporte
+<div class="container py-4">
+  
+  <!-- Encabezado -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1" style="color: #5D4037;">
+        <i class="bi bi-house-heart me-2" style="color: #fd6704bd;"></i> Reportes de mi calle
+      </h2>
+      <p class="text-muted small mb-0" style="color: #8B6B5A;">
+        <i class="bi bi-pin-map-fill me-1" style="color: #fd6704bd;"></i> 
+        <span class="fw-semibold"><%= usuario.calle_nombre || 'No asignada' %></span>
+      </p>
+    </div>
+    <a href="/reportar" class="btn btn-sm px-4 py-2 fw-semibold rounded-3" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+      <i class="bi bi-plus-circle me-1"></i> Crear nuevo reporte
     </a>
   </div>
 
-  <% if (session && session.mensaje) { %>
-    <div class="alert alert-success alert-dismissible fade show">
-      <%= session.mensaje %>
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  <!-- Mensajes flash -->
+  <% if (typeof session !== 'undefined' && session && session.mensaje) { %>
+    <div class="alert alert-success alert-dismissible fade show border-0 rounded-3 py-2 mb-4" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i> 
+      <small><%= session.mensaje %></small>
+      <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
     </div>
     <% session.mensaje = null; %>
   <% } %>
 
-  <% if (session && session.error) { %>
-    <div class="alert alert-danger alert-dismissible fade show">
-      <%= session.error %>
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  <% if (typeof session !== 'undefined' && session && session.error) { %>
+    <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 py-2 mb-4" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i> 
+      <small><%= session.error %></small>
+      <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
     </div>
     <% session.error = null; %>
   <% } %>
 
   <!-- Pestañas de filtro -->
-  <ul class="nav nav-pills mb-4 justify-content-center" id="filtroTipo">
-    <li class="nav-item">
-      <a class="nav-link active" data-tipo="todos" href="#">📋 Todos</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-tipo="con_votos" href="#">👍 Más votados</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-tipo="pendientes" href="#">⏳ Pendientes</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-tipo="resueltos" href="#">✅ Resueltos</a>
-    </li>
-  </ul>
-
-  <!-- Buscador -->
-  <div class="row mb-3">
-    <div class="col-md-6 mx-auto">
-      <input type="text" id="buscarReporte" class="form-control" 
-             placeholder="🔍 Buscar por título o descripción...">
+  <div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden">
+    <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+      <h5 class="mb-0 fw-semibold" style="color: #5D4037;">
+        <i class="bi bi-funnel me-2" style="color: #fd6704bd;"></i> Filtros
+      </h5>
+    </div>
+    <div class="card-body p-4">
+      <ul class="nav nav-pills justify-content-center gap-2 mb-4" id="filtroTipo">
+        <li class="nav-item">
+          <a class="nav-link active rounded-pill px-4" data-tipo="todos" href="#">
+            <i class="bi bi-grid-3x3-gap-fill me-1"></i> Todos
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link rounded-pill px-4" data-tipo="con_votos" href="#">
+            <i class="bi bi-hand-thumbs-up-fill text-warning me-1"></i> Más votados
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link rounded-pill px-4" data-tipo="pendientes" href="#">
+            <i class="bi bi-clock-history text-warning me-1"></i> Pendientes
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link rounded-pill px-4" data-tipo="resueltos" href="#">
+            <i class="bi bi-check-circle-fill text-success me-1"></i> Resueltos
+          </a>
+        </li>
+      </ul>
+      
+      <!-- Buscador -->
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0" style="border-color: #f0d5c0;">
+              <i class="bi bi-search" style="color: #fd6704bd;"></i>
+            </span>
+            <input type="text" id="buscarReporte" class="form-control border-start-0 rounded-3" 
+                   placeholder="Buscar por título o descripción..."
+                   style="border: 1px solid #f0d5c0; background-color: #fefaf7;">
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="row" id="vistaTarjetas">
+  <!-- Vista de tarjetas -->
+  <div class="row g-4" id="vistaTarjetas">
     <% if (reportes.length === 0) { %>
       <div class="col-12">
-        <div class="alert alert-info text-center">
-          <i class="bi bi-info-circle"></i> No hay reportes en tu calle aún. 
-          <a href="/reportar" class="alert-link">¡Sé el primero en reportar!</a>
+        <div class="card border-0 rounded-4 shadow-sm bg-light">
+          <div class="card-body text-center py-5">
+            <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+            <h5 class="text-muted">No hay reportes en tu calle aún</h5>
+            <p class="text-muted mb-3">¡Sé el primero en reportar un problema en tu comunidad!</p>
+            <a href="/reportar" class="btn btn-sm px-4 py-2 fw-semibold rounded-3" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+              <i class="bi bi-plus-circle me-1"></i> Crear nuevo reporte
+            </a>
+          </div>
         </div>
       </div>
     <% } else { %>
-      <% reportes.forEach(r => { %>
-        <div class="col-md-6 mb-3">
-          <div class="card h-100 shadow-sm reporte-tarjeta" data-estado="<%= r.estado %>" data-votos="<%= r.total_votos || 0 %>">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start">
-                <h5 class="card-title mb-0"><%= r.titulo %></h5>
-                <span class="badge <%= r.estado === 'Pendiente' ? 'bg-warning' : r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>">
-                  <%= r.estado %>
+      <% for(var i = 0; i < reportes.length; i++) { 
+           var r = reportes[i];
+           var anchoVotos = (r.total_votos || 0) * 10;
+           if (anchoVotos > 100) anchoVotos = 100;
+      %>
+        <div class="col-md-6 col-lg-6">
+          <div class="card border-0 rounded-4 shadow-sm h-100 reporte-tarjeta" 
+               data-estado="<%= r.estado %>" 
+               data-votos="<%= r.total_votos || 0 %>"
+               data-titulo="<%= r.titulo %>"
+               data-descripcion="<%= r.descripcion %>">
+            
+            <div class="card-body p-4">
+              <!-- Encabezado -->
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="card-title mb-0 fw-bold" style="color: #5D4037;">
+                  <i class="bi bi-chat-square-text me-2" style="color: #fd6704bd;"></i>
+                  <%= r.titulo %>
+                </h5>
+                <span class="badge rounded-pill px-3 py-1 
+                  <% if (r.estado === 'Pendiente') { %>bg-warning<% } 
+                  else if (r.estado === 'En Progreso') { %>bg-info<% } 
+                  else { %>bg-success<% } %>" 
+                  style="<%= r.estado === 'Pendiente' ? 'color: #333;' : 'color: white;' %>">
+                  <% if (r.estado === 'Pendiente') { %>
+                    <i class="bi bi-clock-history me-1"></i> Pendiente
+                  <% } else if (r.estado === 'En Progreso') { %>
+                    <i class="bi bi-arrow-repeat me-1"></i> Progreso
+                  <% } else { %>
+                    <i class="bi bi-check-circle me-1"></i> Resuelto
+                  <% } %>
                 </span>
               </div>
-              <p class="card-text text-muted small mt-2"><%= r.descripcion.length > 100 ? r.descripcion.substring(0, 100) + '...' : r.descripcion %></p>
               
-              <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
-                <div>
-                  <span class="badge bg-secondary">
-                    👍 <span class="votos-count"><%= r.total_votos || 0 %></span> votos
-                  </span>
-                  <span class="badge bg-<%= r.categoria_color || 'primary' %> ms-1">
-                    <%= r.categoria_icono ? r.categoria_icono + ' ' : '' %><%= r.categoria_nombre %>
-                  </span>
+              <!-- Categoría y fecha -->
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge rounded-pill px-3 py-1" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+                  <%= r.categoria_icono ? r.categoria_icono + ' ' : '' %><%= r.categoria_nombre %>
+                </span>
+                <small class="text-muted">
+                  <i class="bi bi-calendar3 me-1" style="color: #fd6704bd;"></i> <%= new Date(r.fecha).toLocaleDateString() %>
+                </small>
+              </div>
+              
+              <!-- Descripción -->
+              <p class="card-text text-muted mb-3" style="color: #6c757d;">
+                <% if (r.descripcion && r.descripcion.length > 100) { %>
+                  <%= r.descripcion.substring(0, 100) + '...' %>
+                <% } else { %>
+                  <%= r.descripcion || 'Sin descripción' %>
+                <% } %>
+              </p>
+              
+              <!-- Votos y acciones -->
+              <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="badge bg-secondary rounded-pill px-3 py-1">
+                    <i class="bi bi-hand-thumbs-up me-1"></i>
+                    <span class="votos-count"><%= r.total_votos || 0 %></span> votos
+                  </div>
+                  <% if (r.imagen) { %>
+                    <button type="button" class="btn btn-sm btn-outline-info rounded-3 px-3 py-1" 
+                            onclick="verImagenGrande('<%= r.imagen %>')"
+                            style="border-color: #f0d5c0; color: #17a2b8;">
+                      <i class="bi bi-image me-1"></i> Ver imagen
+                    </button>
+                  <% } %>
                 </div>
                 
                 <% if (!votosUsuario[r.id]) { %>
                   <form action="/reportes/<%= r.id %>/votar" method="POST" class="d-inline">
-                    <button type="submit" class="btn btn-sm btn-warning" 
-                            onclick="return confirm('¿Votar por este reporte? Tu voto ayudará a priorizar este problema en tu calle.')">
-                      👍 Votar
+                    <button type="submit" class="btn btn-sm rounded-3 px-3 py-1" 
+                            style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #333; border: none;"
+                            onclick="return confirm('¿Votar por este reporte?')">
+                      <i class="bi bi-hand-thumbs-up me-1"></i> Votar
                     </button>
                   </form>
                 <% } else { %>
-                  <span class="badge bg-success">✓ Ya votaste</span>
+                  <span class="badge bg-success rounded-pill px-3 py-1">
+                    <i class="bi bi-check-circle me-1"></i> Ya votaste
+                  </span>
                 <% } %>
               </div>
-              
-              <% if (r.imagen) { %>
-                <div class="mt-2 text-center">
-                  <img src="<%= r.imagen %>" class="img-thumbnail" style="max-height: 100px; cursor: pointer;" 
-                       onclick="verImagenGrande('<%= r.imagen %>')">
+            </div>
+            
+            <!-- Barra de progreso -->
+            <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-people-fill text-secondary small" style="color: #fd6704bd;"></i>
+                <div class="flex-grow-1">
+                  <div class="progress" style="height: 6px; background-color: #f0d5c0; border-radius: 10px;">
+                    <div class="progress-bar" style="width: <%= anchoVotos %>%; background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); border-radius: 10px;">
+                    </div>
+                  </div>
                 </div>
-              <% } %>
-              
-              <div class="mt-2 text-end">
-                <small class="text-muted">
-                  📅 <%= new Date(r.fecha).toLocaleDateString() %>
-                </small>
+                <small class="text-muted"><%= r.total_votos || 0 %> apoyos</small>
               </div>
             </div>
           </div>
         </div>
-      <% }) %>
+      <% } %>
     <% } %>
   </div>
 
   <!-- Botón para volver -->
   <div class="text-center mt-4">
-    <a href="/reportes" class="btn btn-outline-secondary">
-      ← Volver a mis reportes
+    <a href="/reportes" class="btn btn-outline-secondary rounded-3 px-4 py-2 fw-semibold" style="border-color: #f0d5c0; color: #5D4037;">
+      <i class="bi bi-arrow-left me-1"></i> Volver a todos los reportes
     </a>
   </div>
 </div>
 
-<!-- Modal para ver imagen grande -->
+<!-- Modal para ver imagen -->
 <div class="modal fade" id="modalImagen" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">📸 Imagen del reporte</h5>
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <div class="modal-header" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);">
+        <h5 class="modal-title text-white"><i class="bi bi-image me-2"></i> Imagen del reporte</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body text-center">
-        <img id="imagenGrande" src="" class="img-fluid rounded" style="max-height: 500px;">
+      <div class="modal-body text-center p-4" style="background: #fefaf7;">
+        <img id="imagenGrande" src="" class="img-fluid rounded shadow-sm" style="max-height: 500px;">
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -137,52 +234,111 @@
     new bootstrap.Modal(document.getElementById('modalImagen')).show();
   }
 
-  // Filtro por tipo (todos, más votados, pendientes, resueltos)
-  document.querySelectorAll('#filtroTipo .nav-link').forEach(tab => {
+  // Filtro por tipo (con clases CSS)
+  document.querySelectorAll('#filtroTipo .nav-link').forEach(function(tab) {
     tab.addEventListener('click', function(e) {
       e.preventDefault();
-      document.querySelectorAll('#filtroTipo .nav-link').forEach(t => t.classList.remove('active'));
+      var tabs = document.querySelectorAll('#filtroTipo .nav-link');
+      for (var i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove('active');
+      }
       this.classList.add('active');
       
-      const tipo = this.dataset.tipo;
-      const tarjetas = document.querySelectorAll('.reporte-tarjeta');
+      var tipo = this.dataset.tipo;
+      var tarjetas = document.querySelectorAll('.reporte-tarjeta');
       
-      tarjetas.forEach(tarjeta => {
-        const votos = parseInt(tarjeta.dataset.votos || '0');
-        const estado = tarjeta.dataset.estado;
+      for (var i = 0; i < tarjetas.length; i++) {
+        var tarjeta = tarjetas[i];
+        var votos = parseInt(tarjeta.dataset.votos || '0');
+        var estado = tarjeta.dataset.estado;
         
-        if (tipo === 'todos') {
-          tarjeta.style.display = '';
-        } else if (tipo === 'con_votos') {
-          tarjeta.style.display = votos > 0 ? '' : 'none';
-        } else if (tipo === 'pendientes') {
-          tarjeta.style.display = estado === 'Pendiente' ? '' : 'none';
-        } else if (tipo === 'resueltos') {
-          tarjeta.style.display = estado === 'Resuelto' ? '' : 'none';
+        tarjeta.classList.remove('filtro-oculto');
+        
+        if (tipo === 'con_votos' && votos === 0) {
+          tarjeta.classList.add('filtro-oculto');
+        } else if (tipo === 'pendientes' && estado !== 'Pendiente') {
+          tarjeta.classList.add('filtro-oculto');
+        } else if (tipo === 'resueltos' && estado !== 'Resuelto') {
+          tarjeta.classList.add('filtro-oculto');
         }
-      });
+      }
     });
   });
 
   // Buscador
-  document.getElementById('buscarReporte').addEventListener('keyup', function() {
-    const texto = this.value.toLowerCase();
-    document.querySelectorAll('.reporte-tarjeta').forEach(tarjeta => {
-      const titulo = tarjeta.querySelector('.card-title')?.textContent.toLowerCase() || '';
-      const descripcion = tarjeta.querySelector('.card-text')?.textContent.toLowerCase() || '';
-      tarjeta.style.display = (titulo.includes(texto) || descripcion.includes(texto)) ? '' : 'none';
+  var buscarInput = document.getElementById('buscarReporte');
+  if (buscarInput) {
+    buscarInput.addEventListener('keyup', function() {
+      var texto = this.value.toLowerCase();
+      var tarjetas = document.querySelectorAll('.reporte-tarjeta');
+      for (var i = 0; i < tarjetas.length; i++) {
+        var tarjeta = tarjetas[i];
+        var titulo = (tarjeta.dataset.titulo || '').toLowerCase();
+        var descripcion = (tarjeta.dataset.descripcion || '').toLowerCase();
+        if (titulo.indexOf(texto) === -1 && descripcion.indexOf(texto) === -1) {
+          tarjeta.classList.add('filtro-oculto');
+        } else {
+          tarjeta.classList.remove('filtro-oculto');
+        }
+      }
     });
-  });
+  }
 </script>
 
 <style>
+  /* Ocultar tarjetas en los filtros */
+  .filtro-oculto {
+    display: none !important;
+  }
+  
+  /* Estilos de las tarjetas */
   .reporte-tarjeta {
-    transition: transform 0.2s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    height: 100%;
   }
   .reporte-tarjeta:hover {
-    transform: translateY(-3px);
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
   }
   .btn-sm {
     transition: all 0.2s ease;
+  }
+  .btn-sm:hover {
+    transform: translateY(-2px);
+  }
+  .progress {
+    background-color: #e9ecef;
+    border-radius: 10px;
+  }
+  .progress-bar {
+    border-radius: 10px;
+    transition: width 0.3s ease;
+  }
+  .nav-pills .nav-link {
+    border-radius: 30px;
+    padding: 8px 20px;
+    transition: all 0.2s ease;
+  }
+  .nav-pills .nav-link:hover {
+    transform: translateY(-2px);
+  }
+  .nav-pills .nav-link.active {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+  }
+  .card {
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .badge {
+    font-weight: normal;
+  }
+  
+  /* Responsive para móviles */
+  @media (max-width: 768px) {
+    #vistaTarjetas > div {
+      width: 100% !important;
+    }
   }
 </style>

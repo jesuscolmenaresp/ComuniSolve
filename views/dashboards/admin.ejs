@@ -16,188 +16,289 @@ const calles = {
 };
 %>
 
-<h2 class="mb-4">📊 Panel de Administración - Estadísticas</h2>
+<div class="container py-4">
+  
+  <!-- Encabezado -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1" style="color: #5D4037;">
+        <i class="bi bi-graph-up me-2" style="color: #fd6704bd;"></i> Panel de Administración
+      </h2>
+      <p class="text-muted small mb-0" style="color: #8B6B5A;">Estadísticas y métricas de la comunidad</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button onclick="window.location.reload()" class="btn btn-sm px-3 py-2 rounded-3"
+              style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;">
+        <i class="bi bi-arrow-repeat me-1"></i> Actualizar
+      </button>
+    </div>
+  </div>
 
-<!-- Tarjetas de resumen -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-white bg-primary">
-            <div class="card-body">
-                <h5 class="card-title">Total Reportes</h5>
-                <h2><%= totales.total_reportes || 0 %></h2>
+  <!-- Tarjetas de resumen -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+        <div class="card-body p-3 text-center" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
+            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+              <i class="bi bi-file-text fs-3 text-white"></i>
             </div>
+          </div>
+          <h2 class="fw-bold mb-0" style="color: #5D4037;"><%= totales.total_reportes || 0 %></h2>
+          <p class="small mb-0" style="color: #8B6B5A;">Total Reportes</p>
         </div>
+      </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-warning">
-            <div class="card-body">
-                <h5 class="card-title">Pendientes</h5>
-                <h2><%= totales.pendientes || 0 %></h2>
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+        <div class="card-body p-3 text-center" style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);">
+          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
+            <div style="width: 50px; height: 50px; background: #ffc107; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+              <i class="bi bi-clock-history fs-3 text-white"></i>
             </div>
+          </div>
+          <h2 class="fw-bold mb-0" style="color: #856404;"><%= totales.pendientes || 0 %></h2>
+          <p class="small mb-0" style="color: #856404;">Pendientes</p>
         </div>
+      </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <h5 class="card-title">En Progreso</h5>
-                <h2><%= totales.en_progreso || 0 %></h2>
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+        <div class="card-body p-3 text-center" style="background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);">
+          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
+            <div style="width: 50px; height: 50px; background: #17a2b8; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+              <i class="bi bi-arrow-repeat fs-3 text-white"></i>
             </div>
+          </div>
+          <h2 class="fw-bold mb-0" style="color: #0c5460;"><%= totales.en_progreso || 0 %></h2>
+          <p class="small mb-0" style="color: #0c5460;">En Progreso</p>
         </div>
+      </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <h5 class="card-title">Resueltos</h5>
-                <h2><%= totales.resueltos || 0 %></h2>
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+        <div class="card-body p-3 text-center" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);">
+          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
+            <div style="width: 50px; height: 50px; background: #28a745; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+              <i class="bi bi-check-circle fs-3 text-white"></i>
             </div>
+          </div>
+          <h2 class="fw-bold mb-0" style="color: #155724;"><%= totales.resueltos || 0 %></h2>
+          <p class="small mb-0" style="color: #155724;">Resueltos</p>
         </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<!-- Gráficas -->
-<div class="row mb-4">
+  <!-- Gráficas -->
+  <div class="row g-4 mb-5">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5>📊 Reportes por Categoría</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="chartCategoria" style="max-height: 300px;"></canvas>
-            </div>
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100">
+        <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <h5 class="mb-0 fw-semibold" style="color: #5D4037;"><i class="bi bi-pie-chart me-2" style="color: #fd6704bd;"></i> Reportes por Categoría</h5>
         </div>
+        <div class="card-body p-4">
+          <canvas id="chartCategoria" style="max-height: 300px; width: 100%;"></canvas>
+        </div>
+      </div>
     </div>
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5>📈 Reportes por Estado</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="chartEstado" style="max-height: 300px;"></canvas>
-            </div>
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100">
+        <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <h5 class="mb-0 fw-semibold" style="color: #5D4037;"><i class="bi bi-donut me-2" style="color: #fd6704bd;"></i> Reportes por Estado</h5>
         </div>
+        <div class="card-body p-4">
+          <canvas id="chartEstado" style="max-height: 300px; width: 100%;"></canvas>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<!-- Top calles y más votados -->
-<div class="row mb-4">
+  <!-- Top calles y más votados -->
+  <div class="row g-4 mb-5">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5>🏘️ Top 5 Calles con más Reportes</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="chartCalles" style="max-height: 300px;"></canvas>
-            </div>
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100">
+        <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <h5 class="mb-0 fw-semibold" style="color: #5D4037;"><i class="bi bi-bar-chart me-2" style="color: #fd6704bd;"></i> Top 5 Calles con más Reportes</h5>
         </div>
+        <div class="card-body p-4">
+          <canvas id="chartCalles" style="max-height: 300px; width: 100%;"></canvas>
+        </div>
+      </div>
     </div>
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5>👍 Reportes más Votados</h5>
-            </div>
-            <div class="card-body">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Título</th>
-                            <th>Categoría</th>
-                            <th>Calle</th>
-                            <th>Votos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% if (masVotados && masVotados.length > 0) { %>
-                            <% masVotados.forEach(r => { %>
-                                <tr>
-                                    <td><%= r.titulo %></td>
-                                    <td><span class="badge bg-primary"><%= r.categoria %></span></td>
-                                    <td><%= r.calle %></td>
-                                    <td><span class="badge bg-secondary">👍 <%= r.votos || 0 %></span></td>
-                                </tr>
-                            <% }) %>
-                        <% } else { %>
-                            <tr>
-                                <td colspan="4" class="text-center">Sin votos aún</td>
-                            </tr>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100">
+        <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <h5 class="mb-0 fw-semibold" style="color: #5D4037;"><i class="bi bi-star-fill me-2" style="color: #fd6704bd;"></i> Reportes más Votados</h5>
         </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr class="text-center">
+                  <th><i class="bi bi-card-heading"></i> Título</th>
+                  <th><i class="bi bi-tag"></i> Categoría</th>
+                  <th><i class="bi bi-geo-alt"></i> Calle</th>
+                  <th><i class="bi bi-hand-thumbs-up"></i> Votos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (masVotados && masVotados.length > 0) { %>
+                  <% masVotados.forEach(r => { %>
+                    <tr>
+                      <td><strong><%= r.titulo %></strong></td>
+                      <td><span class="badge px-2 py-1 rounded-pill" style="background: #fce5d4; color: #fd6704bd;"><%= r.categoria %></span></td>
+                      <td><i class="bi bi-pin-map-fill text-secondary me-1"></i> <%= r.calle %></td>
+                      <td class="text-center"><span class="badge bg-warning rounded-pill px-3 py-1">👍 <%= r.votos || 0 %></span></td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="4" class="text-center py-5">
+                      <i class="bi bi-hand-thumbs-up fs-1 text-muted d-block mb-2"></i>
+                      <p class="text-muted mb-0">Sin votos registrados</p>
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<!-- Participación -->
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5>👥 Participación</h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-group">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Ciudadanos registrados
-                        <span class="badge bg-primary rounded-pill"><%= totales.total_ciudadanos || 0 %></span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Voluntarios
-                        <span class="badge bg-success rounded-pill"><%= totales.total_voluntarios || 0 %></span>
-                    </li>
-                </ul>
-            </div>
+  <!-- Participación ciudadana -->
+  <div class="row g-4">
+    <div class="col-md-6 mx-auto">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+        <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <h5 class="mb-0 fw-semibold" style="color: #5D4037;"><i class="bi bi-people-fill me-2" style="color: #fd6704bd;"></i> Participación Ciudadana</h5>
         </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            <div class="list-group-item d-flex justify-content-between align-items-center px-4 py-3" style="border-color: #f0d5c0;">
+              <div>
+                <i class="bi bi-person-fill me-2" style="color: #fd6704bd;"></i>
+                <strong>Ciudadanos registrados</strong>
+              </div>
+              <span class="badge rounded-pill px-3 py-2" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;"><%= totales.total_ciudadanos || 0 %></span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center px-4 py-3" style="border-color: #f0d5c0;">
+              <div>
+                <i class="bi bi-person-badge me-2" style="color: #fd6704bd;"></i>
+                <strong>Voluntarios</strong>
+              </div>
+              <span class="badge rounded-pill px-3 py-2" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;"><%= totales.total_voluntarios || 0 %></span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+  
 </div>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Gráfico de Categorías
+  // Gráfico de Categorías
+
     new Chart(document.getElementById('chartCategoria'), {
-        type: 'pie',
-        data: {
-            labels: JSON.parse('<%- JSON.stringify(categorias.labels) %>'),
-            datasets: [{
-                data: JSON.parse('<%- JSON.stringify(categorias.datos) %>'),
-                backgroundColor: [
-                    '#0d6efd', '#ffc107', '#198754', '#dc3545', '#6c757d'
-                ]
-            }]
+    type: 'pie',
+    data: {
+        labels: JSON.parse('<%- JSON.stringify(categorias.labels) %>'),
+        datasets: [{
+        data: JSON.parse('<%- JSON.stringify(categorias.datos) %>'),
+        backgroundColor: [
+            '#0d6efd',   // Agua - AZUL
+            '#ffc107',   // Electricidad - AMARILLO
+            '#dc3545',   // Salud - ROJO
+            '#3bba89',   // Vialidad - VERDE
+            '#6c757d',   // Otros - GRIS
+            '#17a2b8',   // Extra - CELESTE
+            '#fd7e14'    // Extra - NARANJA
+        ],
+        borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+        legend: {
+            position: 'bottom',
+            labels: { font: { size: 11 } }
         }
+        }
+    }
     });
 
-    // Gráfico de Estados
-    new Chart(document.getElementById('chartEstado'), {
-        type: 'doughnut',
-        data: {
-            labels: JSON.parse('<%- JSON.stringify(estados.labels) %>'),
-            datasets: [{
-                data: JSON.parse('<%- JSON.stringify(estados.datos) %>'),
-                backgroundColor: ['#ffc107', '#0dcaf0', '#198754']
-            }]
+  // Gráfico de Estados
+  new Chart(document.getElementById('chartEstado'), {
+    type: 'doughnut',
+    data: {
+      labels: JSON.parse('<%- JSON.stringify(estados.labels) %>'),
+      datasets: [{
+        data: JSON.parse('<%- JSON.stringify(estados.datos) %>'),
+        backgroundColor: ['#ffc107', '#17a2b8', '#28a745'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { size: 11 } }
         }
-    });
+      }
+    }
+  });
 
-    // Gráfico de Calles
+  // Gráfico de Calles
     new Chart(document.getElementById('chartCalles'), {
-        type: 'bar',
-        data: {
-            labels: JSON.parse('<%- JSON.stringify(calles.labels) %>'),
-            datasets: [{
-                label: 'Reportes',
-                data: JSON.parse('<%- JSON.stringify(calles.datos) %>'),
-                backgroundColor: '#0d6efd'
-            }]
+    type: 'bar',
+    data: {
+        labels: JSON.parse('<%- JSON.stringify(calles.labels) %>'),
+        datasets: [{
+        label: 'Reportes',
+        data: JSON.parse('<%- JSON.stringify(calles.datos) %>'),
+        backgroundColor: [
+            '#fd6704bd',  // Naranja
+            '#0d6efd',    // Azul
+            '#28a745',    // Verde
+            '#ffc107',    // Amarillo
+            '#17a2b8'     // Celeste
+        ],
+        borderRadius: 8,
+        barPercentage: 0.7
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+        y: {
+            beginAtZero: true,
+            stepSize: 1,
+            grid: { color: '#f0d5c0', lineWidth: 1 }
         },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    stepSize: 1
-                }
-            }
+        x: {
+            ticks: { font: { size: 11, weight: 'bold' } },
+            grid: { display: false }
         }
+        },
+        plugins: {
+        legend: { display: false },
+        tooltip: {
+            backgroundColor: '#fd6704bd',
+            titleColor: 'white',
+            bodyColor: 'white'
+        }
+        }
+    }
     });
 </script>

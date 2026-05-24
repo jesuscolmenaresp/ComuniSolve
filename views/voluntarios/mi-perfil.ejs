@@ -1,85 +1,211 @@
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card shadow mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">👤 Mi Perfil de Voluntario</h5>
-                </div>
-                <div class="card-body">
-                    <% if (voluntario) { %>
-                        <p><strong>Nombre:</strong> <%= voluntario.nombre %></p>
-                        <p><strong>Teléfono:</strong> <%= voluntario.telefono || 'No especificado' %></p>
-                        <p><strong>Habilidad:</strong> <%= voluntario.habilidad %></p>
-                        <p><strong>Experiencia:</strong> <%= voluntario.experiencia || 'No especificada' %></p>
-                        <p><strong>Disponibilidad:</strong> <%= voluntario.disponibilidad_horaria || 'No especificada' %></p>
-                        <p><strong>Estado:</strong> 
-                            <span class="badge <%= voluntario.estado === 'aprobado' ? 'bg-success' : voluntario.estado === 'pendiente' ? 'bg-warning' : 'bg-danger' %>">
-                                <%= voluntario.estado === 'aprobado' ? 'Aprobado' : voluntario.estado === 'pendiente' ? 'Pendiente' : 'Rechazado' %>
-                            </span>
-                        </p>
-                        <a href="/voluntarios/editar" class="btn btn-sm btn-warning mt-2">✏️ Editar perfil</a>
-                    <% } else { %>
-                        <p>No eres voluntario. <a href="/voluntarios">¡Postúlate ahora!</a></p>
-                    <% } %>
-                </div>
+<div class="container py-4">
+  
+  <!-- Encabezado -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold" style="color: #5D4037;"><i class="bi bi-person-badge me-2" style="color: #fd6704bd;"></i> Mi Perfil de Voluntario</h2>
+      <p class="text-muted mb-0" style="color: #8B6B5A;">
+        <i class="bi bi-info-circle me-1" style="color: #fd6704bd;"></i> Gestiona tu información y revisa las solicitudes de ayuda
+      </p>
+    </div>
+    <% if (voluntario) { %>
+      <a href="/voluntarios/editar" class="btn px-4 py-2 fw-semibold rounded-3" 
+         style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+        <i class="bi bi-pencil-square me-2"></i> Editar perfil
+      </a>
+    <% } else { %>
+      <a href="/voluntarios" class="btn px-4 py-2 fw-semibold rounded-3"
+         style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+        <i class="bi bi-person-plus me-2"></i> Postularse como voluntario
+      </a>
+    <% } %>
+  </div>
+
+  <!-- Mensajes flash -->
+  <% if (session && session.mensaje) { %>
+    <div class="alert alert-success alert-dismissible fade show border-0 rounded-3 py-2 mb-4" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i> 
+      <small><%= session.mensaje %></small>
+      <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+    </div>
+    <% session.mensaje = null; %>
+  <% } %>
+
+  <% if (session && session.error) { %>
+    <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 py-2 mb-4" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i> 
+      <small><%= session.error %></small>
+      <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+    </div>
+    <% session.error = null; %>
+  <% } %>
+
+  <div class="row g-4">
+    
+    <!-- COLUMNA IZQUIERDA: Información del voluntario -->
+    <div class="col-lg-4">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+        
+        <!-- Header -->
+        <div class="text-center py-4" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
+            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); border-radius: 35px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(253, 103, 4, 0.3);">
+              <i class="bi bi-person-badge fs-1 text-white"></i>
             </div>
+          </div>
+          <% if (voluntario) { %>
+            <h4 class="fw-bold mb-1" style="color: #5D4037;"><%= voluntario.nombre %></h4>
+            <span class="badge px-3 py-2 rounded-pill"
+                  style="background: <% if (voluntario.estado === 'aprobado') { %>#28a745<% } else if (voluntario.estado === 'pendiente') { %>#ffc107<% } else { %>#dc3545<% } %>; color: <% if (voluntario.estado === 'pendiente') { %>#333<% } else { %>white<% } %>;">
+              <% if (voluntario.estado === 'aprobado') { %>
+                <i class="bi bi-check-circle me-1"></i> Aprobado
+              <% } else if (voluntario.estado === 'pendiente') { %>
+                <i class="bi bi-clock-history me-1"></i> Pendiente
+              <% } else { %>
+                <i class="bi bi-x-circle me-1"></i> Rechazado
+              <% } %>
+            </span>
+          <% } else { %>
+            <h4 class="fw-bold mb-1" style="color: #5D4037;">No eres voluntario</h4>
+          <% } %>
         </div>
         
-        <div class="col-md-8">
-            <!-- Solicitudes pendientes -->
-            <div class="card shadow mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">📋 Solicitudes de ayuda pendientes</h5>
+        <div class="card-body p-4">
+          <% if (voluntario) { %>
+            <div class="list-group list-group-flush">
+              <div class="list-group-item px-0 d-flex align-items-center gap-3" style="background: transparent;">
+                <i class="bi bi-telephone fs-5" style="color: #fd6704bd;"></i>
+                <div>
+                  <small class="text-muted d-block">Teléfono</small>
+                  <span class="fw-semibold"><%= voluntario.telefono || 'No especificado' %></span>
                 </div>
-                <div class="card-body">
-                    <% if (asignaciones && asignaciones.length > 0) { %>
-                        <% asignaciones.forEach(a => { %>
-                            <div class="border-bottom pb-3 mb-3">
-                                <h6><%= a.titulo %></h6>
-                                <p class="text-muted small"><%= a.descripcion.substring(0, 100) %>...</p>
-                                <p><strong>📍 Calle:</strong> <%= a.calle %></p>
-                                <div class="d-flex gap-2">
-                                    <form action="/voluntarios/asignacion/<%= a.id %>/responder" method="POST">
-                                        <input type="hidden" name="accion" value="aceptado">
-                                        <button type="submit" class="btn btn-sm btn-success">✅ Aceptar</button>
-                                    </form>
-                                    <form action="/voluntarios/asignacion/<%= a.id %>/responder" method="POST">
-                                        <input type="hidden" name="accion" value="rechazado">
-                                        <button type="submit" class="btn btn-sm btn-danger">❌ Rechazar</button>
-                                    </form>
-                                </div>
-                            </div>
-                        <% }) %>
-                    <% } else { %>
-                        <p class="text-muted">No tienes solicitudes de ayuda pendientes.</p>
-                    <% } %>
+              </div>
+              <div class="list-group-item px-0 d-flex align-items-center gap-3" style="background: transparent;">
+                <i class="bi bi-tools fs-5" style="color: #fd6704bd;"></i>
+                <div>
+                  <small class="text-muted d-block">Habilidad</small>
+                  <span class="fw-semibold"><%= voluntario.habilidad %></span>
                 </div>
+              </div>
+              <div class="list-group-item px-0 d-flex align-items-center gap-3" style="background: transparent;">
+                <i class="bi bi-journal-bookmark fs-5" style="color: #fd6704bd;"></i>
+                <div>
+                  <small class="text-muted d-block">Experiencia</small>
+                  <span class="fw-semibold"><%= voluntario.experiencia || 'No especificada' %></span>
+                </div>
+              </div>
+              <div class="list-group-item px-0 d-flex align-items-center gap-3" style="background: transparent;">
+                <i class="bi bi-clock fs-5" style="color: #fd6704bd;"></i>
+                <div>
+                  <small class="text-muted d-block">Disponibilidad</small>
+                  <span class="fw-semibold"><%= voluntario.disponibilidad_horaria || 'No especificada' %></span>
+                </div>
+              </div>
             </div>
-
-            <!-- Solicitudes aceptadas (en las que está ayudando) -->
-            <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">✅ Reportes en los que estás ayudando</h5>
-                </div>
-                <div class="card-body">
-                    <% if (asignacionesAceptadas && asignacionesAceptadas.length > 0) { %>
-                        <% asignacionesAceptadas.forEach(a => { %>
-                            <div class="border-bottom pb-3 mb-3">
-                                <h6><%= a.titulo %></h6>
-                                <p class="text-muted small"><%= a.descripcion.substring(0, 100) %>...</p>
-                                <p><strong>📍 Calle:</strong> <%= a.calle %></p>
-                                <p><strong>📌 Estado del reporte:</strong> 
-                                    <span class="badge <%= a.reporte_estado === 'Pendiente' ? 'bg-warning' : a.reporte_estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>">
-                                        <%= a.reporte_estado %>
-                                    </span>
-                                </p>
-                            </div>
-                        <% }) %>
-                    <% } else { %>
-                        <p class="text-muted">No estás ayudando en ningún reporte actualmente.</p>
-                    <% } %>
-                </div>
+          <% } else { %>
+            <div class="text-center py-4">
+              <i class="bi bi-person-x fs-1 text-muted d-block mb-3"></i>
+              <p class="text-muted mb-3">No eres voluntario aún</p>
+              <a href="/voluntarios" class="btn px-4 py-2 fw-semibold rounded-3"
+                 style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+                <i class="bi bi-person-plus me-2"></i> Postularse ahora
+              </a>
             </div>
+          <% } %>
         </div>
+      </div>
     </div>
+    
+    <!-- COLUMNA DERECHA: Solicitudes -->
+    <div class="col-lg-8">
+      
+      <!-- Solicitudes pendientes -->
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden mb-4">
+        <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <h5 class="mb-0 fw-semibold" style="color: #5D4037;"><i class="bi bi-bell-fill me-2" style="color: #fd6704bd;"></i> Solicitudes de ayuda pendientes</h5>
+        </div>
+        <div class="card-body p-0">
+          <% if (asignaciones && asignaciones.length > 0) { %>
+            <div class="list-group list-group-flush">
+              <% asignaciones.forEach(a => { %>
+                <div class="list-group-item px-4 py-3" style="border-color: #f0d5c0;">
+                  <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                    <h6 class="mb-0 fw-semibold"><i class="bi bi-chat-square-text me-2" style="color: #fd6704bd;"></i> <%= a.titulo %></h6>
+                    <span class="badge px-3 py-1 rounded-pill" style="background: #ffc107; color: #333;">
+                      <i class="bi bi-clock-history me-1"></i> Pendiente
+                    </span>
+                  </div>
+                  <p class="text-muted small mb-2"><%= a.descripcion ? (a.descripcion.length > 100 ? a.descripcion.substring(0, 100) + '...' : a.descripcion) : 'Sin descripción' %></p>
+                  <p class="mb-2 small"><i class="bi bi-geo-alt me-1" style="color: #fd6704bd;"></i> <strong>Calle:</strong> <%= a.calle %></p>
+                  <div class="d-flex gap-2 mt-3">
+                    <form action="/voluntarios/asignacion/<%= a.id %>/responder" method="POST" class="d-inline">
+                      <input type="hidden" name="accion" value="aceptado">
+                      <button type="submit" class="btn btn-sm px-3 py-1 fw-semibold rounded-3" 
+                              style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none;"
+                              onclick="return confirm('¿Aceptar esta solicitud de ayuda?')">
+                        <i class="bi bi-check-lg me-1"></i> Aceptar
+                      </button>
+                    </form>
+                    <form action="/voluntarios/asignacion/<%= a.id %>/responder" method="POST" class="d-inline">
+                      <input type="hidden" name="accion" value="rechazado">
+                      <button type="submit" class="btn btn-sm px-3 py-1 fw-semibold rounded-3" 
+                              style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none;"
+                              onclick="return confirm('¿Rechazar esta solicitud de ayuda?')">
+                        <i class="bi bi-x-lg me-1"></i> Rechazar
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="text-center py-5">
+              <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+              <p class="text-muted mb-0">No tienes solicitudes de ayuda pendientes</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Reportes en los que está ayudando -->
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+        <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <h5 class="mb-0 fw-semibold" style="color: #5D4037;"><i class="bi bi-heart-fill me-2" style="color: #fd6704bd;"></i> Reportes en los que estás ayudando</h5>
+        </div>
+        <div class="card-body p-0">
+          <% if (asignacionesAceptadas && asignacionesAceptadas.length > 0) { %>
+            <div class="list-group list-group-flush">
+              <% asignacionesAceptadas.forEach(a => { %>
+                <div class="list-group-item px-4 py-3" style="border-color: #f0d5c0;">
+                  <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                    <h6 class="mb-0 fw-semibold"><i class="bi bi-chat-square-text me-2" style="color: #fd6704bd;"></i> <%= a.titulo %></h6>
+                    <span class="badge px-3 py-1 rounded-pill"
+                          style="background: <% if (a.reporte_estado === 'Pendiente') { %>#ffc107<% } else if (a.reporte_estado === 'En Progreso') { %>#17a2b8<% } else { %>#28a745<% } %>; color: <% if (a.reporte_estado === 'Pendiente') { %>#333<% } else { %>white<% } %>;">
+                      <% if (a.reporte_estado === 'Pendiente') { %>
+                        <i class="bi bi-clock-history me-1"></i> Pendiente
+                      <% } else if (a.reporte_estado === 'En Progreso') { %>
+                        <i class="bi bi-arrow-repeat me-1"></i> En Progreso
+                      <% } else { %>
+                        <i class="bi bi-check-circle me-1"></i> Resuelto
+                      <% } %>
+                    </span>
+                  </div>
+                  <p class="text-muted small mb-2"><%= a.descripcion ? (a.descripcion.length > 100 ? a.descripcion.substring(0, 100) + '...' : a.descripcion) : 'Sin descripción' %></p>
+                  <p class="mb-0 small"><i class="bi bi-geo-alt me-1" style="color: #fd6704bd;"></i> <strong>Calle:</strong> <%= a.calle %></p>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="text-center py-5">
+              <i class="bi bi-heart fs-1 text-muted d-block mb-2"></i>
+              <p class="text-muted mb-0">No estás ayudando en ningún reporte actualmente</p>
+              <a href="/voluntarios" class="btn btn-sm mt-3 px-3 py-1 rounded-3"
+                 style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">Ver oportunidades</a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      
+    </div>
+  </div>
 </div>

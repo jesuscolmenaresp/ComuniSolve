@@ -35,4 +35,18 @@ router.get('/reportes/mi-calle', authMiddleware, reporteController.reportesMiCal
 router.get('/reportes/exportar/excel', authMiddleware, roleMiddleware([1, 2]), exportController.exportarReportesExcel);
 router.get('/reportes/exportar/pdf', authMiddleware, roleMiddleware([1, 2]), exportController.exportarReportesPDF);
 
+// Eliminar empresa asignada a un reporte (solo UBCH y Líder)
+router.post('/reportes/:id/eliminar-empresa', 
+  authMiddleware, 
+  roleMiddleware([1, 2]), 
+  reporteController.eliminarEmpresa
+);
+
+// Eliminar voluntario asignado a un reporte (solo UBCH y Líder)
+router.post('/reportes/:id/eliminar-voluntario', 
+  authMiddleware, 
+  roleMiddleware([1, 2]), 
+  reporteController.eliminarVoluntario
+);
+
 module.exports = router;

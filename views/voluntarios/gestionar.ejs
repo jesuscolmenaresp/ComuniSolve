@@ -1,186 +1,271 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">📋 Gestionar Solicitudes de Voluntarios</h2>
-    <div class="d-flex gap-2">
-        <select id="filtroEstadoExport" class="form-select form-select-sm" style="width: 150px;">
-            <option value="todos">Todos los estados</option>
-            <option value="pendiente">Pendientes</option>
-            <option value="aprobado">Aprobados</option>
-            <option value="rechazado">Rechazados</option>
-        </select>
-        <a href="/voluntarios/exportar/excel" id="btnExportarVoluntarios" class="btn btn-success">
-            <i class="bi bi-file-excel"></i> Exportar a Excel
-        </a>
+<div class="container py-4">
+  
+  <!-- Encabezado -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <h2 class="fw-bold mb-1" style="color: #5D4037;">
+        <i class="bi bi-person-check me-2" style="color: #fd6704bd;"></i> Gestionar Voluntarios
+      </h2>
+      <p class="text-muted small mb-0" style="color: #8B6B5A;">Revisa y administra las solicitudes de voluntariado</p>
     </div>
-</div>
+    <div class="d-flex gap-2">
+      <select id="filtroEstadoExport" class="form-select form-select-sm rounded-3" 
+              style="border-color: #f0d5c0; background-color: #fefaf7; color: #5D4037; width: 160px;">
+        <option value="todos">📋 Todos los estados</option>
+        <option value="pendiente">⏳ Pendientes</option>
+        <option value="aprobado">✅ Aprobados</option>
+        <option value="rechazado">❌ Rechazados</option>
+      </select>
+      <a href="/voluntarios/exportar/excel" id="btnExportarVoluntarios" class="btn px-3 py-2 fw-semibold rounded-3"
+         style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
+        <i class="bi bi-file-excel me-1"></i> Exportar
+      </a>
+    </div>
+  </div>
 
+  <!-- Mensajes flash -->
   <% if (session && session.mensaje) { %>
-    <div class="alert alert-success alert-dismissible fade show">
-      <%= session.mensaje %>
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="alert alert-success alert-dismissible fade show border-0 rounded-3 py-2 mb-4" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i> 
+      <small><%= session.mensaje %></small>
+      <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
     </div>
     <% session.mensaje = null; %>
   <% } %>
 
   <% if (session && session.error) { %>
-    <div class="alert alert-danger alert-dismissible fade show">
-      <%= session.error %>
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 py-2 mb-4" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i> 
+      <small><%= session.error %></small>
+      <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
     </div>
     <% session.error = null; %>
   <% } %>
 
-  <ul class="nav nav-tabs mb-3" id="tabSolicitudes">
+  <!-- Pestañas -->
+  <ul class="nav nav-pills mb-4 justify-content-center gap-2" id="tabSolicitudes">
     <li class="nav-item">
-      <a class="nav-link active" data-bs-toggle="tab" href="#pendientes">Pendientes</a>
+      <a class="nav-link active rounded-pill px-4" data-bs-toggle="tab" href="#pendientes" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+        <i class="bi bi-clock-history me-1"></i> Pendientes
+        <% if (solicitudes && solicitudes.length > 0) { %>
+          <span class="badge bg-white text-dark rounded-pill ms-1"><%= solicitudes.length %></span>
+        <% } %>
+      </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="tab" href="#aprobados">Aprobados</a>
+      <a class="nav-link rounded-pill px-4" data-bs-toggle="tab" href="#aprobados" style="color: #5D4037;">
+        <i class="bi bi-check-circle me-1"></i> Aprobados
+        <% if (aprobados && aprobados.length > 0) { %>
+          <span class="badge rounded-pill ms-1" style="background: #28a745; color: white;"><%= aprobados.length %></span>
+        <% } %>
+      </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="tab" href="#rechazados">Rechazados</a>
+      <a class="nav-link rounded-pill px-4" data-bs-toggle="tab" href="#rechazados" style="color: #5D4037;">
+        <i class="bi bi-x-circle me-1"></i> Rechazados
+        <% if (rechazados && rechazados.length > 0) { %>
+          <span class="badge rounded-pill ms-1" style="background: #dc3545; color: white;"><%= rechazados.length %></span>
+        <% } %>
+      </a>
     </li>
   </ul>
 
+  <!-- Contenido de pestañas -->
   <div class="tab-content">
-    <!-- Pendientes -->
-    <div class="tab-pane active" id="pendientes">
-      <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Habilidad</th>
-              <th>Experiencia</th>
-              <th>Disponibilidad</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if (solicitudes && solicitudes.length > 0) { %>
-              <% solicitudes.forEach(s => { %>
-                <tr>
-                  <td><%= new Date(s.fecha_solicitud).toLocaleDateString() %></td>
-                  <td><%= s.nombre %></td>
-                  <td><%= s.email %></td>
-                  <td><%= s.habilidad %></td>
-                  <td><%= s.experiencia ? s.experiencia.substring(0, 50) : '—' %></td>
-                  <td><%= s.disponibilidad_horaria || '—' %></td>
-                  <td>
-                    <form action="/voluntarios/<%= s.id %>/aprobar" method="POST" class="d-inline">
-                      <button type="submit" class="btn btn-sm btn-success">✅ Aprobar</button>
-                    </form>
-                    <form action="/voluntarios/<%= s.id %>/rechazar" method="POST" class="d-inline">
-                      <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Rechazar este voluntario?')">❌ Rechazar</button>
-                    </form>
-                  </td>
+    
+    <!-- PENDIENTES -->
+    <div class="tab-pane fade show active" id="pendientes">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+        <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <h5 class="mb-0 fw-semibold" style="color: #fd6704bd;"><i class="bi bi-clock-history me-2"></i> Solicitudes pendientes</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr class="text-center">
+                  <th><i class="bi bi-calendar3"></i> Fecha</th>
+                  <th><i class="bi bi-person"></i> Nombre</th>
+                  <th><i class="bi bi-envelope"></i> Email</th>
+                  <th><i class="bi bi-tools"></i> Habilidad</th>
+                  <th><i class="bi bi-journal-bookmark"></i> Experiencia</th>
+                  <th><i class="bi bi-clock"></i> Disponibilidad</th>
+                  <th><i class="bi bi-gear"></i> Acciones</th>
                 </tr>
-              <% }) %>
-            <% } else { %>
-              <tr><td colspan="7" class="text-center">No hay solicitudes pendientes</td></tr>
-            <% } %>
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                <% if (solicitudes && solicitudes.length > 0) { %>
+                  <% solicitudes.forEach(s => { %>
+                    <tr>
+                      <td class="text-center"><small><%= new Date(s.fecha_solicitud).toLocaleDateString() %></small></td>
+                      <td><strong><%= s.nombre %></strong></td>
+                      <td><small><%= s.email %></small></td>
+                      <td><span class="badge px-2 py-1 rounded-pill" style="background: #fce5d4; color: #fd6704bd;"><%= s.habilidad %></span></td>
+                      <td><small><%= s.experiencia ? s.experiencia.substring(0, 40) : '—' %></small></td>
+                      <td><small><%= s.disponibilidad_horaria || '—' %></small></td>
+                      <td>
+                        <div class="d-flex gap-1 justify-content-center">
+                          <form action="/voluntarios/<%= s.id %>/aprobar" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-sm px-3 py-1 fw-semibold rounded-3"
+                                    style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none;">
+                              <i class="bi bi-check-lg me-1"></i> Aprobar
+                            </button>
+                          </form>
+                          <form action="/voluntarios/<%= s.id %>/rechazar" method="POST" class="d-inline"
+                                onsubmit="return confirm('¿Rechazar a <%= s.nombre %>?')">
+                            <button type="submit" class="btn btn-sm px-3 py-1 fw-semibold rounded-3"
+                                    style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none;">
+                              <i class="bi bi-x-lg me-1"></i> Rechazar
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="7" class="text-center py-5">
+                      <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+                      <p class="text-muted mb-0">No hay solicitudes pendientes</p>
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Aprobados -->
-    <div class="tab-pane" id="aprobados">
-      <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Habilidad</th>
-              <th>Experiencia</th>
-              <th>Disponibilidad</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if (aprobados && aprobados.length > 0) { %>
-              <% aprobados.forEach(v => { %>
-                <tr>
-                  <td><%= v.nombre %></td>
-                  <td><%= v.email %></td>
-                  <td><%= v.habilidad %></td>
-                  <td><%= v.experiencia ? v.experiencia.substring(0, 50) : '—' %></td>
-                  <td><%= v.disponibilidad_horaria || '—' %></td>
-                  <td>
-                    <form action="/voluntarios/<%= v.id %>/cambiar-estado" method="POST" class="d-inline"
-                          onsubmit="return confirm('¿Cambiar este voluntario a RECHAZADO?')">
-                      <input type="hidden" name="nuevo_estado" value="rechazado">
-                      <button type="submit" class="btn btn-sm btn-warning">⚠️ Rechazar</button>
-                    </form>
-                  </td>
+    <!-- APROBADOS -->
+    <div class="tab-pane fade" id="aprobados">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+        <div class="px-4 py-3" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);">
+          <h5 class="mb-0 fw-semibold" style="color: #28a745;"><i class="bi bi-check-circle me-2"></i> Voluntarios aprobados</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr class="text-center">
+                  <th><i class="bi bi-person"></i> Nombre</th>
+                  <th><i class="bi bi-envelope"></i> Email</th>
+                  <th><i class="bi bi-tools"></i> Habilidad</th>
+                  <th><i class="bi bi-journal-bookmark"></i> Experiencia</th>
+                  <th><i class="bi bi-clock"></i> Disponibilidad</th>
+                  <th><i class="bi bi-gear"></i> Acciones</th>
                 </tr>
-              <% }) %>
-            <% } else { %>
-              <tr><td colspan="6" class="text-center">No hay voluntarios aprobados</td></tr>
-            <% } %>
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                <% if (aprobados && aprobados.length > 0) { %>
+                  <% aprobados.forEach(v => { %>
+                    <tr>
+                      <td><strong><%= v.nombre %></strong></td>
+                      <td><small><%= v.email %></small></td>
+                      <td><span class="badge px-2 py-1 rounded-pill" style="background: #d4edda; color: #28a745;"><%= v.habilidad %></span></td>
+                      <td><small><%= v.experiencia ? v.experiencia.substring(0, 40) : '—' %></small></td>
+                      <td><small><%= v.disponibilidad_horaria || '—' %></small></td>
+                      <td>
+                        <div class="d-flex gap-1 justify-content-center">
+                          <form action="/voluntarios/<%= v.id %>/cambiar-estado" method="POST" class="d-inline"
+                                onsubmit="return confirm('¿Cambiar a <%= v.nombre %> a RECHAZADO?')">
+                            <input type="hidden" name="nuevo_estado" value="rechazado">
+                            <button type="submit" class="btn btn-sm px-3 py-1 fw-semibold rounded-3"
+                                    style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #333; border: none;">
+                              <i class="bi bi-arrow-repeat me-1"></i> Rechazar
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6" class="text-center py-5">
+                      <i class="bi bi-person-x fs-1 text-muted d-block mb-2"></i>
+                      <p class="text-muted mb-0">No hay voluntarios aprobados</p>
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Rechazados -->
-    <div class="tab-pane" id="rechazados">
-      <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Habilidad</th>
-              <th>Motivo</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if (rechazados && rechazados.length > 0) { %>
-              <% rechazados.forEach(v => { %>
-                <tr>
-                  <td><%= new Date(v.fecha_respuesta).toLocaleDateString() %></td>
-                  <td><%= v.nombre %></td>
-                  <td><%= v.email %></td>
-                  <td><%= v.habilidad %></td>
-                  <td>—</td>
-                  <td>
-                    <form action="/voluntarios/<%= v.id %>/cambiar-estado" method="POST" class="d-inline"
-                          onsubmit="return confirm('¿Cambiar este voluntario a APROBADO?')">
-                      <input type="hidden" name="nuevo_estado" value="aprobado">
-                      <button type="submit" class="btn btn-sm btn-success">✅ Aprobar</button>
-                    </form>
-                  </td>
+    <!-- RECHAZADOS -->
+    <div class="tab-pane fade" id="rechazados">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+        <div class="px-4 py-3" style="background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);">
+          <h5 class="mb-0 fw-semibold" style="color: #dc3545;"><i class="bi bi-x-circle me-2"></i> Solicitudes rechazadas</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr class="text-center">
+                  <th><i class="bi bi-calendar3"></i> Fecha</th>
+                  <th><i class="bi bi-person"></i> Nombre</th>
+                  <th><i class="bi bi-envelope"></i> Email</th>
+                  <th><i class="bi bi-tools"></i> Habilidad</th>
+                  <th><i class="bi bi-gear"></i> Acciones</th>
                 </tr>
-              <% }) %>
-            <% } else { %>
-              <tr><td colspan="6" class="text-center">No hay solicitudes rechazadas</td></tr>
-            <% } %>
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                <% if (rechazados && rechazados.length > 0) { %>
+                  <% rechazados.forEach(v => { %>
+                    <tr>
+                      <td class="text-center"><small><%= new Date(v.fecha_respuesta).toLocaleDateString() %></small></td>
+                      <td><strong><%= v.nombre %></strong></td>
+                      <td><small><%= v.email %></small></td>
+                      <td><span class="badge px-2 py-1 rounded-pill" style="background: #f8d7da; color: #dc3545;"><%= v.habilidad %></span></td>
+                      <td>
+                        <div class="d-flex gap-1 justify-content-center">
+                          <form action="/voluntarios/<%= v.id %>/cambiar-estado" method="POST" class="d-inline"
+                                onsubmit="return confirm('¿Cambiar a <%= v.nombre %> a APROBADO?')">
+                            <input type="hidden" name="nuevo_estado" value="aprobado">
+                            <button type="submit" class="btn btn-sm px-3 py-1 fw-semibold rounded-3"
+                                    style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none;">
+                              <i class="bi bi-check-lg me-1"></i> Aprobar
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5" class="text-center py-5">
+                      <i class="bi bi-check-circle fs-1 text-muted d-block mb-2"></i>
+                      <p class="text-muted mb-0">No hay solicitudes rechazadas</p>
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+  
 </div>
 
 <script>
-    // Actualizar enlace de exportación según filtro
-    const filtroEstado = document.getElementById('filtroEstadoExport');
-    const btnExportar = document.getElementById('btnExportarVoluntarios');
-    
-    function actualizarEnlaceExportacion() {
-        const estado = filtroEstado.value;
-        if (estado !== 'todos') {
-            btnExportar.href = `/voluntarios/exportar/excel?estado=${estado}`;
-        } else {
-            btnExportar.href = '/voluntarios/exportar/excel';
-        }
+  // Actualizar enlace de exportación según filtro
+  const filtroEstado = document.getElementById('filtroEstadoExport');
+  const btnExportar = document.getElementById('btnExportarVoluntarios');
+  
+  function actualizarEnlaceExportacion() {
+    const estado = filtroEstado.value;
+    if (estado !== 'todos') {
+      btnExportar.href = `/voluntarios/exportar/excel?estado=${estado}`;
+    } else {
+      btnExportar.href = '/voluntarios/exportar/excel';
     }
-    
-    filtroEstado.addEventListener('change', actualizarEnlaceExportacion);
-    actualizarEnlaceExportacion();
+  }
+  
+  filtroEstado.addEventListener('change', actualizarEnlaceExportacion);
+  actualizarEnlaceExportacion();
 </script>

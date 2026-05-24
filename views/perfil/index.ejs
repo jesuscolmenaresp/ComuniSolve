@@ -1,129 +1,168 @@
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card shadow mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-person-circle"></i> Mi Perfil</h5>
-                </div>
-                <div class="card-body text-center">
-                    <div class="mb-3">
-                        <div class="rounded-circle bg-light d-inline-flex p-3" style="font-size: 3rem;">
-                            <i class="bi bi-person-fill text-primary"></i>
-                        </div>
-                    </div>
-                    <h4><%= user.nombre %></h4>
-                    <p class="text-muted"><%= user.rol_nombre %></p>
-                    <hr>
-                    <div class="text-start">
-                        <p><strong><i class="bi bi-card-text"></i> Cédula:</strong> <%= user.cedula || 'No registrada' %></p>
-                        <p><strong><i class="bi bi-envelope"></i> Email:</strong> <%= user.email %></p>
-                        <p><strong><i class="bi bi-telephone"></i> Teléfono:</strong> <%= user.telefono || 'No registrado' %></p>
-                        <% if (user.calle_nombre) { %>
-                            <p><strong><i class="bi bi-geo-alt"></i> Calle:</strong> <%= user.calle_nombre %></p>
-                        <% } %>
-                        <p><strong><i class="bi bi-calendar"></i> Registrado:</strong> <%= new Date(user.fecha_registro).toLocaleDateString() %></p>
-                    </div>
-                    <div class="d-grid gap-2 mt-3">
-                        <a href="/perfil/editar" class="btn btn-warning">
-                            <i class="bi bi-pencil"></i> Editar perfil
-                        </a>
-                        <a href="/perfil/cambiar-password" class="btn btn-outline-primary">
-                            <i class="bi bi-key"></i> Cambiar contraseña
-                        </a>
-                    </div>
-                </div>
+<div class="container py-4">
+  <div class="row g-4">
+    
+    <!-- COLUMNA IZQUIERDA: Información personal -->
+    <div class="col-lg-4">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+        <div class="text-center py-4" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
+            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); border-radius: 35px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(253, 103, 4, 0.3);">
+              <i class="bi bi-person-fill fs-1 text-white"></i>
             </div>
+          </div>
+          <h4 class="fw-bold mb-1" style="color: #5D4037;"><%= user.nombre %></h4>
+          <span class="badge px-3 py-2 rounded-pill" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+            <%= user.rol_nombre %>
+          </span>
         </div>
         
-        <div class="col-md-8">
-            <!-- Estadísticas -->
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="card text-white bg-primary">
-                        <div class="card-body text-center">
-                            <h2><%= stats.mis_reportes || 0 %></h2>
-                            <small>Reportes creados</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card text-white bg-success">
-                        <div class="card-body text-center">
-                            <h2><%= stats.mis_votos || 0 %></h2>
-                            <small>Votos emitidos</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card text-white bg-info">
-                        <div class="card-body text-center">
-                            <h2><%= stats.soy_voluntario ? '✅ Sí' : '❌ No' %></h2>
-                            <small>Voluntario</small>
-                        </div>
-                    </div>
-                </div>
+        <div class="card-body p-4">
+          <div class="list-group list-group-flush">
+            <div class="list-group-item px-0 d-flex align-items-center gap-3" style="background: transparent;">
+              <i class="bi bi-card-text fs-5" style="color: #fd6704bd;"></i>
+              <div>
+                <small class="text-muted d-block">Cédula</small>
+                <span class="fw-semibold"><%= user.cedula || 'No registrada' %></span>
+              </div>
             </div>
-            
-            <!-- Información adicional según rol -->
-            <% if (user.rol_id === 2 && callesLideradas.length > 0) { %>
-                <div class="card shadow mb-4">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="mb-0"><i class="bi bi-geo-alt"></i> Calles que lidero</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex flex-wrap gap-2">
-                            <% callesLideradas.forEach(calle => { %>
-                                <span class="badge bg-primary">📍 <%= calle %></span>
-                            <% }) %>
-                        </div>
-                    </div>
-                </div>
-            <% } %>
-            
-            <% if (user.rol_id === 1 && comunidadesAtiende.length > 0) { %>
-                <div class="card shadow mb-4">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0"><i class="bi bi-building"></i> Comunidades que atiendo</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex flex-wrap gap-2">
-                            <% comunidadesAtiende.forEach(com => { %>
-                                <span class="badge bg-secondary">🏘️ <%= com %></span>
-                            <% }) %>
-                        </div>
-                    </div>
-                </div>
-            <% } %>
-            
-            <!-- Últimos reportes del usuario -->
-            <div class="card shadow">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="bi bi-file-text"></i> Mis últimos reportes</h5>
-                </div>
-                <div class="card-body">
-                    <% if (ultimosReportes && ultimosReportes.length > 0) { %>
-                        <div class="list-group">
-                            <% ultimosReportes.forEach(r => { %>
-                                <a href="/reportes" class="list-group-item list-group-item-action">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <strong><%= r.titulo %></strong>
-                                            <span class="badge <%= r.estado === 'Pendiente' ? 'bg-warning' : r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %> ms-2">
-                                                <%= r.estado %>
-                                            </span>
-                                        </div>
-                                        <small class="text-muted"><%= new Date(r.fecha).toLocaleDateString() %></small>
-                                    </div>
-                                </a>
-                            <% }) %>
-                        </div>
-                    <% } else { %>
-                        <p class="text-muted">No has creado reportes aún.</p>
-                    <% } %>
-                </div>
+            <div class="list-group-item px-0 d-flex align-items-center gap-3" style="background: transparent;">
+              <i class="bi bi-envelope fs-5" style="color: #fd6704bd;"></i>
+              <div>
+                <small class="text-muted d-block">Correo electrónico</small>
+                <span class="fw-semibold"><%= user.email %></span>
+              </div>
             </div>
+            <div class="list-group-item px-0 d-flex align-items-center gap-3" style="background: transparent;">
+              <i class="bi bi-telephone fs-5" style="color: #fd6704bd;"></i>
+              <div>
+                <small class="text-muted d-block">Teléfono</small>
+                <span class="fw-semibold"><%= user.telefono || 'No registrado' %></span>
+              </div>
+            </div>
+            <% if (user.calle_nombre) { %>
+              <div class="list-group-item px-0 d-flex align-items-center gap-3" style="background: transparent;">
+                <i class="bi bi-geo-alt fs-5" style="color: #fd6704bd;"></i>
+                <div>
+                  <small class="text-muted d-block">Calle</small>
+                  <span class="fw-semibold"><%= user.calle_nombre %></span>
+                </div>
+              </div>
+            <% } %>
+            <div class="list-group-item px-0 d-flex align-items-center gap-3" style="background: transparent;">
+              <i class="bi bi-calendar fs-5" style="color: #fd6704bd;"></i>
+              <div>
+                <small class="text-muted d-block">Registrado</small>
+                <span class="fw-semibold"><%= new Date(user.fecha_registro).toLocaleDateString() %></span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="d-grid gap-2 mt-4">
+            <a href="/perfil/editar" class="btn py-2 fw-semibold rounded-3" 
+               style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+              <i class="bi bi-pencil me-2"></i> Editar perfil
+            </a>
+            <a href="/perfil/cambiar-password" class="btn btn-outline-secondary py-2 fw-semibold rounded-3" 
+               style="border-color: #f0d5c0; color: #5D4037;">
+              <i class="bi bi-key me-2"></i> Cambiar contraseña
+            </a>
+          </div>
         </div>
+      </div>
     </div>
+    
+    <!-- COLUMNA DERECHA: Estadísticas y actividad -->
+    <div class="col-lg-8">
+      
+      <!-- Tarjetas de estadísticas -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="card border-0 rounded-3 shadow-sm text-center p-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+            <i class="bi bi-file-text fs-1" style="color: #fd6704bd;"></i>
+            <h2 class="fw-bold mb-0" style="color: #5D4037;"><%= stats.mis_reportes || 0 %></h2>
+            <small class="text-muted">Reportes creados</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 rounded-3 shadow-sm text-center p-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+            <i class="bi bi-hand-thumbs-up fs-1" style="color: #fd6704bd;"></i>
+            <h2 class="fw-bold mb-0" style="color: #5D4037;"><%= stats.mis_votos || 0 %></h2>
+            <small class="text-muted">Votos emitidos</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 rounded-3 shadow-sm text-center p-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+            <i class="bi bi-people fs-1" style="color: #fd6704bd;"></i>
+            <h2 class="fw-bold mb-0" style="color: #5D4037;"><%= stats.soy_voluntario ? 'Sí' : 'No' %></h2>
+            <small class="text-muted">Voluntario</small>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Calles que lidero (solo líder) -->
+      <% if (user.rol_id === 2 && callesLideradas && callesLideradas.length > 0) { %>
+        <div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden">
+          <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+            <h5 class="mb-0 fw-semibold" style="color: #5D4037;"><i class="bi bi-geo-alt me-2" style="color: #fd6704bd;"></i> Calles que lidero</h5>
+          </div>
+          <div class="card-body p-3">
+            <div class="d-flex flex-wrap gap-2">
+              <% callesLideradas.forEach(calle => { %>
+                <span class="badge px-3 py-2 rounded-pill" style="background: #fce5d4; color: #5D4037;">📍 <%= calle %></span>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      <% } %>
+      
+      <!-- Comunidades que atiendo (solo UBCH) -->
+      <% if (user.rol_id === 1 && comunidadesAtiende && comunidadesAtiende.length > 0) { %>
+        <div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden">
+          <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+            <h5 class="mb-0 fw-semibold" style="color: #5D4037;"><i class="bi bi-building me-2" style="color: #fd6704bd;"></i> Comunidades que atiendo</h5>
+          </div>
+          <div class="card-body p-3">
+            <div class="d-flex flex-wrap gap-2">
+              <% comunidadesAtiende.forEach(com => { %>
+                <span class="badge px-3 py-2 rounded-pill" style="background: #fce5d4; color: #5D4037;">🏘️ <%= com %></span>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      <% } %>
+      
+      <!-- Últimos reportes -->
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+        <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <h5 class="mb-0 fw-semibold" style="color: #5D4037;"><i class="bi bi-file-text me-2" style="color: #fd6704bd;"></i> Mis últimos reportes</h5>
+        </div>
+        <div class="card-body p-0">
+          <% if (ultimosReportes && ultimosReportes.length > 0) { %>
+            <div class="list-group list-group-flush">
+              <% ultimosReportes.forEach(r => { %>
+                <a href="/reportes" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-4 py-3" style="border-color: #f0d5c0;">
+                  <div>
+                    <i class="bi bi-chat-square-text me-2" style="color: #fd6704bd;"></i>
+                    <strong><%= r.titulo %></strong>
+                    <span class="badge ms-2 px-2 py-1 rounded-pill" 
+                          style="background: <%= r.estado === 'Pendiente' ? '#ffc107' : (r.estado === 'En Progreso' ? '#17a2b8' : '#28a745') %>; color: <%= r.estado === 'Pendiente' ? '#333' : '#fff' %>;">
+                      <%= r.estado === 'Pendiente' ? '⏳ Pendiente' : (r.estado === 'En Progreso' ? '🔄 En Progreso' : '✅ Resuelto') %>
+                    </span>
+                  </div>
+                  <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> <%= new Date(r.fecha).toLocaleDateString() %></small>
+                </a>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="text-center py-4">
+              <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+              <p class="text-muted mb-0">No has creado reportes aún</p>
+              <a href="/reportar" class="btn btn-sm mt-2" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">Crear mi primer reporte</a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      
+    </div>
+  </div>
 </div>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

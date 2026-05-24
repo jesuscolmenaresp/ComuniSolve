@@ -1,21 +1,30 @@
 /* ========================================
+   IMPORTAR FUENTES MODERNAS
+   ======================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
+
+/* ========================================
    VARIABLES GLOBALES
    ======================================== */
 :root {
+  --primary-gradient: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
   --primary-color: #fd6704bd;
-  --primary-dark: #e65c00;
-  --secondary-color: #fce9d8;
-  --text-color: #333;
-  --text-light: #666;
-  --bg-light: #fff9f2;
-  --white: #faeddc;
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
-  --shadow-hover: 0 4px 12px rgba(0,0,0,0.15);
-  --border-color: #eee;
-  --border-dark: #ddd;
-  --border-radius: 12px;
-  --border-radius-sm: 8px;
-  --transition: all 0.2s ease;
+  --primary-dark: #e85d2c;
+  --primary-light: #ff8c5a;
+  --secondary-color: #fff5ed;
+  --text-color: #1a1a2e;
+  --text-light: #6c757d;
+  --bg-light: #fffaf7;
+  --white: #ffffff;
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.12);
+  --shadow-hover: 0 8px 28px rgba(253, 103, 4, 0.15);
+  --border-color: #f0f0f0;
+  --border-dark: #e0e0e0;
+  --border-radius: 16px;
+  --border-radius-sm: 10px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ========================================
@@ -28,8 +37,8 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--bg-light);
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #fffaf7 0%, #fff5ed 100%);
   color: var(--text-color);
   line-height: 1.6;
   min-height: 100vh;
@@ -45,20 +54,14 @@ main {
    HEADER Y NAVEGACIÓN
    ======================================== */
 header.navbar {
-  background-color: var(--secondary-color);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  padding: 0.8rem 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.03);
+  padding: 0.8rem 1.5rem;
 }
 
-header .navbar-brand {
-  font-weight: bold;
-  color: var(--primary-color) !important;
-  font-size: 1.5rem;
-  letter-spacing: -0.5px;
-}
-
-header .navbar-brand:hover {
-  color: var(--primary-dark) !important;
+header .navbar-brand img {
+  height: 60px;
 }
 
 header .nav-link {
@@ -86,25 +89,119 @@ header .nav-link.active::after {
   left: 0;
   right: 0;
   height: 2px;
-  background-color: var(--primary-color);
+  background: var(--primary-gradient);
   border-radius: 2px;
 }
 
-/* Dropdown personalizado */
-.dropdown-menu {
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
+/* ========================================
+   BOTONES MODERNOS
+   ======================================== */
+.btn {
   border-radius: var(--border-radius-sm);
-  padding: 0.5rem 0;
-}
-
-.dropdown-item {
-  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  padding: 0.6rem 1.5rem;
   transition: var(--transition);
+  border: none;
+  position: relative;
+  overflow: hidden;
 }
 
-.dropdown-item:hover {
-  background-color: var(--secondary-color);
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-primary {
+  background: var(--primary-gradient);
+  color: white;
+  box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(253, 103, 4, 0.4);
+}
+
+.btn-outline-primary {
+  background: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+  background: var(--primary-gradient);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-2px);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* ========================================
+   CARDS MODERNAS
+   ======================================== */
+.card {
+  border-radius: var(--border-radius);
+  border: none;
+  background: var(--white);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+  background: linear-gradient(135deg, #fff5ed 0%, #ffe8dc 100%);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+}
+
+/* ========================================
+   FORMULARIOS MODERNOS
+   ======================================== */
+.form-control, .form-select {
+  border-radius: var(--border-radius-sm);
+  border: 2px solid var(--border-color);
+  padding: 0.6rem 1rem;
+  transition: var(--transition);
+  font-size: 0.95rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(253, 103, 4, 0.15);
+  outline: none;
+}
+
+.input-group-text {
+  background-color: #f8f9fa;
+  border: 2px solid var(--border-color);
+  border-right: none;
   color: var(--primary-color);
 }
 
@@ -115,15 +212,10 @@ header .nav-link.active::after {
   height: 400px;
   width: 100%;
   border-radius: var(--border-radius);
-  border: 2px solid var(--border-dark);
+  border: 1px solid var(--border-color);
   margin-top: 15px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   z-index: 1;
-}
-
-/* Para mapas dedicados (página /mapas) */
-#map.mapa-grande {
-  height: 600px;
 }
 
 /* ========================================
@@ -149,47 +241,8 @@ header .nav-link.active::after {
 
 .report-card h5 {
   color: var(--text-color);
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 10px;
-  font-size: 1.2rem;
-}
-
-.report-card p {
-  color: var(--text-light);
-  margin-bottom: 10px;
-  flex: 1;
-}
-
-.report-card .badge {
-  font-size: 0.85rem;
-  padding: 0.4rem 0.6rem;
-}
-
-/* ========================================
-   TARJETAS DE SECTORES (COMUNIDADES)
-   ======================================== */
-.sector-card {
-  background: var(--white);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 20px 15px;
-  transition: var(--transition);
-  cursor: pointer;
-  text-align: center;
-  height: 100%;
-}
-
-.sector-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-hover);
-  background: #fff8f2;
-  border-color: var(--primary-color);
-}
-
-.sector-card h5 {
-  font-weight: 600;
-  color: var(--text-color);
-  margin: 0;
   font-size: 1.1rem;
 }
 
@@ -204,184 +257,31 @@ header .nav-link.active::after {
 }
 
 .table thead th {
-  background-color: var(--secondary-color);
+  background: linear-gradient(135deg, #fff5ed 0%, #ffe8dc 100%);
   color: var(--text-color);
   font-weight: 600;
   border-bottom: 2px solid var(--primary-color);
 }
 
 .table tbody tr:hover {
-  background-color: #fff8f2 !important;
-}
-
-.table-sm td, .table-sm th {
-  padding: 0.5rem;
-  vertical-align: middle;
+  background-color: #fffaf5 !important;
 }
 
 /* ========================================
-   BOTONES
-   ======================================== */
-.btn {
-  border-radius: var(--border-radius-sm);
-  font-weight: 500;
-  padding: 0.5rem 1.2rem;
-  transition: var(--transition);
-  border-width: 2px;
-}
-
-.btn-sm {
-  padding: 0.25rem 0.8rem;
-  font-size: 0.85rem;
-}
-
-.btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  color: var(--white);
-}
-
-.btn-primary:hover {
-  background-color: var(--primary-dark);
-  border-color: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(255, 102, 0, 0.3);
-}
-
-.btn-outline-primary {
-  color: var(--primary-color);
-  border-color: var(--primary-color);
-  background: transparent;
-}
-
-.btn-outline-primary:hover {
-  background-color: var(--primary-color);
-  color: var(--white);
-  transform: translateY(-2px);
-}
-
-.btn-success {
-  background-color: #28a745;
-  border-color: #28a745;
-}
-
-.btn-success:hover {
-  background-color: #218838;
-  border-color: #218838;
-  transform: translateY(-2px);
-}
-
-.btn-warning {
-  background-color: #ffc107;
-  border-color: #ffc107;
-  color: var(--text-color);
-}
-
-.btn-warning:hover {
-  background-color: #e0a800;
-  border-color: #e0a800;
-  color: var(--text-color);
-  transform: translateY(-2px);
-}
-
-.btn-info {
-  background-color: #17a2b8;
-  border-color: #17a2b8;
-  color: var(--white);
-}
-
-.btn-info:hover {
-  background-color: #138496;
-  border-color: #138496;
-  transform: translateY(-2px);
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  border-color: #dc3545;
-}
-
-.btn-danger:hover {
-  background-color: #c82333;
-  border-color: #c82333;
-  transform: translateY(-2px);
-}
-
-/* Botones de acción en últimos reportes */
-.text-center .btn {
-  min-width: 200px;
-  font-weight: 500;
-  margin: 5px;
-}
-
-/* ========================================
-   FORMULARIOS
-   ======================================== */
-.form-control, .form-select {
-  border-radius: var(--border-radius-sm);
-  border: 1px solid var(--border-color);
-  padding: 0.5rem 0.75rem;
-  transition: var(--transition);
-}
-
-.form-control:focus, .form-select:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.2rem rgba(255, 102, 0, 0.25);
-  outline: none;
-}
-
-.input-group-text {
-  background-color: var(--secondary-color);
-  border: 1px solid var(--border-color);
-  color: var(--text-color);
-}
-
-/* ========================================
-   CARDS Y CONTENEDORES
-   ======================================== */
-.card {
-  border-radius: var(--border-radius);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-  overflow: hidden;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-hover);
-}
-
-.card-header {
-  background-color: var(--secondary-color);
-  border-bottom: 1px solid var(--border-color);
-  font-weight: 600;
-  padding: 1rem 1.25rem;
-}
-
-.card-header.bg-primary,
-.card-header.bg-success,
-.card-header.bg-info,
-.card-header.bg-warning,
-.card-header.bg-danger {
-  color: var(--white);
-}
-
-/* ========================================
-   BADGES Y ETIQUETAS
+   BADGES
    ======================================== */
 .badge {
   font-weight: 500;
-  padding: 0.4rem 0.6rem;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.85rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 30px;
+  font-size: 0.75rem;
 }
 
-.badge.bg-primary { background-color: var(--primary-color) !important; }
-.badge.bg-success { background-color: #28a745 !important; }
-.badge.bg-warning { background-color: #ffc107 !important; color: var(--text-color); }
-.badge.bg-info { background-color: #17a2b8 !important; }
-.badge.bg-danger { background-color: #dc3545 !important; }
-.badge.bg-secondary { background-color: #6c757d !important; }
+.badge.bg-primary { background: var(--primary-gradient) !important; }
+.badge.bg-success { background: linear-gradient(135deg, #10b981, #059669) !important; }
+.badge.bg-warning { background: linear-gradient(135deg, #f59e0b, #d97706) !important; color: #333; }
+.badge.bg-info { background: linear-gradient(135deg, #06b6d4, #0891b2) !important; }
+.badge.bg-danger { background: linear-gradient(135deg, #ef4444, #dc2626) !important; }
 
 /* ========================================
    ALERTAS
@@ -389,149 +289,59 @@ header .nav-link.active::after {
 .alert {
   border-radius: var(--border-radius-sm);
   border: none;
-  padding: 1rem 1.25rem;
+  padding: 0.8rem 1rem;
   margin-bottom: 1.5rem;
   box-shadow: var(--shadow-sm);
-}
-
-.alert-success {
-  background-color: #d4edda;
-  color: #155724;
-  border-left: 4px solid #28a745;
-}
-
-.alert-danger {
-  background-color: #f8d7da;
-  color: #721c24;
-  border-left: 4px solid #dc3545;
-}
-
-.alert-warning {
-  background-color: #fff3cd;
-  color: #856404;
-  border-left: 4px solid #ffc107;
-}
-
-.alert-info {
-  background-color: #d1ecf1;
-  color: #0c5460;
-  border-left: 4px solid #17a2b8;
 }
 
 /* ========================================
    PESTAÑAS (TABS)
    ======================================== */
-.nav-tabs {
-  border-bottom: 2px solid var(--secondary-color);
-  margin-bottom: 1.5rem;
-}
-
-.nav-tabs .nav-link {
-  color: var(--text-color);
-  border: none;
-  padding: 0.5rem 1.5rem;
-  font-weight: 500;
+.nav-pills .nav-link {
+  border-radius: 30px;
+  padding: 8px 20px;
   transition: var(--transition);
-  position: relative;
+  font-weight: 500;
 }
 
-.nav-tabs .nav-link:hover {
-  color: var(--primary-color);
-  background-color: transparent;
-  border: none;
-}
-
-.nav-tabs .nav-link.active {
-  color: var(--primary-color);
-  background-color: transparent;
-  border: none;
-  font-weight: 600;
-}
-
-.nav-tabs .nav-link.active::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: var(--primary-color);
-  border-radius: 2px;
+.nav-pills .nav-link.active {
+  background: var(--primary-gradient);
+  box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
+  color: white;
 }
 
 /* ========================================
-   FOOTER
+   FOOTER - CLARO (por defecto)
    ======================================== */
 footer {
-  background: var(--secondary-color);
-  padding: 25px 20px;
-  margin-top: 40px;
+  background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+  padding: 30px 20px;
+  margin-top: 60px;
   text-align: center;
-  color: var(--text-color);
-  border-top: 1px solid var(--border-color);
+  color: #5D4037;
+  border-top: 1px solid #f0d5c0;
 }
 
 footer p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 footer .small {
-  color: var(--text-light);
-  margin-top: 5px;
+  color: #8B6B5A;
 }
 
 /* ========================================
    UTILIDADES
    ======================================== */
-.text-primary { color: var(--primary-color) !important; }
-.bg-primary { background-color: var(--primary-color) !important; }
+.text-primary { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; color: transparent !important; }
+.bg-primary { background: var(--primary-gradient) !important; }
 .border-primary { border-color: var(--primary-color) !important; }
-
-.shadow-hover:hover {
-  box-shadow: var(--shadow-hover);
-}
-
-.cursor-pointer {
-  cursor: pointer;
-}
 
 /* ========================================
    RESPONSIVE
    ======================================== */
 @media (max-width: 768px) {
-  header .navbar-brand {
-    font-size: 1.3rem;
-  }
-  
-  .report-card {
-    margin-bottom: 15px;
-  }
-  
-  .sector-card {
-    margin-bottom: 15px;
-  }
-  
-  .text-center .btn {
-    min-width: 150px;
-    margin: 5px;
-  }
-  
-  #map {
-    height: 300px;
-  }
-  
-  #map.mapa-grande {
-    height: 400px;
-  }
-  
-  .table-responsive {
-    border-radius: var(--border-radius-sm);
-    border: 1px solid var(--border-color);
-  }
-}
-
-@media (max-width: 576px) {
   .container {
     padding-left: 15px;
     padding-right: 15px;
@@ -542,7 +352,15 @@ footer .small {
     margin: 5px 0;
   }
   
-  .text-center .btn {
-    width: 100%;
+  #map {
+    height: 300px;
+  }
+  
+  .report-card {
+    margin-bottom: 15px;
+  }
+  
+  footer .col-md-4 {
+    margin-bottom: 15px;
   }
 }

@@ -1,30 +1,98 @@
-<div class="container mt-4">
-  <h2>✏️ Editar Comunidad</h2>
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+      
+      <!-- Tarjeta principal -->
+      <div class="card border-0 rounded-4 shadow-lg overflow-hidden">
+        
+        <!-- Header con gradiente -->
+        <div class="text-center py-4 px-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
+            <div style="width: 55px; height: 55px; background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(253, 103, 4, 0.3);">
+              <i class="bi bi-pencil-square fs-2 text-white"></i>
+            </div>
+          </div>
+          <h3 class="mb-0 fw-bold" style="color: #fd6704bd;">Editar Comunidad</h3>
+          <p class="small mb-0 mt-1" style="color: #8B6B5A;">Actualiza la información del sector o comunidad</p>
+        </div>
+        
+        <!-- Body del card -->
+        <div class="card-body p-4 p-lg-5">
+          
+          <!-- Botón volver -->
+          <div class="d-flex justify-content-end mb-3">
+            <a href="/comunidades" class="btn btn-sm px-3 py-1 rounded-3" style="border: 1px solid #f0d5c0; color: #5D4037;">
+              <i class="bi bi-arrow-left me-1"></i> Volver
+            </a>
+          </div>
 
-  <% if (session && session.error) { %>
-    <div class="alert alert-danger">
-      <%= session.error %>
-    </div>
-    <% session.error = null; %>
-  <% } %>
+          <!-- Mensajes de error -->
+          <% if (typeof session !== 'undefined' && session && session.error) { %>
+            <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 py-2 mb-4" role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i> 
+              <small><%= session.error %></small>
+              <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+            </div>
+            <% session.error = null; %>
+          <% } %>
 
-  <form action="/comunidades/<%= comunidad.id %>/editar" method="POST" class="card p-4 shadow-sm">
-    <div class="row">
-      <div class="col-md-12 mb-3">
-        <label class="form-label">Nombre de la comunidad *</label>
-        <input type="text" name="nombre" class="form-control" 
-               value="<%= comunidad.nombre %>" required>
+          <!-- Formulario -->
+          <form action="/comunidades/<%= comunidad.id %>/editar" method="POST">
+            
+            <!-- Nombre -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold small mb-2" style="color: #5D4037;">
+                <i class="bi bi-building me-1" style="color: #fd6704bd;"></i> Nombre de la comunidad *
+              </label>
+              <input type="text" name="nombre" class="form-control rounded-3" required
+                     value="<%= comunidad.nombre %>"
+                     style="border: 1px solid #f0d5c0; background-color: #fefaf7; padding: 0.6rem 1rem;">
+              <small class="text-muted" style="color: #8B6B5A;">Nombre del sector o comunidad dentro de la comuna</small>
+            </div>
+
+            <!-- Descripción -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold small mb-2" style="color: #5D4037;">
+                <i class="bi bi-file-text me-1" style="color: #fd6704bd;"></i> Descripción (opcional)
+              </label>
+              <textarea name="descripcion" class="form-control rounded-3" rows="3"
+                        style="border: 1px solid #f0d5c0; background-color: #fefaf7; padding: 0.6rem 1rem;"><%= comunidad.descripcion || '' %></textarea>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex gap-3 mt-4 pt-2">
+              <button type="submit" class="btn px-4 py-2 fw-semibold rounded-3"
+                      style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;">
+                <i class="bi bi-save me-2"></i> Actualizar comunidad
+              </button>
+              <a href="/comunidades" class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3" 
+                 style="border-color: #f0d5c0; color: #5D4037;">
+                <i class="bi bi-x-circle me-2"></i> Cancelar
+              </a>
+            </div>
+
+          </form>
+
+          <!-- Badges de información -->
+          <div class="d-flex justify-content-center gap-4 mt-4 pt-2">
+            <small class="text-muted d-flex align-items-center gap-1" style="color: #8B6B5A !important;">
+              <i class="bi bi-shield-check" style="color: #fd6704bd;"></i> Datos seguros
+            </small>
+            <small class="text-muted d-flex align-items-center gap-1" style="color: #8B6B5A !important;">
+              <i class="bi bi-lock-fill" style="color: #fd6704bd;"></i> Conexión SSL
+            </small>
+          </div>
+
+        </div>
       </div>
-
-      <div class="col-md-12 mb-3">
-        <label class="form-label">Descripción</label>
-        <textarea name="descripcion" class="form-control" rows="3"><%= comunidad.descripcion || '' %></textarea>
-      </div>
+      
     </div>
-
-    <div class="d-flex gap-2">
-      <button type="submit" class="btn btn-success">Actualizar</button>
-      <a href="/comunidades" class="btn btn-secondary">Cancelar</a>
-    </div>
-  </form>
+  </div>
 </div>
+
+<style>
+  .form-control:focus, .form-select:focus {
+    border-color: #fd6704bd;
+    box-shadow: 0 0 0 3px rgba(253, 103, 4, 0.15);
+  }
+</style>

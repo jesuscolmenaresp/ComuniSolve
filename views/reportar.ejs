@@ -1,135 +1,212 @@
-<div class="container mt-5">
-  <h2 class="mb-4 text-center">📝 Formulario de Reporte Ciudadano</h2>
-
-  <% if (session && session.error) { %>
-    <div class="alert alert-danger">
-      <%= session.error %>
-    </div>
-    <% session.error = null; %>
-  <% } %>
-
-  <form action="/reportar" method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm">
-    <!-- Título -->
-    <div class="mb-3">
-      <label class="form-label">Título del problema:</label>
-      <input type="text" name="titulo" class="form-control" required>
-    </div>
-
-    <!-- Descripción -->
-    <div class="mb-3">
-      <label class="form-label">Descripción:</label>
-      <textarea name="descripcion" class="form-control" rows="3" required></textarea>
-    </div>
-
-    <!-- Categoría (dinámica) -->
-    <div class="mb-3">
-      <label class="form-label">Categoría del problema:</label>
-      <select name="categoria_id" class="form-select" required>
-        <option value="">Seleccione una categoría...</option>
-        <% if (categorias && categorias.length > 0) { %>
-          <% categorias.forEach(cat => { %>
-            <option value="<%= cat.id %>">
-              <%= cat.icono ? cat.icono + ' ' : '' %><%= cat.nombre %>
-            </option>
-          <% }) %>
-        <% } else { %>
-          <option value="" disabled>No hay categorías disponibles</option>
-        <% } %>
-      </select>
-    </div>
-
-    <!-- Calle - Comportamiento según rol -->
-    <div class="mb-3">
-      <label class="form-label">¿A qué calle pertenece el problema?</label>
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
       
-      <% if (usuario.rol_id === 4 && usuario.calle_id && calles && calles.length > 0) { %>
-        <input type="text" class="form-control bg-light" value="<%= calles[0].nombre %>" readonly disabled>
-        <input type="hidden" name="calle_id" value="<%= usuario.calle_id %>">
-        <small class="text-muted text-success">✅ Reportando desde tu calle: <strong><%= calles[0].nombre %></strong></small>
-      
-      <% } else if (usuario.rol_id === 3 && usuario.calle_id && calles && calles.length > 0) { %>
-        <input type="text" class="form-control bg-light" value="<%= calles[0].nombre %>" readonly disabled>
-        <input type="hidden" name="calle_id" value="<%= usuario.calle_id %>">
-        <small class="text-muted text-info">📍 Reportando desde tu calle asignada: <strong><%= calles[0].nombre %></strong></small>
-      
-      <% } else if (usuario.rol_id === 2 && calles && calles.length > 0) { %>
-        <select name="calle_id" class="form-select" required>
-          <% calles.forEach(c => { %>
-            <option value="<%= c.id %>"><%= c.nombre %></option>
-          <% }) %>
-        </select>
-        <small class="text-muted">Selecciona la calle donde ocurre el problema</small>
-      
-      <% } else if (usuario.rol_id === 1 && calles && calles.length > 0) { %>
-        <select name="calle_id" class="form-select" required>
-          <option value="">Seleccione una calle...</option>
-          <% calles.forEach(c => { %>
-            <option value="<%= c.id %>"><%= c.nombre %></option>
-          <% }) %>
-        </select>
-        <small class="text-muted">Selecciona la calle donde ocurre el problema</small>
-      
-      <% } else { %>
-        <div class="alert alert-warning">
-          ⚠️ No tienes una calle asignada. Contacta al administrador.
+      <!-- Tarjeta principal -->
+      <div class="card border-0 rounded-4 shadow-lg overflow-hidden">
+        
+        <!-- Header con gradiente -->
+        <div class="text-center py-4 px-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
+            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(253, 103, 4, 0.3);">
+              <i class="bi bi-megaphone-fill fs-2 text-white"></i>
+            </div>
+          </div>
+          <h2 class="mb-0 fw-bold" style="color: #fd6704bd;">Reportar Problema</h2>
+          <p class="small mb-0 mt-1" style="color: #8B6B5A;">Completa el formulario para reportar una incidencia en tu comunidad</p>
         </div>
-        <input type="hidden" name="calle_id" value="">
-      <% } %>
-    </div>
+        
+        <!-- Body del card -->
+        <div class="card-body p-4 p-lg-5">
+          
+          <!-- Botón volver -->
+          <div class="d-flex justify-content-end mb-3">
+            <a href="/reportes" class="btn btn-sm px-3 py-1 rounded-3"
+               style="border: 1px solid #f0d5c0; color: #5D4037;">
+              <i class="bi bi-arrow-left me-1"></i> Volver
+            </a>
+          </div>
 
-    <!-- Mostrar nombre -->
-    <div class="form-check mb-3">
-      <input class="form-check-input" type="checkbox" name="mostrar_nombre" value="1" id="mostrarNombre" checked>
-      <label class="form-check-label" for="mostrarNombre">
-        Mostrar mi nombre en el reporte
-      </label>
-    </div>
+          <!-- Mensajes de error -->
+          <% if (session && session.error) { %>
+            <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 py-2 mb-4" role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i> 
+              <small><%= session.error %></small>
+              <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+            </div>
+            <% session.error = null; %>
+          <% } %>
 
-    <!-- Subir imagen -->
-    <div class="mb-3">
-      <label class="form-label">Adjuntar imagen (opcional):</label>
-      <input type="file" name="imagen" class="form-control" accept="image/*">
-    </div>
+          <!-- Formulario -->
+          <form action="/reportar" method="POST" enctype="multipart/form-data">
+            
+            <!-- Título -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold small mb-2" style="color: #5D4037;">
+                <i class="bi bi-card-heading me-1" style="color: #fd6704bd;"></i> Título del problema *
+              </label>
+              <input type="text" name="titulo" class="form-control rounded-3" 
+                     placeholder="Ej: Bote de agua en la esquina" required
+                     style="border: 1px solid #f0d5c0; background-color: #fefaf7; padding: 0.6rem 1rem;">
+            </div>
 
-    <!-- 🌍 Seleccionar ubicación -->
-    <div class="mb-3">
-      <label class="form-label">Ubicación del problema:</label>
-      
-      <div class="mb-2">
-        <button type="button" id="btnUbicacion" class="btn btn-outline-primary btn-sm">
-          📍 Usar mi ubicación actual
-        </button>
-        <small class="text-muted ms-2" id="estadoUbicacion"></small>
+            <!-- Descripción -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold small mb-2" style="color: #5D4037;">
+                <i class="bi bi-file-text me-1" style="color: #fd6704bd;"></i> Descripción *
+              </label>
+              <textarea name="descripcion" class="form-control rounded-3" rows="3" 
+                        placeholder="Describe detalladamente el problema que deseas reportar..." required
+                        style="border: 1px solid #f0d5c0; background-color: #fefaf7; padding: 0.6rem 1rem;"></textarea>
+            </div>
+
+            <!-- Categoría -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold small mb-2" style="color: #5D4037;">
+                <i class="bi bi-tag me-1" style="color: #fd6704bd;"></i> Categoría del problema *
+              </label>
+              <select name="categoria_id" class="form-select rounded-3" required
+                      style="border: 1px solid #f0d5c0; background-color: #fefaf7; padding: 0.6rem 1rem;">
+                <option value="">-- Seleccione una categoría --</option>
+                <% if (categorias && categorias.length > 0) { %>
+                  <% categorias.forEach(cat => { %>
+                    <option value="<%= cat.id %>">
+                      <%= cat.icono ? cat.icono + ' ' : '' %><%= cat.nombre %>
+                    </option>
+                  <% }) %>
+                <% } else { %>
+                  <option value="" disabled>No hay categorías disponibles</option>
+                <% } %>
+              </select>
+            </div>
+
+            <!-- Calle -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold small mb-2" style="color: #5D4037;">
+                <i class="bi bi-geo-alt me-1" style="color: #fd6704bd;"></i> ¿A qué calle pertenece el problema? *
+              </label>
+              
+              <% if (usuario.rol_id === 4 && usuario.calle_id && calles && calles.length > 0) { %>
+                <div class="alert alert-success py-2 mb-0" style="background: #d4edda; border: none; border-radius: 10px;">
+                  <i class="bi bi-check-circle-fill me-1"></i>
+                  Reportando desde tu calle: <strong><%= calles[0].nombre %></strong>
+                </div>
+                <input type="hidden" name="calle_id" value="<%= usuario.calle_id %>">
+              
+              <% } else if (usuario.rol_id === 3 && usuario.calle_id && calles && calles.length > 0) { %>
+                <div class="alert alert-info py-2 mb-0" style="background: #d1ecf1; border: none; border-radius: 10px;">
+                  <i class="bi bi-info-circle-fill me-1"></i>
+                  Reportando desde tu calle asignada: <strong><%= calles[0].nombre %></strong>
+                </div>
+                <input type="hidden" name="calle_id" value="<%= usuario.calle_id %>">
+              
+              <% } else if ((usuario.rol_id === 2 || usuario.rol_id === 1) && calles && calles.length > 0) { %>
+                <select name="calle_id" class="form-select rounded-3" required
+                        style="border: 1px solid #f0d5c0; background-color: #fefaf7; padding: 0.6rem 1rem;">
+                  <option value="">-- Seleccione una calle --</option>
+                  <% calles.forEach(c => { %>
+                    <option value="<%= c.id %>"><%= c.nombre %></option>
+                  <% }) %>
+                </select>
+                <small class="text-muted" style="color: #8B6B5A;">Selecciona la calle donde ocurre el problema</small>
+              
+              <% } else { %>
+                <div class="alert alert-warning py-2 mb-0" style="background: #fff3cd; border: none; border-radius: 10px;">
+                  <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                  No tienes una calle asignada. Contacta al administrador.
+                </div>
+                <input type="hidden" name="calle_id" value="">
+              <% } %>
+            </div>
+
+            <!-- Mostrar nombre -->
+            <div class="mb-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="mostrar_nombre" value="1" id="mostrarNombre" checked
+                       style="border-color: #fd6704bd;">
+                <label class="form-check-label" for="mostrarNombre" style="color: #5D4037;">
+                  <i class="bi bi-person-badge me-1" style="color: #fd6704bd;"></i> Mostrar mi nombre en el reporte
+                </label>
+              </div>
+              <small class="text-muted" style="color: #8B6B5A;">Si no marcas esta opción, tu reporte aparecerá como anónimo</small>
+            </div>
+
+            <!-- Subir imagen -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold small mb-2" style="color: #5D4037;">
+                <i class="bi bi-image me-1" style="color: #fd6704bd;"></i> Adjuntar imagen (opcional)
+              </label>
+              <input type="file" name="imagen" class="form-control rounded-3" accept="image/*"
+                     style="border: 1px solid #f0d5c0; background-color: #fefaf7; padding: 0.5rem 1rem;">
+              <small class="text-muted" style="color: #8B6B5A;">Puedes subir una imagen del problema (JPG, PNG)</small>
+            </div>
+
+            <!-- Mapa de ubicación -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold small mb-2" style="color: #5D4037;">
+                <i class="bi bi-map me-1" style="color: #fd6704bd;"></i> Ubicación del problema *
+              </label>
+              
+              <div class="mb-2">
+                <button type="button" id="btnUbicacion" class="btn btn-sm px-3 py-1 rounded-3"
+                        style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;">
+                  <i class="bi bi-geo-alt-fill me-1"></i> Usar mi ubicación actual
+                </button>
+                <small class="text-muted ms-2" id="estadoUbicacion" style="color: #8B6B5A;"></small>
+              </div>
+              
+              <div id="map" style="height: 350px; border-radius: 12px; border: 1px solid #f0d5c0;"></div>
+              <input type="hidden" name="ubicacion_lat" id="ubicacion_lat">
+              <input type="hidden" name="ubicacion_lng" id="ubicacion_lng">
+              <small class="text-muted" style="color: #8B6B5A;">Haz clic en el mapa para marcar la ubicación exacta</small>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex gap-3 mt-4 pt-2">
+              <button type="submit" class="btn px-4 py-2 fw-semibold rounded-3"
+                      style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); border: none; color: white;">
+                <i class="bi bi-send-fill me-2"></i> Enviar Reporte
+              </button>
+              <a href="/reportes" class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3" 
+                 style="border-color: #f0d5c0; color: #5D4037;">
+                <i class="bi bi-x-circle me-2"></i> Cancelar
+              </a>
+            </div>
+
+          </form>
+
+          <!-- Badges de información -->
+          <div class="d-flex justify-content-center gap-4 mt-4 pt-2">
+            <small class="text-muted d-flex align-items-center gap-1" style="color: #8B6B5A !important;">
+              <i class="bi bi-shield-check" style="color: #fd6704bd;"></i> Datos seguros
+            </small>
+            <small class="text-muted d-flex align-items-center gap-1" style="color: #8B6B5A !important;">
+              <i class="bi bi-lock-fill" style="color: #fd6704bd;"></i> Conexión SSL
+            </small>
+          </div>
+
+        </div>
       </div>
       
-      <div id="map" style="height: 300px; border-radius: 8px;"></div>
-      <input type="hidden" name="ubicacion_lat" id="ubicacion_lat">
-      <input type="hidden" name="ubicacion_lng" id="ubicacion_lng">
-      <small class="text-muted">Haz clic en el mapa para marcar la ubicación o usa el botón</small>
     </div>
-
-    <!-- Botón -->
-    <div class="text-center">
-      <button type="submit" class="btn btn-primary px-4">
-        🚀 Enviar Reporte
-      </button>
-    </div>
-  </form>
+  </div>
 </div>
 
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!-- Leaflet CSS y JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+  // Inicializar mapa
   window.map = L.map('map').setView([10.0389, -67.4931], 14);
   
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(window.map);
 
-  let marker;
+  let marker = null;
 
+  // Evento click en el mapa
   window.map.on('click', function(e) {
     const { lat, lng } = e.latlng;
 
@@ -143,14 +220,15 @@
     document.getElementById('ubicacion_lng').value = lng;
   });
 
-  window.marker = marker;
-
+  // Botón de geolocalización
   document.getElementById('btnUbicacion').addEventListener('click', function() {
     const estado = document.getElementById('estadoUbicacion');
-    estado.textContent = 'Obteniendo ubicación...';
+    estado.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Obteniendo ubicación...';
+    estado.style.color = '#fd6704bd';
     
     if (!navigator.geolocation) {
-      estado.textContent = '❌ Tu navegador no soporta geolocalización';
+      estado.innerHTML = '❌ Tu navegador no soporta geolocalización';
+      estado.style.color = '#dc3545';
       return;
     }
     
@@ -163,13 +241,15 @@
         document.getElementById('ubicacion_lng').value = lng;
         
         window.map.setView([lat, lng], 16);
-        if (window.marker) {
-          window.marker.setLatLng([lat, lng]);
+        if (marker) {
+          marker.setLatLng([lat, lng]);
         } else {
-          window.marker = L.marker([lat, lng]).addTo(window.map);
+          marker = L.marker([lat, lng]).addTo(window.map);
         }
         
-        estado.textContent = '✅ Ubicación obtenida';
+        estado.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Ubicación obtenida correctamente';
+        estado.style.color = '#28a745';
+        setTimeout(() => { estado.innerHTML = ''; }, 3000);
       },
       function(error) {
         let mensaje = '❌ Error: ';
@@ -183,19 +263,32 @@
           case error.TIMEOUT:
             mensaje += 'Tiempo de espera agotado';
             break;
+          default:
+            mensaje += 'No se pudo obtener tu ubicación';
         }
-        estado.textContent = mensaje;
+        estado.innerHTML = mensaje;
+        estado.style.color = '#dc3545';
       }
     );
   });
 
+  // Validar ubicación antes de enviar
   document.querySelector('form').addEventListener('submit', function(e) {
     const lat = document.getElementById('ubicacion_lat').value;
     const lng = document.getElementById('ubicacion_lng').value;
     
     if (!lat || !lng) {
       e.preventDefault();
-      alert('Por favor, selecciona una ubicación en el mapa o usa el botón "Usar mi ubicación actual"');
+      alert('⚠️ Por favor, selecciona una ubicación en el mapa o usa el botón "Usar mi ubicación actual"');
     }
   });
 </script>
+
+<style>
+  #map {
+    z-index: 1;
+  }
+  .leaflet-control-attribution {
+    font-size: 9px;
+  }
+</style>

@@ -271,15 +271,19 @@ exports.jefe = async (req, res) => {
   console.log("📊 Dashboard Jefe iniciado para usuario:", usuario?.id, "calle_id:", usuario?.calle_id);
   
   try {
-    if (!usuario.calle_id) {
+    // Si no tiene calle asignada
+    if (!usuario || !usuario.calle_id) {
       return res.render('dashboards/jefe', { 
-        usuario,
+        usuario: usuario || null,
+        session: req.session,        // 👈 IMPORTANTE: pasar session
         tieneCalle: false,
         miCalle: null,
         porCategoria: [],
         porEstado: [],
         reportesRecientes: [],
-        totales: { total_reportes: 0, pendientes: 0, en_progreso: 0, resueltos: 0 }
+        totales: { total_reportes: 0, pendientes: 0, en_progreso: 0, resueltos: 0 },
+        reporteMasVotado: null,
+        reporteMasAntiguo: null
       });
     }
 
@@ -325,8 +329,11 @@ exports.jefe = async (req, res) => {
     let reportesRecientes = [];
     try {
       const [rows] = await db.query(`
-        SELECT r.id, r.titulo, r.descripcion, r.fecha, r.estado
+        SELECT r.id, r.titulo, r.descripcion, r.fecha, r.estado,
+               cat.nombre as categoria, u.nombre as reportado_por
         FROM reportes r
+        INNER JOIN categorias cat ON r.categoria_id = cat.id
+        LEFT JOIN usuarios u ON r.usuario_id = u.id
         WHERE r.calle_id = ?
         ORDER BY r.fecha DESC
         LIMIT 5
@@ -354,18 +361,66 @@ exports.jefe = async (req, res) => {
       console.error("❌ Error en totales jefe:", err.message);
     }
 
+    // 📌 Reporte más votado
+    let reporteMasVotado = null;
+    try {
+      const [rows] = await db.query(`
+        SELECT r.id, r.titulo, r.descripcion, 
+               (SELECT COUNT(*) FROM votos v WHERE v.reporte_id = r.id) AS votos
+        FROM reportes r
+        WHERE r.calle_id = ?
+        ORDER BY votos DESC
+        LIMIT 1
+      `, [usuario.calle_id]);
+      reporteMasVotado = rows[0] || null;
+    } catch (err) {
+      console.error("❌ Error en reporte más votado jefe:", err.message);
+    }
+
+    // 📌 Reporte más antiguo
+    let reporteMasAntiguo = null;
+    try {
+      const [rows] = await db.query(`
+        SELECT r.id, r.titulo, r.fecha, r.estado
+        FROM reportes r
+        WHERE r.calle_id = ?
+        ORDER BY r.fecha ASC
+        LIMIT 1
+      `, [usuario.calle_id]);
+      reporteMasAntiguo = rows[0] || null;
+    } catch (err) {
+      console.error("❌ Error en reporte más antiguo jefe:", err.message);
+    }
+
+    // Renderizar con TODAS las variables incluyendo session
     res.render('dashboards/jefe', { 
-      usuario,
+      usuario: usuario,
+      session: req.session,           // 👈 IMPORTANTE: siempre pasar session
       tieneCalle: true,
-      miCalle,
-      porCategoria,
-      porEstado,
-      reportesRecientes,
-      totales
+      miCalle: miCalle,
+      porCategoria: porCategoria,
+      porEstado: porEstado,
+      reportesRecientes: reportesRecientes,
+      totales: totales,
+      reporteMasVotado: reporteMasVotado,
+      reporteMasAntiguo: reporteMasAntiguo
     });
     
   } catch (err) {
     console.error("❌ Error FATAL en jefe:", err);
-    res.status(500).send("Error al cargar el dashboard: " + err.message);
+    // En caso de error, también pasar session
+    res.status(500).render('dashboards/jefe', { 
+      usuario: req.session?.usuario || null,
+      session: req.session,
+      tieneCalle: false,
+      miCalle: null,
+      porCategoria: [],
+      porEstado: [],
+      reportesRecientes: [],
+      totales: { total_reportes: 0, pendientes: 0, en_progreso: 0, resueltos: 0 },
+      reporteMasVotado: null,
+      reporteMasAntiguo: null,
+      error: err.message
+    });
   }
 };

@@ -137,24 +137,40 @@ exports.obtenerDetalle = async (req, res) => {
   
   try {
     const [reporte] = await db.query(`
-      SELECT r.*,
+      SELECT r.id,
+             r.titulo,
+             r.descripcion,
+             r.fecha,
+             r.estado,
+             r.mostrar_nombre,
+             r.imagen,
+             r.ubicacion_lat,
+             r.ubicacion_lng,
+             r.empresa_id,
              u.nombre AS nombre_usuario,
              u.telefono AS usuario_telefono,
              u.email AS usuario_email,
              j.nombre AS nombre_jefe,
              c.nombre AS nombre_calle,
+             cat.id AS categoria_id,
              cat.nombre AS categoria_nombre,
              cat.icono AS categoria_icono,
              cat.color AS categoria_color,
              e.nombre AS empresa_nombre,
              e.contacto AS empresa_contacto,
-             (SELECT COUNT(*) FROM votos v WHERE v.reporte_id = r.id) AS total_votos
+             (SELECT COUNT(*) FROM votos v WHERE v.reporte_id = r.id) AS total_votos,
+             v_vol.nombre AS voluntario_nombre,
+             v.habilidad AS voluntario_habilidad,
+             v_vol.telefono AS voluntario_telefono
       FROM reportes r
       LEFT JOIN usuarios u ON r.usuario_id = u.id
       LEFT JOIN usuarios j ON r.jefe_calle_id = j.id
       INNER JOIN calles c ON r.calle_id = c.id
       INNER JOIN categorias cat ON r.categoria_id = cat.id
       LEFT JOIN empresas e ON r.empresa_id = e.id
+      LEFT JOIN voluntarios_reportes vr ON vr.reporte_id = r.id
+      LEFT JOIN voluntarios v ON vr.voluntario_id = v.id
+      LEFT JOIN usuarios v_vol ON v.usuario_id = v_vol.id
       WHERE r.id = ?
     `, [id]);
     
@@ -162,9 +178,15 @@ exports.obtenerDetalle = async (req, res) => {
       return res.status(404).json({ error: 'Reporte no encontrado' });
     }
     
-    res.json(reporte[0]);
+    // Asegurar que los valores tengan defaults
+    const data = reporte[0];
+    if (!data.categoria_nombre) data.categoria_nombre = 'Sin categoría';
+    if (!data.categoria_color) data.categoria_color = 'secondary';
+    if (!data.estado) data.estado = 'Pendiente';
+    
+    res.json(data);
   } catch (err) {
-    console.error(err);
+    console.error('Error en obtenerDetalle:', err);
     res.status(500).json({ error: 'Error al obtener detalle' });
   }
 };
@@ -502,5 +524,70 @@ exports.reportesMiCalle = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Error al obtener reportes de tu calle");
+  }
+};
+// ==========================
+// 📌 ELIMINAR EMPRESA ASIGNADA
+// ==========================
+exports.eliminarEmpresa = async (req, res) => {
+  const { id } = req.params;
+  const usuario = req.session.usuario;
+
+  try {
+    if (!usuario || ![1,2].includes(usuario.rol_id)) {
+      req.session.error = "No autorizado";
+      return res.redirect('/reportes');
+    }
+
+    await db.query('UPDATE reportes SET empresa_id = NULL WHERE id = ?', [id]);
+    
+    await registrarAuditoria(
+      usuario,
+      'ELIMINAR',
+      'reportes',
+      id,
+      { accion: 'eliminar_empresa' },
+      { empresa_id: null }
+    );
+
+    req.session.mensaje = 'Empresa eliminada correctamente';
+    res.redirect('/reportes');
+  } catch (err) {
+    console.error(err);
+    req.session.error = 'Error al eliminar empresa';
+    res.redirect('/reportes');
+  }
+};
+
+// ==========================
+// 📌 ELIMINAR VOLUNTARIO ASIGNADO
+// ==========================
+exports.eliminarVoluntario = async (req, res) => {
+  const { id } = req.params;
+  const usuario = req.session.usuario;
+
+  try {
+    if (!usuario || ![1,2].includes(usuario.rol_id)) {
+      req.session.error = "No autorizado";
+      return res.redirect('/reportes');
+    }
+
+    await db.query('DELETE FROM voluntarios_reportes WHERE reporte_id = ?', [id]);
+    
+    await registrarAuditoria(
+      usuario,
+      'ELIMINAR',
+      'voluntarios_reportes',
+      id,
+      { accion: 'eliminar_voluntario' },
+      {}
+    );
+
+    req.session.mensaje = 'Voluntario eliminado correctamente';
+    res.redirect('/reportes');
+  } catch (err) {
+    console.error(err);
+    req.session.error = 'Error al eliminar voluntario';
+    res.redirect('/reportes');
   }
 };
