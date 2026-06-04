@@ -117,10 +117,12 @@ const auditoriaRoutes = require('./routes/auditoria');
 
 const perfilRoutes = require('./routes/perfil');
 
+const superadminRoutes = require('./routes/superadmin');
+
 app.use('/', indexRouter);
 app.use(authRoutes);
 app.use(reporteRoutes);
-app.use(dashboardRoutes);
+app.use('/dashboard', dashboardRoutes);
 app.use(calleRoutes);
 app.use(voluntarioRoutes);
 app.use(mapasRoutes);
@@ -139,6 +141,8 @@ app.use(categoriasRoutes);
 app.use(auditoriaRoutes);
 
 app.use(perfilRoutes);
+
+app.use('/superadmin', superadminRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {

@@ -1,0 +1,330 @@
+<div class="container py-4">
+  
+  <!-- Encabezado -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1" style="color: #5D4037;">
+        <i class="bi bi-database me-2" style="color: #fd6704bd;"></i> Respaldos de Base de Datos
+      </h2>
+      <p class="text-muted small mb-0" style="color: #8B6B5A;">Gestión de copias de seguridad del sistema</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/dashboard/superadmin" class="btn btn-sm btn-outline-secondary px-3 py-2 rounded-3">
+        <i class="bi bi-arrow-left me-1"></i> Volver al Dashboard
+      </a>
+      <div class="dropdown">
+        <button class="btn btn-sm px-3 py-2 rounded-3 dropdown-toggle" 
+                style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;"
+                type="button" id="backupDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-plus-circle me-1"></i> Nuevo Respaldo
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="backupDropdown">
+          <li>
+            <a class="dropdown-item" href="/superadmin/backup/completo">
+              <i class="bi bi-database-fill me-2 text-success"></i> Respaldo Completo
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="/superadmin/backup/estructura">
+              <i class="bi bi-table me-2 text-primary"></i> Solo Estructura
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="/superadmin/backup/datos">
+              <i class="bi bi-file-text me-2 text-warning"></i> Solo Datos
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensajes flash mejorados -->
+  <% if (session && session.mensaje) { %>
+    <div class="alert alert-success alert-dismissible fade show border-0 rounded-3 py-3 mb-4 shadow-sm">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+        <div>
+          <strong>¡Éxito!</strong><br>
+          <small><%= session.mensaje %></small>
+        </div>
+      </div>
+      <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% session.mensaje = null; %>
+  <% } %>
+
+  <% if (session && session.error) { %>
+    <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 py-3 mb-4 shadow-sm">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+        <div>
+          <strong>Error</strong><br>
+          <small><%= session.error %></small>
+        </div>
+      </div>
+      <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% session.error = null; %>
+  <% } %>
+
+  <!-- Estadísticas rápidas -->
+  <% if (backups && backups.length > 0) { %>
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="card border-0 rounded-3 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+          <div class="card-body py-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <small class="text-white-50">Total Respaldos</small>
+                <h3 class="text-white mb-0"><%= backups.length %></h3>
+              </div>
+              <i class="bi bi-archive fs-1 text-white-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 rounded-3 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+          <div class="card-body py-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <small class="text-white-50">Último Respaldo</small>
+                <h6 class="text-white mb-0"><%= new Date(backups[0].fecha).toLocaleDateString() %></h6>
+                <small class="text-white-50"><%= new Date(backups[0].fecha).toLocaleTimeString() %></small>
+              </div>
+              <i class="bi bi-clock-history fs-1 text-white-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 rounded-3 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+          <div class="card-body py-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <small class="text-white-50">Espacio Total</small>
+                <h3 class="text-white mb-0">
+                  <% 
+                    let totalSize = 0;
+                    backups.forEach(b => {
+                      totalSize += parseFloat(b.tamaño);
+                    });
+                  %>
+                  <%= totalSize.toFixed(2) %> KB
+                </h3>
+              </div>
+              <i class="bi bi-hdd-stack fs-1 text-white-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Tabla de respaldos mejorada -->
+  <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+    <div class="card-header bg-white py-3 border-0">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold" style="color: #5D4037;">
+          <i class="bi bi-files me-2" style="color: #fd6704bd;"></i> Lista de Respaldos
+        </h5>
+        <% if (backups && backups.length > 0) { %>
+          <button class="btn btn-sm btn-outline-danger" onclick="eliminarTodos()">
+            <i class="bi bi-trash3 me-1"></i> Eliminar todos
+          </button>
+        <% } %>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr class="text-center">
+              <th style="width: 5%">#</th>
+              <th style="width: 45%"><i class="bi bi-file-earmark"></i> Nombre del archivo</th>
+              <th style="width: 10%"><i class="bi bi-hdd-stack"></i> Tamaño</th>
+              <th style="width: 25%"><i class="bi bi-calendar3"></i> Fecha de creación</th>
+              <th style="width: 15%"><i class="bi bi-gear"></i> Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (backups && backups.length > 0) { %>
+              <% backups.forEach((b, index) => { %>
+                <tr class="text-center align-middle">
+                  <td class="text-muted"><%= index + 1 %>.</td>
+                  <td class="text-start">
+                    <i class="bi bi-filetype-sql me-2 fs-5" style="color: #fd6704bd;"></i>
+                    <strong><%= b.nombre %></strong>
+                    <br>
+                    <small class="text-muted">
+                      <%
+                        const extension = b.nombre.split('.').pop();
+                        const tipo = b.nombre.includes('completo') ? 'Completo' : 
+                                    (b.nombre.includes('estructura') ? 'Solo Estructura' : 'Solo Datos');
+                      %>
+                      <span class="badge bg-secondary"><%= tipo %></span>
+                    </small>
+                  </td>
+                  <td>
+                    <span class="badge bg-light text-dark p-2">
+                      <i class="bi bi-hdd-stack me-1"></i> <%= b.tamaño %>
+                    </span>
+                  </td>
+                  <td>
+                    <div><%= new Date(b.fecha).toLocaleDateString() %></div>
+                    <small class="text-muted"><%= new Date(b.fecha).toLocaleTimeString() %></small>
+                  </td>
+                  <td>
+                    <div class="d-flex gap-1 justify-content-center">
+                      <a href="/superadmin/backup/descargar/<%= b.nombre %>" 
+                         class="btn btn-sm btn-success px-3 py-1 rounded-3"
+                         title="Descargar respaldo">
+                        <i class="bi bi-download me-1"></i> 
+                        <span class="d-none d-md-inline">Descargar</span>
+                      </a>
+                      <form action="/superadmin/backup/eliminar/<%= b.nombre %>" 
+                            method="POST" 
+                            class="d-inline eliminar-form"
+                            data-nombre="<%= b.nombre %>">
+                        <button type="submit" class="btn btn-sm btn-danger px-3 py-1 rounded-3" title="Eliminar respaldo">
+                          <i class="bi bi-trash me-1"></i>
+                          <span class="d-none d-md-inline">Eliminar</span>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="5" class="text-center py-5">
+                  <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+                  <h5 class="text-muted">No hay respaldos generados</h5>
+                  <p class="text-muted mb-3">Crea tu primer respaldo de seguridad</p>
+                  <div class="dropdown d-inline-block">
+                    <button class="btn btn-sm px-4 py-2 rounded-3 dropdown-toggle"
+                            style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;"
+                            type="button" data-bs-toggle="dropdown">
+                      <i class="bi bi-plus-circle me-1"></i> Crear primer respaldo
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="/superadmin/backup/completo">Completo</a></li>
+                      <li><a class="dropdown-item" href="/superadmin/backup/estructura">Solo Estructura</a></li>
+                      <li><a class="dropdown-item" href="/superadmin/backup/datos">Solo Datos</a></li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Información adicional mejorada -->
+  <div class="row mt-4 g-3">
+    <div class="col-md-6">
+      <div class="card border-0 rounded-4 shadow-sm h-100">
+        <div class="card-body p-3">
+          <div class="d-flex align-items-start gap-3">
+            <i class="bi bi-info-circle-fill fs-3" style="color: #fd6704bd;"></i>
+            <div>
+              <strong class="small">¿Cómo restaurar un respaldo?</strong>
+              <p class="small text-muted mb-1">Método 1: Usando MySQL Workbench</p>
+              <p class="small text-muted mb-0">Método 2: Línea de comandos: <code>mysql -u root -p comunisolve_db < archivo.sql</code></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-0 rounded-4 shadow-sm h-100">
+        <div class="card-body p-3">
+          <div class="d-flex align-items-start gap-3">
+            <i class="bi bi-shield-lock-fill fs-3" style="color: #ffc107;"></i>
+            <div>
+              <strong class="small">Consejos de seguridad</strong>
+              <p class="small text-muted mb-0">✓ Descarga respaldos importantes a tu PC<br>✓ Los respaldos se eliminan al redeployar<br>✓ Programa respaldos periódicos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Confirmación mejorada para eliminar
+  document.querySelectorAll('.eliminar-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const nombre = this.dataset.nombre;
+      
+      if (confirm(`¿Estás seguro de que deseas eliminar el respaldo "${nombre}"?\n\nEsta acción no se puede deshacer.`)) {
+        this.submit();
+      }
+    });
+  });
+  
+  // Función para eliminar todos los respaldos
+  function eliminarTodos() {
+    if (confirm('⚠️ ADVERTENCIA: Vas a eliminar TODOS los respaldos.\n\n¿Estás completamente seguro?')) {
+      // Crear un formulario para cada backup
+      document.querySelectorAll('.eliminar-form').forEach(form => {
+        form.submit();
+      });
+    }
+  }
+  
+  // Auto-cerrar alertas después de 5 segundos
+  setTimeout(() => {
+    document.querySelectorAll('.alert').forEach(alert => {
+      const bsAlert = new bootstrap.Alert(alert);
+      setTimeout(() => bsAlert.close(), 5000);
+    });
+  }, 100);
+</script>
+
+<style>
+  .table-hover tbody tr:hover {
+    background-color: #fff8f0 !important;
+    transform: scale(1.01);
+    transition: transform 0.2s ease;
+  }
+  
+  .btn-sm {
+    transition: all 0.2s ease;
+  }
+  
+  .btn-sm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .dropdown-item:active {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+  }
+  
+  .badge {
+    font-weight: 500;
+  }
+  
+  code {
+    background: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 768px) {
+    .btn-sm span {
+      display: none;
+    }
+    .btn-sm i {
+      margin: 0;
+    }
+  }
+</style>

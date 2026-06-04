@@ -424,3 +424,182 @@ exports.jefe = async (req, res) => {
     });
   }
 };
+// ==========================
+// 📌 DASHBOARD SUPERADMINISTRADOR (completo)
+// ==========================
+exports.superAdmin = async (req, res) => {
+  const usuario = req.session.usuario;
+  console.log("👑 Dashboard SuperAdmin iniciado para usuario:", usuario?.id);
+  
+  try {
+    // ========== ESTADÍSTICAS GLOBALES ==========
+    let totalUsuarios = 0;
+    let totalReportes = 0;
+    let totalCalles = 0;
+    let totalComunidades = 0;
+    let totalVoluntarios = 0;
+    let totalEmpresas = 0;
+    let totalCategorias = 0;
+    let voluntariosPendientes = 0;
+    let voluntariosAprobados = 0;
+    
+    try {
+      const [usuariosRow] = await db.query('SELECT COUNT(*) as total FROM usuarios');
+      totalUsuarios = usuariosRow[0]?.total || 0;
+      
+      const [reportesRow] = await db.query('SELECT COUNT(*) as total FROM reportes');
+      totalReportes = reportesRow[0]?.total || 0;
+      
+      const [callesRow] = await db.query('SELECT COUNT(*) as total FROM calles');
+      totalCalles = callesRow[0]?.total || 0;
+      
+      const [comunidadesRow] = await db.query('SELECT COUNT(*) as total FROM comunidades');
+      totalComunidades = comunidadesRow[0]?.total || 0;
+      
+      const [voluntariosRow] = await db.query('SELECT COUNT(*) as total FROM voluntarios');
+      totalVoluntarios = voluntariosRow[0]?.total || 0;
+      
+      const [empresasRow] = await db.query('SELECT COUNT(*) as total FROM empresas');
+      totalEmpresas = empresasRow[0]?.total || 0;
+      
+      const [categoriasRow] = await db.query('SELECT COUNT(*) as total FROM categorias');
+      totalCategorias = categoriasRow[0]?.total || 0;
+      
+      // Voluntarios por estado
+      const [volPend] = await db.query('SELECT COUNT(*) as total FROM voluntarios WHERE estado = "pendiente"');
+      voluntariosPendientes = volPend[0]?.total || 0;
+      
+      const [volApr] = await db.query('SELECT COUNT(*) as total FROM voluntarios WHERE estado = "aprobado"');
+      voluntariosAprobados = volApr[0]?.total || 0;
+      
+      console.log("✅ Estadísticas SuperAdmin calculadas");
+    } catch (err) {
+      console.error("❌ Error en estadísticas SuperAdmin:", err.message);
+    }
+
+    // ========== REPORTES POR ESTADO ==========
+    let reportesPorEstado = [];
+    try {
+      const [rows] = await db.query(`
+        SELECT estado, COUNT(*) as total
+        FROM reportes
+        GROUP BY estado
+      `);
+      reportesPorEstado = rows;
+    } catch (err) {
+      console.error("❌ Error en reportes por estado:", err.message);
+    }
+
+    // ========== ÚLTIMOS USUARIOS REGISTRADOS ==========
+    let ultimosUsuarios = [];
+    try {
+      const [rows] = await db.query(`
+        SELECT u.id, u.nombre, u.email, r.nombre as rol, u.fecha_registro
+        FROM usuarios u
+        JOIN roles r ON u.rol_id = r.id
+        ORDER BY u.id DESC
+        LIMIT 5
+      `);
+      ultimosUsuarios = rows;
+    } catch (err) {
+      console.error("❌ Error en últimos usuarios:", err.message);
+    }
+
+    // ========== ÚLTIMOS VOLUNTARIOS REGISTRADOS ==========
+    let ultimosVoluntarios = [];
+    try {
+      const [rows] = await db.query(`
+        SELECT v.id, v.nombre, v.habilidad, v.estado, v.fecha_solicitud
+        FROM voluntarios v
+        ORDER BY v.id DESC
+        LIMIT 5
+      `);
+      ultimosVoluntarios = rows;
+    } catch (err) {
+      console.error("❌ Error en últimos voluntarios:", err.message);
+    }
+
+    // ========== ÚLTIMAS ACCIONES DE AUDITORÍA ==========
+    let ultimasAuditorias = [];
+    try {
+      const [rows] = await db.query(`
+        SELECT a.*, u.nombre as usuario_nombre
+        FROM auditoria a
+        LEFT JOIN usuarios u ON a.usuario_id = u.id
+        ORDER BY a.fecha DESC
+        LIMIT 5
+      `);
+      ultimasAuditorias = rows;
+    } catch (err) {
+      console.error("❌ Error en auditorías:", err.message);
+    }
+
+    // ========== VOLUNTARIOS POR HABILIDAD (para gráfico) ==========
+    let voluntariosPorHabilidad = [];
+    try {
+      const [rows] = await db.query(`
+        SELECT habilidad, COUNT(*) as total
+        FROM voluntarios
+        WHERE habilidad IS NOT NULL AND habilidad != ''
+        GROUP BY habilidad
+        ORDER BY total DESC
+        LIMIT 5
+      `);
+      voluntariosPorHabilidad = rows;
+    } catch (err) {
+      console.error("❌ Error en voluntarios por habilidad:", err.message);
+    }
+
+    // ========== ACTIVIDAD RECIENTE (reportes hoy) ==========
+    let reportesHoy = 0;
+    try {
+      const [rows] = await db.query(`
+        SELECT COUNT(*) as total FROM reportes 
+        WHERE DATE(fecha) = CURDATE()
+      `);
+      reportesHoy = rows[0]?.total || 0;
+    } catch (err) {
+      console.error("❌ Error en reportes hoy:", err.message);
+    }
+
+    // ========== USUARIOS ACTIVOS (logueados hoy - aproximado) ==========
+    let usuariosActivosHoy = 0;
+    try {
+      const [rows] = await db.query(`
+        SELECT COUNT(DISTINCT usuario_id) as total 
+        FROM auditoria 
+        WHERE DATE(fecha) = CURDATE()
+      `);
+      usuariosActivosHoy = rows[0]?.total || 0;
+    } catch (err) {
+      console.error("❌ Error en usuarios activos:", err.message);
+    }
+
+    res.render('dashboards/superadmin', { 
+      usuario,
+      session: req.session,
+      totales: {
+        usuarios: totalUsuarios,
+        reportes: totalReportes,
+        calles: totalCalles,
+        comunidades: totalComunidades,
+        voluntarios: totalVoluntarios,
+        voluntariosPendientes: voluntariosPendientes,
+        voluntariosAprobados: voluntariosAprobados,
+        empresas: totalEmpresas,
+        categorias: totalCategorias,
+        reportesHoy: reportesHoy,
+        usuariosActivosHoy: usuariosActivosHoy
+      },
+      reportesPorEstado,
+      ultimosUsuarios,
+      ultimosVoluntarios,
+      ultimasAuditorias,
+      voluntariosPorHabilidad
+    });
+    
+  } catch (err) {
+    console.error("❌ Error FATAL en SuperAdmin:", err);
+    res.status(500).send("Error al cargar el dashboard SuperAdmin: " + err.message);
+  }
+};

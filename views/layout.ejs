@@ -22,16 +22,43 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
-            <!-- Módulos públicos (visibles para todos) -->
-            <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door"></i> Inicio</a></li>
+            
+            <!-- ========== INICIO SEGÚN ROL ========== -->
+            <% if (usuario) { %>
+              <!-- SuperAdmin -->
+              <% if (usuario.rol_id === 5) { %>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/superadmin"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+              <% } %>
+              <!-- UBCH (rol 1) -->
+              <% if (usuario.rol_id === 1) { %>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/admin"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+              <% } %>
+              <!-- Líder (rol 2) -->
+              <% if (usuario.rol_id === 2) { %>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/lider"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+              <% } %>
+              <!-- Jefe de Calle (rol 3) -->
+              <% if (usuario.rol_id === 3) { %>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/jefe"><i class="bi bi-speedometer2"></i> Inicio</a></li>
+              <% } %>
+              <!-- Ciudadano (rol 4) -->
+              <% if (usuario.rol_id === 4) { %>
+                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door"></i> Inicio</a></li>
+              <% } %>
+            <% } else { %>
+              <!-- Usuario no logueado -->
+              <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door"></i> Inicio</a></li>
+            <% } %>
+            
+            <!-- ========== MAPAS (visible para todos) ========== -->
             <li class="nav-item"><a class="nav-link" href="/mapas"><i class="bi bi-map"></i> Mapas</a></li>
             
-            <!-- Voluntarios para no logueados -->
+            <!-- ========== VOLUNTARIOS PÚBLICOS ========== -->
             <% if (!usuario) { %>
               <li class="nav-item"><a class="nav-link" href="/voluntarios/publico"><i class="bi bi-people"></i> Voluntarios</a></li>
             <% } %>
             
-            <!-- Módulos para Ciudadano (rol 4) -->
+            <!-- ========== CIUDADANO (rol 4) ========== -->
             <% if (usuario && usuario.rol_id === 4) { %>
               <li class="nav-item"><a class="nav-link" href="/reportes"><i class="bi bi-file-text"></i> Mis Reportes</a></li>
               <li class="nav-item"><a class="nav-link" href="/reportes/mi-calle"><i class="bi bi-house-heart"></i> Reportes de mi calle</a></li>
@@ -42,18 +69,18 @@
               <% } %>
             <% } %>
             
-            <!-- Módulos para Líder (rol 2) -->
+            <!-- ========== LÍDER (rol 2) ========== -->
             <% if (usuario && usuario.rol_id === 2) { %>
               <li class="nav-item"><a class="nav-link" href="/reportes"><i class="bi bi-file-text"></i> Mis Reportes</a></li>
               <li class="nav-item"><a class="nav-link" href="/voluntarios/gestionar"><i class="bi bi-person-check"></i> Gestionar Voluntarios</a></li>
             <% } %>
             
-            <!-- Módulos para Jefe de Calle (rol 3) -->
+            <!-- ========== JEFE DE CALLE (rol 3) ========== -->
             <% if (usuario && usuario.rol_id === 3) { %>
               <li class="nav-item"><a class="nav-link" href="/reportes"><i class="bi bi-file-text"></i> Mis Reportes</a></li>
             <% } %>
             
-            <!-- Módulos de gestión (solo para UBCH) -->
+            <!-- ========== UBCH (rol 1) - Gestión y Usuarios ========== -->
             <% if (usuario && usuario.rol_id === 1) { %>
               <li class="nav-item"><a class="nav-link" href="/reportes"><i class="bi bi-file-text"></i> Reportes</a></li>
               
@@ -85,7 +112,45 @@
               </li>
             <% } %>
 
-            <!-- 🔹 MI PERFIL - Visible para todos los usuarios logueados -->
+            <!-- ========== SUPERADMIN (rol 5) ========== -->
+            <% if (usuario && usuario.rol_id === 5) { %>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-shield-lock-fill" style="color: #ffc107;"></i> SuperAdmin
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <!-- ELIMINADO: <li><a class="dropdown-item" href="/dashboard/superadmin"> Dashboard </a></li> -->
+                  <!-- <li><hr class="dropdown-divider"></li> --> <!-- También eliminamos el divisor -->
+                  <li><a class="dropdown-item" href="/usuarios">
+                    <i class="bi bi-people-fill"></i> Todos los usuarios
+                  </a></li>
+                  <li><a class="dropdown-item" href="/reportes">
+                    <i class="bi bi-file-text-fill"></i> Todos los reportes
+                  </a></li>
+                  <li><a class="dropdown-item" href="/auditoria">
+                    <i class="bi bi-clock-history"></i> Auditoría completa
+                  </a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="/calles">
+                    <i class="bi bi-geo-alt-fill"></i> Gestionar calles
+                  </a></li>
+                  <li><a class="dropdown-item" href="/comunidades">
+                    <i class="bi bi-building"></i> Gestionar comunidades
+                  </a></li>
+                  <li><a class="dropdown-item" href="/categorias">
+                    <i class="bi bi-tags-fill"></i> Gestionar categorías
+                  </a></li>
+                  <li><a class="dropdown-item" href="/empresas">
+                    <i class="bi bi-building"></i> Gestionar empresas
+                  </a></li>
+                  <li><a class="dropdown-item" href="/superadmin/backups">
+                    <i class="bi bi-database"></i> Respaldos
+                  </a></li>
+                </ul>
+              </li>
+            <% } %>
+
+            <!-- ========== MI PERFIL (todos los usuarios logueados) ========== -->
             <% if (usuario) { %>
               <li class="nav-item">
                 <a class="nav-link" href="/perfil">
@@ -94,7 +159,7 @@
               </li>
             <% } %>
             
-            <!-- Login / Registro / Logout -->
+            <!-- ========== LOGIN / REGISTRO / LOGOUT ========== -->
             <% if (!usuario) { %>
               <li class="nav-item">
                 <a class="btn btn-outline-success ms-2" href="/registro"><i class="bi bi-person-plus"></i> Registrarse</a>
@@ -121,7 +186,7 @@
     <%- body %>
   </main>
 
-  <!-- 🔹 Footer con fondo de iglesia -->
+  <!-- 🔹 Footer -->
   <footer class="mt-5 py-4 text-center" style="background: linear-gradient(rgba(252, 233, 216, 0.85), rgba(252, 233, 216, 0.85)), url('/images/iglesia-mercedes.jpg'); background-size: cover; background-position: center;">
     <div class="container">
       <div class="row">

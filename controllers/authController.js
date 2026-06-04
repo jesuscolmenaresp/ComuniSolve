@@ -81,16 +81,24 @@ exports.login = async (req, res) => {
       calle_nombre: calle_nombre
     });
 
-    // Determinar redirección según rol
+    // 👑 DETERMINAR REDIRECCIÓN SEGÚN EL ROL
     let redirectUrl = '/';
-    switch (usuario.rol_id) {
-      case 1: redirectUrl = '/admin'; break;
-      case 2: redirectUrl = '/lider'; break;
-      case 3: redirectUrl = '/jefe'; break;
-      default: redirectUrl = '/';
+    
+    if (usuario.rol_id === 5) {
+      redirectUrl = '/dashboard/superadmin';
+    } else if (usuario.rol_id === 1) {
+      redirectUrl = '/dashboard/admin';
+    } else if (usuario.rol_id === 2) {
+      redirectUrl = '/dashboard/lider';
+    } else if (usuario.rol_id === 3) {
+      redirectUrl = '/dashboard/jefe';
+    } else {
+      redirectUrl = '/';
     }
 
-    // Guardar sesión y redirigir UNA SOLA VEZ
+    console.log(`👑 Usuario rol ${usuario.rol_id} redirigido a: ${redirectUrl}`);
+
+    // Guardar sesión y redirigir
     req.session.save((err) => {
       if (err) {
         console.error('❌ Error al guardar sesión:', err);
