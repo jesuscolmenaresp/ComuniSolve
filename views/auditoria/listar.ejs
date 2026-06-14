@@ -3,19 +3,19 @@
   <!-- Encabezado -->
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-      <h2 class="fw-bold mb-1" style="color: #5D4037;">
-        <i class="bi bi-clock-history me-2" style="color: #fd6704bd;"></i> Registro de Auditoría
+      <h2 class="fw-bold mb-1 auditoria-title">
+        <i class="bi bi-clock-history me-2"></i> Registro de Auditoría
       </h2>
-      <p class="text-muted small mb-0" style="color: #8B6B5A;">Historial de acciones realizadas en el sistema</p>
+      <p class="text-muted small mb-0 auditoria-subtitle">Historial de acciones realizadas en el sistema</p>
     </div>
     <div class="d-flex gap-2">
-      <a href="/auditoria/exportar/excel" id="btnExportarExcel" class="btn btn-sm px-3 py-2 fw-semibold rounded-3" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
+      <a href="/auditoria/exportar/excel" id="btnExportarExcel" class="btn btn-sm px-3 py-2 fw-semibold rounded-3 btn-excel">
         <i class="bi bi-file-excel me-1"></i> Excel
       </a>
-      <a href="/auditoria/exportar/pdf" id="btnExportarPDF" class="btn btn-sm px-3 py-2 fw-semibold rounded-3" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">
+      <a href="/auditoria/exportar/pdf" id="btnExportarPDF" class="btn btn-sm px-3 py-2 fw-semibold rounded-3 btn-pdf">
         <i class="bi bi-file-pdf me-1"></i> PDF
       </a>
-      <button type="button" class="btn btn-sm px-3 py-2 fw-semibold rounded-3" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white;" data-bs-toggle="modal" data-bs-target="#modalLimpiar">
+      <button type="button" class="btn btn-sm px-3 py-2 fw-semibold rounded-3 btn-limpiar" data-bs-toggle="modal" data-bs-target="#modalLimpiar">
         <i class="bi bi-trash me-1"></i> Limpiar antiguos
       </button>
     </div>
@@ -41,40 +41,42 @@
   <% } %>
 
   <!-- Filtros avanzados -->
-  <div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden">
-    <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
-      <h5 class="mb-0 fw-semibold" style="color: #5D4037;">
-        <i class="bi bi-funnel me-2" style="color: #fd6704bd;"></i> Filtros
+  <div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden filtros-card">
+    <div class="px-4 py-3 filtros-header">
+      <h5 class="mb-0 fw-semibold">
+        <i class="bi bi-funnel me-2"></i> Filtros
       </h5>
     </div>
-    <div class="card-body p-4">
+    <div class="card-body p-4 filtros-body">
       <form id="formFiltros" method="GET" action="/auditoria" class="row g-3">
         <div class="col-md-3">
-          <label class="form-label fw-semibold small mb-2" style="color: #5D4037;">
-            <i class="bi bi-person me-1" style="color: #fd6704bd;"></i> Usuario
+          <label class="form-label fw-semibold small mb-2 filtros-label">
+            <i class="bi bi-person me-1"></i> Usuario
           </label>
-          <input type="text" name="usuario" id="filtroUsuario" class="form-control rounded-3" 
-                 placeholder="Nombre del usuario" value="<%= filters && filters.usuario ? filters.usuario : '' %>"
-                 style="border: 1px solid #f0d5c0; background-color: #fefaf7;">
+          <input type="text" name="usuario" id="filtroUsuario" class="form-control rounded-3 filtros-input" 
+                 placeholder="Nombre del usuario" value="<%= filters && filters.usuario ? filters.usuario : '' %>">
         </div>
         <div class="col-md-2">
-          <label class="form-label fw-semibold small mb-2" style="color: #5D4037;">
-            <i class="bi bi-lightning-charge me-1" style="color: #fd6704bd;"></i> Acción
+          <label class="form-label fw-semibold small mb-2 filtros-label">
+            <i class="bi bi-lightning-charge me-1"></i> Acción
           </label>
-          <select name="accion" id="filtroAccion" class="form-select rounded-3" style="border: 1px solid #f0d5c0; background-color: #fefaf7;">
+          <select name="accion" id="filtroAccion" class="form-select rounded-3 filtros-select">
             <option value="todos" <%= (!filters || filters.accion === 'todos' || !filters.accion) ? 'selected' : '' %>>Todos</option>
             <option value="CREAR" <%= filters && filters.accion === 'CREAR' ? 'selected' : '' %>>Crear</option>
             <option value="EDITAR" <%= filters && filters.accion === 'EDITAR' ? 'selected' : '' %>>Editar</option>
             <option value="ELIMINAR" <%= filters && filters.accion === 'ELIMINAR' ? 'selected' : '' %>>Eliminar</option>
+            <option value="ELIMINAR_PERMANENTEMENTE" <%= filters && filters.accion === 'ELIMINAR_PERMANENTEMENTE' ? 'selected' : '' %>>Eliminar Permanentemente</option>
+            <option value="ACTIVAR" <%= filters && filters.accion === 'ACTIVAR' ? 'selected' : '' %>>Activar</option>
+            <option value="DESACTIVAR" <%= filters && filters.accion === 'DESACTIVAR' ? 'selected' : '' %>>Desactivar</option>
             <option value="ASIGNAR" <%= filters && filters.accion === 'ASIGNAR' ? 'selected' : '' %>>Asignar empresa</option>
             <option value="CAMBIAR_ESTADO" <%= filters && filters.accion === 'CAMBIAR_ESTADO' ? 'selected' : '' %>>Cambiar estado</option>
           </select>
         </div>
         <div class="col-md-2">
-          <label class="form-label fw-semibold small mb-2" style="color: #5D4037;">
-            <i class="bi bi-table me-1" style="color: #fd6704bd;"></i> Tabla
+          <label class="form-label fw-semibold small mb-2 filtros-label">
+            <i class="bi bi-table me-1"></i> Tabla
           </label>
-          <select name="tabla" id="filtroTabla" class="form-select rounded-3" style="border: 1px solid #f0d5c0; background-color: #fefaf7;">
+          <select name="tabla" id="filtroTabla" class="form-select rounded-3 filtros-select">
             <option value="todos" <%= (!filters || filters.tabla === 'todos' || !filters.tabla) ? 'selected' : '' %>>Todos</option>
             <option value="usuarios" <%= filters && filters.tabla === 'usuarios' ? 'selected' : '' %>>Usuarios</option>
             <option value="reportes" <%= filters && filters.tabla === 'reportes' ? 'selected' : '' %>>Reportes</option>
@@ -82,26 +84,24 @@
           </select>
         </div>
         <div class="col-md-3">
-          <label class="form-label fw-semibold small mb-2" style="color: #5D4037;">
-            <i class="bi bi-calendar3 me-1" style="color: #fd6704bd;"></i> Fecha desde
+          <label class="form-label fw-semibold small mb-2 filtros-label">
+            <i class="bi bi-calendar3 me-1"></i> Fecha desde
           </label>
-          <input type="date" name="fecha_desde" id="filtroFechaDesde" class="form-control rounded-3" 
-                 value="<%= filters && filters.fecha_desde ? filters.fecha_desde : '' %>"
-                 style="border: 1px solid #f0d5c0; background-color: #fefaf7;">
+          <input type="date" name="fecha_desde" id="filtroFechaDesde" class="form-control rounded-3 filtros-input" 
+                 value="<%= filters && filters.fecha_desde ? filters.fecha_desde : '' %>">
         </div>
         <div class="col-md-2">
-          <label class="form-label fw-semibold small mb-2" style="color: #5D4037;">
-            <i class="bi bi-calendar3 me-1" style="color: #fd6704bd;"></i> Fecha hasta
+          <label class="form-label fw-semibold small mb-2 filtros-label">
+            <i class="bi bi-calendar3 me-1"></i> Fecha hasta
           </label>
-          <input type="date" name="fecha_hasta" id="filtroFechaHasta" class="form-control rounded-3" 
-                 value="<%= filters && filters.fecha_hasta ? filters.fecha_hasta : '' %>"
-                 style="border: 1px solid #f0d5c0; background-color: #fefaf7;">
+          <input type="date" name="fecha_hasta" id="filtroFechaHasta" class="form-control rounded-3 filtros-input" 
+                 value="<%= filters && filters.fecha_hasta ? filters.fecha_hasta : '' %>">
         </div>
         <div class="col-12 d-flex gap-2">
-          <button type="submit" class="btn btn-sm px-4 py-2 fw-semibold rounded-3" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;">
+          <button type="submit" class="btn btn-sm px-4 py-2 fw-semibold rounded-3 btn-filtrar-auditoria">
             <i class="bi bi-search me-1"></i> Filtrar
           </button>
-          <button type="button" id="btnLimpiarFiltros" class="btn btn-sm btn-outline-secondary px-4 py-2 fw-semibold rounded-3" style="border-color: #f0d5c0; color: #5D4037;">
+          <button type="button" id="btnLimpiarFiltros" class="btn btn-sm btn-outline-secondary px-4 py-2 fw-semibold rounded-3 btn-limpiar-filtros">
             <i class="bi bi-x-circle me-1"></i> Limpiar
           </button>
         </div>
@@ -110,11 +110,11 @@
   </div>
 
   <!-- Tabla de auditoría -->
-  <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+  <div class="card border-0 rounded-4 shadow-sm overflow-hidden tabla-card">
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-hover mb-0" id="tablaAuditoria">
-          <thead class="table-light">
+        <table class="table table-hover mb-0 tabla-auditoria" id="tablaAuditoria">
+          <thead class="tabla-header-auditoria">
             <tr class="text-center">
               <th><i class="bi bi-calendar3"></i> Fecha</th>
               <th><i class="bi bi-person"></i> Usuario</th>
@@ -122,7 +122,7 @@
               <th><i class="bi bi-table"></i> Tabla</th>
               <th><i class="bi bi-hash"></i> Registro ID</th>
               <th><i class="bi bi-info-circle"></i> Detalles</th>
-             </tr>
+            </tr>
           </thead>
           <tbody>
             <% if (registros && registros.length > 0) { %>
@@ -137,36 +137,43 @@
                   console.error('Error parsing JSON');
                 }
               %>
-                <tr class="align-middle text-center">
+                <tr class="align-middle text-center fila-auditoria">
                   <td class="small"><%= new Date(r.fecha).toLocaleString() %></td>
                   <td><%= r.usuario_nombre || 'Sistema' %></td>
                   <td>
-                <span class="badge rounded-pill px-3 py-1 
-                <%= r.accion === 'CREAR' ? 'bg-success' : 
-                    r.accion === 'EDITAR' ? 'bg-warning text-dark' : 
-                    r.accion === 'ELIMINAR' ? 'bg-danger' : 
-                    r.accion === 'ASIGNAR' ? 'bg-info' : 
-                    r.accion === 'CAMBIAR_ESTADO' ? 'bg-primary' : 'bg-secondary' %>">
-                <i class="bi 
-                    <%= r.accion === 'CREAR' ? 'bi-plus-circle' : 
-                        r.accion === 'EDITAR' ? 'bi-pencil' : 
-                        r.accion === 'ELIMINAR' ? 'bi-trash' : 
-                        r.accion === 'ASIGNAR' ? 'bi-building' : 
-                        r.accion === 'CAMBIAR_ESTADO' ? 'bi-arrow-repeat' : 'bi-info-circle' %> me-1"></i>
-                <%= r.accion %>
-                </span>
+                    <span class="badge rounded-pill px-3 py-1 
+                      <%= r.accion === 'CREAR' ? 'bg-success' : 
+                          r.accion === 'EDITAR' ? 'bg-warning text-dark' : 
+                          r.accion === 'ELIMINAR' ? 'bg-danger' : 
+                          r.accion === 'ELIMINAR_PERMANENTEMENTE' ? 'bg-dark' : 
+                          r.accion === 'ACTIVAR' ? 'bg-success' :
+                          r.accion === 'DESACTIVAR' ? 'bg-warning text-dark' :
+                          r.accion === 'ASIGNAR' ? 'bg-info' : 
+                          r.accion === 'CAMBIAR_ESTADO' ? 'bg-primary' : 'bg-secondary' %>">
+                      <i class="bi 
+                        <%= r.accion === 'CREAR' ? 'bi-plus-circle' : 
+                            r.accion === 'EDITAR' ? 'bi-pencil' : 
+                            r.accion === 'ELIMINAR' ? 'bi-trash' : 
+                            r.accion === 'ELIMINAR_PERMANENTEMENTE' ? 'bi-trash3-fill' : 
+                            r.accion === 'ACTIVAR' ? 'bi-check-circle' :
+                            r.accion === 'DESACTIVAR' ? 'bi-person-x' :
+                            r.accion === 'ASIGNAR' ? 'bi-building' : 
+                            r.accion === 'CAMBIAR_ESTADO' ? 'bi-arrow-repeat' : 'bi-info-circle' %> me-1"></i>
+                      <%= r.accion === 'ELIMINAR_PERMANENTEMENTE' ? 'ELIMINAR PERM.' : r.accion %>
+                    </span>
                   </td>
                   <td><%= r.tabla %></td>
                   <td><%= r.registro_id || '—' %></td>
                   <td>
-                    <button class="btn btn-sm px-3 py-1 rounded-3 ver-detalle" 
-                            style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;"
+                    <button class="btn btn-sm px-3 py-1 rounded-3 btn-ver-detalle" 
                             data-id="<%= r.id %>"
                             data-accion="<%= r.accion %>"
                             data-tabla="<%= r.tabla %>"
                             data-registro-id="<%= r.registro_id %>"
                             data-fecha="<%= new Date(r.fecha).toLocaleString() %>"
                             data-usuario="<%= r.usuario_nombre || 'Sistema' %>"
+                            data-ip="<%= r.ip_address || 'No registrada' %>"
+                            data-user-agent="<%= r.user_agent || 'No registrado' %>"
                             data-datos-anteriores='<%- JSON.stringify(datosAnterioresObj) %>'
                             data-datos-nuevos='<%- JSON.stringify(datosNuevosObj) %>'>
                       <i class="bi bi-eye me-1"></i> Ver
@@ -176,11 +183,11 @@
               <% }) %>
             <% } else { %>
               <tr>
-                <td colspan="6" class="text-center py-5">
-                  <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
-                  <p class="text-muted mb-0">No hay registros de auditoría</p>
+                <td colspan="6" class="text-center py-5 empty-state-auditoria">
+                  <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                  <p class="mb-0">No hay registros de auditoría</p>
                 </td>
-               </tr>
+              </tr>
             <% } %>
           </tbody>
         </table>
@@ -190,8 +197,8 @@
 
   <!-- Badge de información -->
   <div class="text-center mt-4">
-    <small class="text-muted" style="color: #8B6B5A;">
-      <i class="bi bi-info-circle me-1" style="color: #fd6704bd;"></i> 
+    <small class="text-muted auditoria-info">
+      <i class="bi bi-info-circle me-1"></i> 
       Los registros de auditoría se conservan automáticamente
     </small>
   </div>
@@ -200,17 +207,17 @@
 <!-- Modal para ver detalles mejorado -->
 <div class="modal fade" id="modalDetalle" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content border-0 rounded-4 shadow-lg">
-      <div class="modal-header" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);">
+    <div class="modal-content border-0 rounded-4 shadow-lg modal-detalle-auditoria">
+      <div class="modal-header modal-detalle-header">
         <h5 class="modal-title text-white">
           <i class="bi bi-info-circle me-2"></i> Detalles del registro
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body p-4" id="detalleContent" style="background: #fefaf7;">
+      <div class="modal-body p-4 modal-detalle-body" id="detalleContent">
         <!-- Contenido dinámico -->
       </div>
-      <div class="modal-footer bg-light">
+      <div class="modal-footer modal-detalle-footer">
         <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
@@ -220,28 +227,28 @@
 <!-- Modal para limpiar registros -->
 <div class="modal fade" id="modalLimpiar" tabindex="-1">
   <div class="modal-dialog modal-sm">
-    <div class="modal-content border-0 rounded-4 shadow-lg">
-      <div class="modal-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+    <div class="modal-content border-0 rounded-4 shadow-lg modal-limpiar">
+      <div class="modal-header modal-limpiar-header">
         <h5 class="modal-title text-white">
           <i class="bi bi-trash me-2"></i> Limpiar registros antiguos
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <form action="/auditoria/limpiar" method="POST">
-        <div class="modal-body p-4" style="background: #fefaf7;">
-          <label class="form-label fw-semibold" style="color: #5D4037;">Eliminar registros con más de:</label>
-          <select name="dias" class="form-select rounded-3 mt-2" style="border: 1px solid #f0d5c0; background-color: #fefaf7;">
+        <div class="modal-body p-4 modal-limpiar-body">
+          <label class="form-label fw-semibold modal-limpiar-label">Eliminar registros con más de:</label>
+          <select name="dias" class="form-select rounded-3 mt-2 modal-limpiar-select">
             <option value="30">30 días</option>
             <option value="60">60 días</option>
             <option value="90" selected>90 días</option>
             <option value="180">180 días</option>
             <option value="365">1 año</option>
           </select>
-          <small class="text-muted mt-2 d-block" style="color: #8B6B5A;">⚠️ Esta acción no se puede deshacer</small>
+          <small class="text-muted mt-2 d-block modal-limpiar-help">⚠️ Esta acción no se puede deshacer</small>
         </div>
-        <div class="modal-footer bg-light">
+        <div class="modal-footer modal-limpiar-footer">
           <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn rounded-3 px-4" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none;">Limpiar</button>
+          <button type="submit" class="btn rounded-3 px-4 btn-limpiar-confirmar">Limpiar</button>
         </div>
       </form>
     </div>
@@ -294,10 +301,10 @@
   function formatearDatos(datos, titulo, icono, bgColor = '#fff') {
     if (!datos || Object.keys(datos).length === 0) return '';
     
-    let html = `<div class="mt-3 p-3 rounded-3" style="background: ${bgColor}; border: 1px solid #f0d5c0;">
-                  <div class="fw-bold mb-2" style="color: #5D4037;">${icono} ${titulo}:</div>
+    let html = `<div class="mt-3 p-3 rounded-3 datos-card" style="background: ${bgColor};">
+                  <div class="fw-bold mb-2 datos-titulo">${icono} ${titulo}:</div>
                   <div class="table-responsive">
-                    <table class="table table-sm mb-0">
+                    <table class="table table-sm mb-0 datos-tabla">
                       <tbody>`;
     
     for (const [key, value] of Object.entries(datos)) {
@@ -313,6 +320,9 @@
         case 'categoria': campo = '🏷️ Categoría'; break;
         case 'cedula': campo = '🆔 Cédula'; break;
         case 'password': campo = '🔑 Contraseña'; break;
+        case 'motivo_eliminacion': campo = '⚠️ MOTIVO DE ELIMINACIÓN'; break;
+        case 'eliminado_por': campo = '👑 Eliminado por'; break;
+        case 'fecha_eliminacion': campo = '📅 Fecha de eliminación'; break;
         default: campo = key.charAt(0).toUpperCase() + key.slice(1);
       }
       
@@ -320,7 +330,11 @@
       if (value === null || value === '') valor = '<span class="text-muted">(vacío)</span>';
       if (key === 'password') valor = '••••••••';
       
-      html += `<tr><td class="fw-bold pe-3" style="width: 40%; color: #5D4037;">${campo}</td><td style="color: #6c757d;">${valor}</td></tr>`;
+      if (key === 'motivo_eliminacion') {
+        html += `<tr class="motivo-row"><td class="fw-bold pe-3" style="width: 40%;">${campo}</td><td class="motivo-valor">${valor}</td></tr>`;
+      } else {
+        html += `<tr><td class="fw-bold pe-3" style="width: 40%;">${campo}</td><td>${valor}</td></tr>`;
+      }
     }
     
     html += `</tbody> </table> </div> </div>`;
@@ -328,13 +342,15 @@
   }
   
   // Ver detalles
-  document.querySelectorAll('.ver-detalle').forEach(btn => {
+  document.querySelectorAll('.btn-ver-detalle').forEach(btn => {
     btn.addEventListener('click', function() {
       const accion = this.dataset.accion;
       const tabla = this.dataset.tabla;
       const registroId = this.dataset.registroId;
       const fecha = this.dataset.fecha;
       const usuario = this.dataset.usuario;
+      const ip = this.dataset.ip;
+      const userAgent = this.dataset.userAgent;
       
       let datosAnteriores = null;
       let datosNuevos = null;
@@ -351,36 +367,44 @@
       }
       
       let html = `
-        <div class="mb-4 pb-2" style="border-bottom: 1px solid #f0d5c0;">
+        <div class="mb-4 pb-2 detalle-info">
           <div class="row mb-2">
-            <div class="col-4 fw-bold" style="color: #5D4037;"><i class="bi bi-calendar3 me-1" style="color: #fd6704bd;"></i> Fecha:</div>
-            <div class="col-8">${fecha}</div>
+            <div class="col-4 fw-bold detalle-label"><i class="bi bi-calendar3 me-1"></i> Fecha:</div>
+            <div class="col-8 detalle-valor">${fecha}</div>
           </div>
           <div class="row mb-2">
-            <div class="col-4 fw-bold" style="color: #5D4037;"><i class="bi bi-person me-1" style="color: #fd6704bd;"></i> Usuario:</div>
-            <div class="col-8">${usuario}</div>
+            <div class="col-4 fw-bold detalle-label"><i class="bi bi-person me-1"></i> Usuario:</div>
+            <div class="col-8 detalle-valor">${usuario}</div>
           </div>
           <div class="row mb-2">
-            <div class="col-4 fw-bold" style="color: #5D4037;"><i class="bi bi-lightning-charge me-1" style="color: #fd6704bd;"></i> Acción:</div>
-            <div class="col-8">
-              <span class="badge rounded-pill px-3 py-1 ${accion === 'CREAR' ? 'bg-success' : accion === 'EDITAR' ? 'bg-warning' : accion === 'ELIMINAR' ? 'bg-danger' : 'bg-info'}" style="${accion === 'EDITAR' ? 'color: #333;' : 'color: white;'}">
-                ${accion}
+            <div class="col-4 fw-bold detalle-label"><i class="bi bi-wifi me-1"></i> IP Address:</div>
+            <div class="col-8 detalle-valor"><code>${ip}</code></div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-4 fw-bold detalle-label"><i class="bi bi-laptop me-1"></i> Navegador:</div>
+            <div class="col-8 detalle-valor"><small>${userAgent}</small></div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-4 fw-bold detalle-label"><i class="bi bi-lightning-charge me-1"></i> Acción:</div>
+            <div class="col-8 detalle-valor">
+              <span class="badge rounded-pill px-3 py-1 ${accion === 'CREAR' ? 'bg-success' : accion === 'EDITAR' ? 'bg-warning' : accion === 'ELIMINAR' ? 'bg-danger' : accion === 'ELIMINAR_PERMANENTEMENTE' ? 'bg-dark' : accion === 'ACTIVAR' ? 'bg-success' : accion === 'DESACTIVAR' ? 'bg-warning' : 'bg-info'}" style="${accion === 'EDITAR' || accion === 'DESACTIVAR' ? 'color: #333;' : 'color: white;'}">
+                ${accion === 'ELIMINAR_PERMANENTEMENTE' ? 'ELIMINAR PERMANENTEMENTE' : accion}
               </span>
             </div>
           </div>
           <div class="row mb-2">
-            <div class="col-4 fw-bold" style="color: #5D4037;"><i class="bi bi-table me-1" style="color: #fd6704bd;"></i> Tabla:</div>
-            <div class="col-8">${tabla}</div>
+            <div class="col-4 fw-bold detalle-label"><i class="bi bi-table me-1"></i> Tabla:</div>
+            <div class="col-8 detalle-valor">${tabla}</div>
           </div>
           <div class="row">
-            <div class="col-4 fw-bold" style="color: #5D4037;"><i class="bi bi-hash me-1" style="color: #fd6704bd;"></i> Registro ID:</div>
-            <div class="col-8">${registroId || '—'}</div>
+            <div class="col-4 fw-bold detalle-label"><i class="bi bi-hash me-1"></i> Registro ID:</div>
+            <div class="col-8 detalle-valor">${registroId || '—'}</div>
           </div>
         </div>
       `;
       
       if (accion === 'CREAR' && datosNuevos) {
-        html += formatearDatos(datosNuevos, 'DATOS CREADOS', '✅');
+        html += formatearDatos(datosNuevos, 'DATOS CREADOS', '✅', '#f0fff4');
       } 
       else if (accion === 'EDITAR') {
         if (datosAnteriores && Object.keys(datosAnteriores).length > 0) {
@@ -395,6 +419,24 @@
       else if (accion === 'ELIMINAR' && datosAnteriores) {
         html += formatearDatos(datosAnteriores, 'DATOS ELIMINADOS', '🗑️', '#fff0f0');
       }
+      else if (accion === 'ELIMINAR_PERMANENTEMENTE' && datosAnteriores) {
+        html += formatearDatos(datosAnteriores, 'USUARIO ELIMINADO PERMANENTEMENTE', '⚠️', '#fff0f0');
+        if (datosAnteriores.motivo_eliminacion) {
+          html += `
+            <div class="mt-3 p-3 rounded-3 motivo-card">
+              <div class="fw-bold mb-2 motivo-titulo"><i class="bi bi-chat-text me-1"></i> MOTIVO DE ELIMINACIÓN:</div>
+              <div class="p-2 bg-white rounded-3 motivo-texto">${datosAnteriores.motivo_eliminacion}</div>
+              <div class="mt-2 small text-muted">Eliminado por: ${datosAnteriores.eliminado_por || 'Desconocido'} | Fecha: ${datosAnteriores.fecha_eliminacion || ''}</div>
+            </div>
+          `;
+        }
+      }
+      else if (accion === 'DESACTIVAR' && datosNuevos) {
+        html += formatearDatos(datosNuevos, 'USUARIO DESACTIVADO', '🔴', '#fff0f0');
+      }
+      else if (accion === 'ACTIVAR' && datosNuevos) {
+        html += formatearDatos(datosNuevos, 'USUARIO ACTIVADO', '🟢', '#f0fff4');
+      }
       else if (accion === 'ASIGNAR' && datosNuevos) {
         html += formatearDatos(datosNuevos, 'ASIGNACIÓN REALIZADA', '🏢', '#f0f4ff');
       }
@@ -407,7 +449,7 @@
         }
       }
       
-      if ((!datosAnteriores || Object.keys(datosAnteriores).length === 0) && (!datosNuevos || Object.keys(datosNuevos).length === 0)) {
+      if ((!datosAnteriores || Object.keys(datosAnteriores).length === 0) && (!datosNuevos || Object.keys(datosNuevos).length === 0) && accion !== 'ELIMINAR_PERMANENTEMENTE') {
         html += `<div class="alert alert-info mt-3 rounded-3">No hay datos detallados disponibles para este registro.</div>`;
       }
       
@@ -418,20 +460,461 @@
 </script>
 
 <style>
+  /* ========== ESTILOS BASE (MODO CLARO) ========== */
+  
+  /* Títulos */
+  .auditoria-title {
+    color: #5D4037;
+  }
+  .auditoria-title i {
+    color: #fd6704bd;
+  }
+  .auditoria-subtitle {
+    color: #8B6B5A;
+  }
+  
+  /* Botones de exportación */
+  .btn-excel {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    transition: all 0.2s ease;
+  }
+  .btn-excel:hover {
+    transform: translateY(-2px);
+  }
+  .btn-pdf {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    transition: all 0.2s ease;
+  }
+  .btn-pdf:hover {
+    transform: translateY(-2px);
+  }
+  .btn-limpiar {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+    transition: all 0.2s ease;
+  }
+  .btn-limpiar:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Filtros card */
+  .filtros-card {
+    background: white;
+  }
+  .filtros-header {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+    color: #5D4037;
+  }
+  .filtros-body {
+    background: white;
+  }
+  .filtros-label {
+    color: #5D4037;
+  }
+  .filtros-label i {
+    color: #fd6704bd;
+  }
+  .filtros-input, .filtros-select {
+    border: 1px solid #f0d5c0;
+    background-color: #fefaf7;
+  }
+  .filtros-input:focus, .filtros-select:focus {
+    border-color: #fd6704bd;
+    box-shadow: 0 0 0 3px rgba(253, 103, 4, 0.15);
+  }
+  .btn-filtrar-auditoria {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-filtrar-auditoria:hover {
+    transform: translateY(-2px);
+  }
+  .btn-limpiar-filtros {
+    border-color: #f0d5c0;
+    color: #5D4037;
+    transition: all 0.2s ease;
+  }
+  .btn-limpiar-filtros:hover {
+    background: #f0d5c0;
+  }
+  
+  /* Tabla */
+  .tabla-card {
+    background: white;
+  }
+  .tabla-header-auditoria {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+  }
+  .tabla-header-auditoria th {
+    color: #5D4037;
+    font-weight: 600;
+    border-bottom: 2px solid #fd6704bd;
+  }
+  .tabla-auditoria {
+    background: white;
+  }
+  .fila-auditoria {
+    border-bottom-color: #f0d5c0;
+  }
+  .fila-auditoria:hover {
+    background-color: #fff8f0 !important;
+  }
+  .fila-auditoria td {
+    color: #1a1a2e;
+  }
+  
+  /* Botón ver detalles */
+  .btn-ver-detalle {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-ver-detalle:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Estado vacío */
+  .empty-state-auditoria i {
+    color: #6c757d;
+    opacity: 0.5;
+  }
+  .empty-state-auditoria p {
+    color: #6c757d;
+  }
+  
+  /* Información */
+  .auditoria-info {
+    color: #8B6B5A;
+  }
+  .auditoria-info i {
+    color: #fd6704bd;
+  }
+  
+  /* Modal detalles */
+  .modal-detalle-auditoria {
+    background: white;
+  }
+  .modal-detalle-header {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+  }
+  .modal-detalle-body {
+    background: #fefaf7;
+  }
+  .modal-detalle-footer {
+    background: #f8f9fa;
+  }
+  .detalle-info {
+    border-bottom-color: #f0d5c0;
+  }
+  .detalle-label {
+    color: #5D4037;
+  }
+  .detalle-valor {
+    color: #1a1a2e;
+  }
+  .datos-card {
+    border: 1px solid #f0d5c0;
+  }
+  .datos-titulo {
+    color: #5D4037;
+  }
+  .motivo-row {
+    background: #fff0f0;
+  }
+  .motivo-valor {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  .motivo-card {
+    background: #dc354510;
+    border-left: 4px solid #dc3545;
+  }
+  .motivo-titulo {
+    color: #dc3545;
+  }
+  
+  /* Modal limpiar */
+  .modal-limpiar {
+    background: white;
+  }
+  .modal-limpiar-header {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  }
+  .modal-limpiar-body {
+    background: #fefaf7;
+  }
+  .modal-limpiar-label {
+    color: #5D4037;
+  }
+  .modal-limpiar-select {
+    border: 1px solid #f0d5c0;
+    background-color: #fefaf7;
+  }
+  .modal-limpiar-help {
+    color: #8B6B5A;
+  }
+  .modal-limpiar-footer {
+    background: #f8f9fa;
+  }
+  .btn-limpiar-confirmar {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    border: none;
+  }
+  
+    /* ========== MODO NOCTURNO ========== */
+  body.dark-mode .auditoria-title {
+    color: #e4e4e7;
+  }
+  body.dark-mode .auditoria-subtitle {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .filtros-card {
+    background: #1f1f2e;
+  }
+  body.dark-mode .filtros-header {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+    color: #e4e4e7;
+  }
+  body.dark-mode .filtros-body {
+    background: #1f1f2e;
+  }
+  body.dark-mode .filtros-label {
+    color: #e4e4e7;
+  }
+  body.dark-mode .filtros-input,
+  body.dark-mode .filtros-select {
+    border: 1px solid #3f3f46;
+    background-color: #3f3f46;
+    color: #e4e4e7;
+  }
+  body.dark-mode .filtros-input:focus,
+  body.dark-mode .filtros-select:focus {
+    border-color: #f7931e;
+  }
+  
+  /* ========== CORRECCIÓN DE LA TABLA PRINCIPAL ========== */
+  body.dark-mode .tabla-card {
+    background: #1a1a2e !important;
+  }
+  
+  body.dark-mode .tabla-header-auditoria {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%) !important;
+  }
+  
+  body.dark-mode .tabla-header-auditoria th {
+    color: #e4e4e7 !important;
+    border-bottom-color: #f7931e !important;
+    background: transparent !important;
+  }
+  
+  body.dark-mode .tabla-auditoria {
+    background-color: #1a1a2e !important;
+  }
+  
+  body.dark-mode .tabla-auditoria tbody tr {
+    background-color: #1a1a2e !important;
+  }
+  
+  body.dark-mode .tabla-auditoria tbody tr:hover {
+    background-color: #2d2d44 !important;
+  }
+  
+  body.dark-mode .tabla-auditoria td {
+    color: #e4e4e7 !important;
+    background-color: transparent !important;
+  }
+  
+  body.dark-mode .tabla-auditoria .small {
+    color: #a1a1aa !important;
+  }
+  
+  body.dark-mode .tabla-auditoria .badge {
+    color: white !important;
+  }
+  
+  body.dark-mode .tabla-auditoria .badge.bg-warning {
+    color: #333 !important;
+  }
+  
+  body.dark-mode .tabla-auditoria .badge.bg-info {
+    color: white !important;
+  }
+  
+  /* ========== CORRECCIÓN DE MODAL Y TARJETAS DE DATOS ========== */
+  body.dark-mode .modal-detalle-auditoria {
+    background: #1f1f2e !important;
+  }
+  
+  body.dark-mode .modal-detalle-body {
+    background: #1f1f2e !important;
+  }
+  
+  body.dark-mode .modal-detalle-footer {
+    background: #1a1a2e !important;
+  }
+  
+  body.dark-mode .detalle-label {
+    color: #e4e4e7 !important;
+  }
+  
+  body.dark-mode .detalle-valor {
+    color: #e4e4e7 !important;
+  }
+  
+  body.dark-mode .detalle-info {
+    border-bottom-color: #3f3f46 !important;
+  }
+  
+  /* Tarjetas de datos dentro del modal */
+  body.dark-mode .datos-card {
+    background: #1f1f2e !important;
+    border-color: #3f3f46 !important;
+  }
+  
+  body.dark-mode .datos-titulo {
+    color: #e4e4e7 !important;
+  }
+  
+  body.dark-mode .datos-tabla {
+    background: transparent !important;
+  }
+  
+  body.dark-mode .datos-tabla td {
+    color: #e4e4e7 !important;
+    background: transparent !important;
+  }
+  
+  body.dark-mode .datos-tabla .fw-bold {
+    color: #a1a1aa !important;
+  }
+  
+  body.dark-mode .datos-tabla .text-muted {
+    color: #a1a1aa !important;
+  }
+  
+  /* Tablas dentro de las tarjetas */
+  body.dark-mode .table-sm {
+    background: transparent !important;
+  }
+  
+  body.dark-mode .table-sm td {
+    color: #e4e4e7 !important;
+    border-bottom-color: #3f3f46 !important;
+  }
+  
+  body.dark-mode .table-sm tr {
+    background: transparent !important;
+  }
+  
+  /* Tarjeta de motivo de eliminación */
+  body.dark-mode .motivo-card {
+    background: #3d1a1f !important;
+    border-left: 4px solid #dc3545 !important;
+  }
+  
+  body.dark-mode .motivo-titulo {
+    color: #f5a3a3 !important;
+  }
+  
+  body.dark-mode .motivo-texto {
+    background: #1f1f2e !important;
+    color: #e4e4e7 !important;
+  }
+  
+  /* Fila de motivo resaltada */
+  body.dark-mode .motivo-row {
+    background: #3d1a1f !important;
+  }
+  
+  body.dark-mode .motivo-valor {
+    color: #f5a3a3 !important;
+  }
+  
+  /* Alertas */
+  body.dark-mode .alert-info {
+    background: #1a3d4d !important;
+    color: #a3e4e4 !important;
+  }
+  
+  /* ========== MODAL LIMPIAR ========== */
+  body.dark-mode .modal-limpiar {
+    background: #1f1f2e !important;
+  }
+  body.dark-mode .modal-limpiar-body {
+    background: #1f1f2e !important;
+  }
+  body.dark-mode .modal-limpiar-label {
+    color: #e4e4e7 !important;
+  }
+  body.dark-mode .modal-limpiar-select {
+    border: 1px solid #3f3f46;
+    background-color: #3f3f46;
+    color: #e4e4e7;
+  }
+  body.dark-mode .modal-limpiar-footer {
+    background: #1a1a2e !important;
+  }
+  
+  /* Estado vacío */
+  body.dark-mode .empty-state-auditoria i {
+    color: #a1a1aa;
+  }
+  body.dark-mode .empty-state-auditoria p {
+    color: #a1a1aa;
+  }
+  
+  /* Código */
+  body.dark-mode code {
+    background: #2d2d44;
+    color: #e4e4e7;
+  }
+  
+  /* Botones */
+  body.dark-mode .btn-limpiar-filtros {
+    border-color: #3f3f46;
+    color: #e4e4e7;
+  }
+  body.dark-mode .btn-limpiar-filtros:hover {
+    background: #3f3f46;
+  }
+  
+  body.dark-mode .auditoria-info {
+    color: #a1a1aa;
+  }
+  
+  /* Transiciones */
+  .btn-sm, .btn, .fila-auditoria {
+    transition: all 0.2s ease;
+  }
+  
   .table-hover tbody tr:hover {
     background-color: #fff8f0 !important;
   }
-  .btn-sm {
-    transition: all 0.2s ease;
+  body.dark-mode .table-hover tbody tr:hover {
+    background-color: #2d2d44 !important;
   }
-  .btn-sm:hover {
-    transform: translateY(-2px);
-  }
+  
   .badge {
     font-weight: normal;
   }
   .form-control:focus, .form-select:focus {
     border-color: #fd6704bd;
     box-shadow: 0 0 0 3px rgba(253, 103, 4, 0.15);
+  }
+  body.dark-mode .form-control:focus, body.dark-mode .form-select:focus {
+    border-color: #f7931e;
+  }
+  code {
+    background: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
   }
 </style>

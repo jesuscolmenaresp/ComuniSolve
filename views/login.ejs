@@ -2,7 +2,7 @@
   <div class="row g-0 w-100">
     
     <!-- COLUMNA IZQUIERDA: Branding / Bienvenida -->
-    <div class="col-lg-5 d-flex align-items-center justify-content-center p-5" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%); min-height: 100vh;">
+    <div class="col-lg-5 d-flex align-items-center justify-content-center p-5 login-left-col" style="min-height: 100vh;">
       <div class="text-center px-3" style="max-width: 400px;">
         
         <!-- Logo -->
@@ -12,25 +12,25 @@
         
         <!-- Título con colores personalizados -->
         <h3 class="fw-bold mb-2" style="font-size: 2rem;">
-          <span style="color: #5D4037;">COMUNI</span><span style="color: #fd6704bd;">SOLVE</span>
+          <span class="login-title-dark">COMUNI</span><span class="login-title-primary">SOLVE</span>
         </h3>
-        <p class="mb-4" style="font-size: 0.9rem; color: #5D4037;">Software de Gestión Comunitaria</p>
+        <p class="mb-4 login-subtitle">Software de Gestión Comunitaria</p>
         
         <!-- Línea decorativa -->
         <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
-          <div class="flex-grow-1" style="height: 2px; background: #fd6704bd; opacity: 0.2; border-radius: 2px;"></div>
-          <i class="bi bi-heart-fill" style="color: #fd6704bd; opacity: 0.6; font-size: 0.9rem;"></i>
-          <div class="flex-grow-1" style="height: 2px; background: #fd6704bd; opacity: 0.2; border-radius: 2px;"></div>
+          <div class="flex-grow-1 login-divider"></div>
+          <i class="bi bi-heart-fill login-heart"></i>
+          <div class="flex-grow-1 login-divider"></div>
         </div>
         
         <!-- Texto de la comuna -->
-        <p class="mb-0" style="font-size: 0.85rem; color: #6B4C3B;">
+        <p class="mb-0 login-community-text">
           Transformando la Comuna Socialista<br>
-          <strong style="color: #fd6704bd;">Nuestra Señora de las Mercedes</strong>
+          <strong class="login-community-highlight">Nuestra Señora de las Mercedes</strong>
         </p>
         
         <!-- Villa de Cura -->
-        <p class="mt-3 small mb-0" style="color: #8B6B5A;">
+        <p class="mt-3 small mb-0 login-location">
           <i class="bi bi-geo-alt-fill"></i> Villa de Cura, Estado Aragua
         </p>
         
@@ -38,25 +38,25 @@
     </div>
 
     <!-- COLUMNA DERECHA: Formulario de Login -->
-    <div class="col-lg-7 d-flex align-items-center justify-content-center p-4 p-lg-5" style="background: #ffffff; min-height: 100vh;">
+    <div class="col-lg-7 d-flex align-items-center justify-content-center p-4 p-lg-5 login-right-col" style="min-height: 100vh;">
       <div class="w-100" style="max-width: 450px;">
         
         <!-- Card del formulario -->
-        <div class="card border-0 rounded-4 shadow-lg overflow-hidden">
+        <div class="card border-0 rounded-4 shadow-lg overflow-hidden login-card">
           
           <!-- Header del card -->
-          <div class="text-center py-4 px-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+          <div class="text-center py-4 px-3 login-card-header">
             <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-              <div style="width: 55px; height: 55px; background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(253, 103, 4, 0.3);">
+              <div class="login-icon-wrapper">
                 <i class="bi bi-box-arrow-in-right fs-3 text-white"></i>
               </div>
             </div>
-            <h3 class="mb-0 fw-semibold" style="color: #fd6704bd;">Iniciar Sesión</h3>
-            <p class="small mb-0 mt-1" style="color: #8B6B5A;">Ingresa tus credenciales para continuar</p>
+            <h3 class="mb-0 fw-semibold login-card-title">Iniciar Sesión</h3>
+            <p class="small mb-0 mt-1 login-card-subtitle">Ingresa tus credenciales para continuar</p>
           </div>
           
           <!-- Body del card -->
-          <div class="card-body p-4 p-lg-5">
+          <div class="card-body p-4 p-lg-5 login-card-body">
             
             <!-- Mensajes flash -->
             <% if (typeof registroExitoso !== 'undefined' && registroExitoso) { %>
@@ -80,44 +80,39 @@
               
               <!-- Campo Email -->
               <div class="mb-4">
-                <label class="form-label fw-semibold small mb-2" style="color: #5D4037;">
-                  <i class="bi bi-envelope-fill me-1" style="color: #fd6704bd;"></i> Correo electrónico
+                <label class="form-label fw-semibold small mb-2 login-label">
+                  <i class="bi bi-envelope-fill me-1"></i> Correo electrónico
                 </label>
-                <input type="email" name="email" class="form-control form-control-lg rounded-3" 
-                       placeholder="tucorreo@ejemplo.com" required 
-                       style="border: 1px solid #f0d5c0; background-color: #fefaf7; transition: all 0.3s ease;">
+                <input type="email" name="email" class="form-control form-control-lg rounded-3 login-input" 
+                       placeholder="tucorreo@ejemplo.com" required>
               </div>
 
               <!-- Campo Contraseña -->
               <div class="mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                  <label class="form-label fw-semibold small mb-0" style="color: #5D4037;">
-                    <i class="bi bi-lock-fill me-1" style="color: #fd6704bd;"></i> Contraseña
+                  <label class="form-label fw-semibold small mb-0 login-label">
+                    <i class="bi bi-lock-fill me-1"></i> Contraseña
                   </label>
-                  <a href="/olvide-password" class="text-decoration-none small" style="color: #fd6704bd;">
+                  <a href="/olvide-password" class="text-decoration-none small login-forgot-link">
                     ¿Olvidaste tu contraseña?
                   </a>
                 </div>
-                <input type="password" name="password" class="form-control form-control-lg rounded-3" 
-                       placeholder="••••••••" required 
-                       style="border: 1px solid #f0d5c0; background-color: #fefaf7; transition: all 0.3s ease;">
+                <input type="password" name="password" class="form-control form-control-lg rounded-3 login-input" 
+                       placeholder="••••••••" required>
               </div>
 
               <!-- Botón -->
               <div class="d-grid gap-2 mt-4">
-                <button type="submit" class="btn btn-lg py-3 fw-semibold rounded-3" 
-                        style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); 
-                               border: none; color: white; box-shadow: 0 4px 12px rgba(253, 103, 4, 0.3);
-                               transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <button type="submit" class="btn btn-lg py-3 fw-semibold rounded-3 login-btn">
                   <i class="bi bi-box-arrow-in-right me-2"></i> Iniciar sesión
                 </button>
               </div>
 
               <!-- Registro -->
               <div class="text-center mt-4">
-                <p class="mb-0 small" style="color: #8B6B5A;">
+                <p class="mb-0 small login-footer-text">
                   ¿No tienes cuenta? 
-                  <a href="/registro" class="fw-bold text-decoration-none" style="color: #fd6704bd;">
+                  <a href="/registro" class="fw-bold text-decoration-none login-register-link">
                     Regístrate aquí <i class="bi bi-arrow-right"></i>
                   </a>
                 </p>
@@ -127,11 +122,11 @@
 
             <!-- Badges -->
             <div class="d-flex justify-content-center gap-4 mt-4 pt-2">
-              <small class="text-muted d-flex align-items-center gap-1" style="color: #8B6B5A !important;">
-                <i class="bi bi-shield-check" style="color: #fd6704bd;"></i> Datos seguros
+              <small class="text-muted d-flex align-items-center gap-1 login-badge">
+                <i class="bi bi-shield-check"></i> Datos seguros
               </small>
-              <small class="text-muted d-flex align-items-center gap-1" style="color: #8B6B5A !important;">
-                <i class="bi bi-lock-fill" style="color: #fd6704bd;"></i> Conexión SSL
+              <small class="text-muted d-flex align-items-center gap-1 login-badge">
+                <i class="bi bi-lock-fill"></i> Conexión SSL
               </small>
             </div>
 
@@ -143,3 +138,228 @@
 
   </div>
 </div>
+
+<style>
+  /* ========== ESTILOS BASE (MODO CLARO) ========== */
+  .login-left-col {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+  }
+  
+  .login-title-dark {
+    color: #5D4037;
+  }
+  
+  .login-title-primary {
+    color: #fd6704bd;
+  }
+  
+  .login-subtitle {
+    font-size: 0.9rem;
+    color: #5D4037;
+  }
+  
+  .login-divider {
+    height: 2px;
+    background: #fd6704bd;
+    opacity: 0.2;
+    border-radius: 2px;
+  }
+  
+  .login-heart {
+    color: #fd6704bd;
+    opacity: 0.6;
+    font-size: 0.9rem;
+  }
+  
+  .login-community-text {
+    font-size: 0.85rem;
+    color: #6B4C3B;
+  }
+  
+  .login-community-highlight {
+    color: #fd6704bd;
+  }
+  
+  .login-location {
+    color: #8B6B5A;
+  }
+  
+  .login-right-col {
+    background: #ffffff;
+  }
+  
+  .login-card {
+    background: #ffffff;
+  }
+  
+  .login-card-header {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+  }
+  
+  .login-icon-wrapper {
+    width: 55px;
+    height: 55px;
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(253, 103, 4, 0.3);
+  }
+  
+  .login-card-title {
+    color: #fd6704bd;
+  }
+  
+  .login-card-subtitle {
+    color: #8B6B5A;
+  }
+  
+  .login-card-body {
+    background: #ffffff;
+  }
+  
+  .login-label {
+    color: #5D4037;
+  }
+  
+  .login-label i {
+    color: #fd6704bd;
+  }
+  
+  .login-input {
+    border: 1px solid #f0d5c0;
+    background-color: #fefaf7;
+    transition: all 0.3s ease;
+  }
+  
+  .login-input:focus {
+    border-color: #fd6704bd;
+    box-shadow: 0 0 0 3px rgba(253, 103, 4, 0.15);
+    background-color: #fefaf7;
+  }
+  
+  .login-forgot-link {
+    color: #fd6704bd;
+  }
+  
+  .login-forgot-link:hover {
+    color: #e85d2c;
+  }
+  
+  .login-btn {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(253, 103, 4, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(253, 103, 4, 0.4);
+  }
+  
+  .login-footer-text {
+    color: #8B6B5A;
+  }
+  
+  .login-register-link {
+    color: #fd6704bd;
+  }
+  
+  .login-register-link:hover {
+    color: #e85d2c;
+  }
+  
+  .login-badge {
+    color: #8B6B5A !important;
+  }
+  
+  .login-badge i {
+    color: #fd6704bd;
+  }
+  
+  /* ========== MODO NOCTURNO ========== */
+  body.dark-mode .login-left-col {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1f1f2e 100%);
+  }
+  
+  body.dark-mode .login-title-dark {
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .login-subtitle {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .login-community-text {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .login-location {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .login-right-col {
+    background: #1a1a2e;
+  }
+  
+  body.dark-mode .login-card {
+    background: #27272a;
+  }
+  
+  body.dark-mode .login-card-header {
+    background: linear-gradient(135deg, #3d3d5c 0%, #2d2d44 100%);
+  }
+  
+  body.dark-mode .login-card-title {
+    color: #f7931e;
+  }
+  
+  body.dark-mode .login-card-subtitle {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .login-card-body {
+    background: #27272a;
+  }
+  
+  body.dark-mode .login-label {
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .login-input {
+    border: 1px solid #3f3f46;
+    background-color: #3f3f46;
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .login-input:focus {
+    border-color: #f7931e;
+    background-color: #3f3f46;
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .login-input::placeholder {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .login-footer-text {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .login-badge {
+    color: #a1a1aa !important;
+  }
+  
+  body.dark-mode .alert-success {
+    background: #0d3b1f;
+    color: #a3e4b7;
+  }
+  
+  body.dark-mode .alert-danger {
+    background: #3d1a1f;
+    color: #f5a3a3;
+  }
+</style>

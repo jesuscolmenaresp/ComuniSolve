@@ -3,19 +3,17 @@
   <!-- Encabezado -->
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-      <h2 class="fw-bold" style="color: #5D4037;"><i class="bi bi-person-badge me-2" style="color: #fd6704bd;"></i> Mi Perfil de Voluntario</h2>
-      <p class="text-muted mb-0" style="color: #8B6B5A;">
-        <i class="bi bi-info-circle me-1" style="color: #fd6704bd;"></i> Gestiona tu información y revisa las solicitudes de ayuda
+      <h2 class="fw-bold miperfil-title"><i class="bi bi-person-badge me-2"></i> Mi Perfil de Voluntario</h2>
+      <p class="text-muted mb-0 miperfil-subtitle">
+        <i class="bi bi-info-circle me-1"></i> Gestiona tu información y revisa las solicitudes de ayuda
       </p>
     </div>
     <% if (voluntario) { %>
-      <a href="/voluntarios/editar" class="btn px-4 py-2 fw-semibold rounded-3" 
-         style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+      <a href="/voluntarios/editar" class="btn px-4 py-2 fw-semibold rounded-3 btn-editar-miperfil">
         <i class="bi bi-pencil-square me-2"></i> Editar perfil
       </a>
     <% } else { %>
-      <a href="/voluntarios" class="btn px-4 py-2 fw-semibold rounded-3"
-         style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+      <a href="/voluntarios" class="btn px-4 py-2 fw-semibold rounded-3 btn-postular-miperfil">
         <i class="bi bi-person-plus me-2"></i> Postularse como voluntario
       </a>
     <% } %>
@@ -44,19 +42,19 @@
     
     <!-- COLUMNA IZQUIERDA: Información del voluntario -->
     <div class="col-lg-4">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden miperfil-card">
         
         <!-- Header -->
-        <div class="text-center py-4" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
+        <div class="text-center py-4 miperfil-card-header">
           <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); border-radius: 35px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(253, 103, 4, 0.3);">
+            <div class="miperfil-avatar">
               <i class="bi bi-person-badge fs-1 text-white"></i>
             </div>
           </div>
           <% if (voluntario) { %>
-            <h4 class="fw-bold mb-1" style="color: #5D4037;"><%= voluntario.nombre %></h4>
-            <span class="badge px-3 py-2 rounded-pill"
-                  style="background: <% if (voluntario.estado === 'aprobado') { %>#28a745<% } else if (voluntario.estado === 'pendiente') { %>#ffc107<% } else { %>#dc3545<% } %>; color: <% if (voluntario.estado === 'pendiente') { %>#333<% } else { %>white<% } %>;">
+            <h4 class="fw-bold mb-1 miperfil-nombre"><%= voluntario.nombre %></h4>
+            <span class="badge px-3 py-2 rounded-pill miperfil-estado
+                  <%= voluntario.estado === 'aprobado' ? 'estado-aprobado' : voluntario.estado === 'pendiente' ? 'estado-pendiente' : 'estado-rechazado' %>">
               <% if (voluntario.estado === 'aprobado') { %>
                 <i class="bi bi-check-circle me-1"></i> Aprobado
               <% } else if (voluntario.estado === 'pendiente') { %>
@@ -66,39 +64,39 @@
               <% } %>
             </span>
           <% } else { %>
-            <h4 class="fw-bold mb-1" style="color: #5D4037;">No eres voluntario</h4>
+            <h4 class="fw-bold mb-1 miperfil-nombre">No eres voluntario</h4>
           <% } %>
         </div>
         
-        <div class="card-body p-4">
+        <div class="card-body p-4 miperfil-card-body">
           <% if (voluntario) { %>
             <div class="list-group list-group-flush">
-              <div class="list-group-item px-0 d-flex align-items-center gap-3" style="background: transparent;">
-                <i class="bi bi-telephone fs-5" style="color: #fd6704bd;"></i>
+              <div class="list-group-item px-0 d-flex align-items-center gap-3 miperfil-list-item">
+                <i class="bi bi-telephone fs-5 miperfil-icon"></i>
                 <div>
-                  <small class="text-muted d-block">Teléfono</small>
-                  <span class="fw-semibold"><%= voluntario.telefono || 'No especificado' %></span>
+                  <small class="text-muted d-block miperfil-label">Teléfono</small>
+                  <span class="fw-semibold miperfil-valor"><%= voluntario.telefono || 'No especificado' %></span>
                 </div>
               </div>
-              <div class="list-group-item px-0 d-flex align-items-center gap-3" style="background: transparent;">
-                <i class="bi bi-tools fs-5" style="color: #fd6704bd;"></i>
+              <div class="list-group-item px-0 d-flex align-items-center gap-3 miperfil-list-item">
+                <i class="bi bi-tools fs-5 miperfil-icon"></i>
                 <div>
-                  <small class="text-muted d-block">Habilidad</small>
-                  <span class="fw-semibold"><%= voluntario.habilidad %></span>
+                  <small class="text-muted d-block miperfil-label">Habilidad</small>
+                  <span class="fw-semibold miperfil-valor"><%= voluntario.habilidad %></span>
                 </div>
               </div>
-              <div class="list-group-item px-0 d-flex align-items-center gap-3" style="background: transparent;">
-                <i class="bi bi-journal-bookmark fs-5" style="color: #fd6704bd;"></i>
+              <div class="list-group-item px-0 d-flex align-items-center gap-3 miperfil-list-item">
+                <i class="bi bi-journal-bookmark fs-5 miperfil-icon"></i>
                 <div>
-                  <small class="text-muted d-block">Experiencia</small>
-                  <span class="fw-semibold"><%= voluntario.experiencia || 'No especificada' %></span>
+                  <small class="text-muted d-block miperfil-label">Experiencia</small>
+                  <span class="fw-semibold miperfil-valor"><%= voluntario.experiencia || 'No especificada' %></span>
                 </div>
               </div>
-              <div class="list-group-item px-0 d-flex align-items-center gap-3" style="background: transparent;">
-                <i class="bi bi-clock fs-5" style="color: #fd6704bd;"></i>
+              <div class="list-group-item px-0 d-flex align-items-center gap-3 miperfil-list-item">
+                <i class="bi bi-clock fs-5 miperfil-icon"></i>
                 <div>
-                  <small class="text-muted d-block">Disponibilidad</small>
-                  <span class="fw-semibold"><%= voluntario.disponibilidad_horaria || 'No especificada' %></span>
+                  <small class="text-muted d-block miperfil-label">Disponibilidad</small>
+                  <span class="fw-semibold miperfil-valor"><%= voluntario.disponibilidad_horaria || 'No especificada' %></span>
                 </div>
               </div>
             </div>
@@ -106,8 +104,7 @@
             <div class="text-center py-4">
               <i class="bi bi-person-x fs-1 text-muted d-block mb-3"></i>
               <p class="text-muted mb-3">No eres voluntario aún</p>
-              <a href="/voluntarios" class="btn px-4 py-2 fw-semibold rounded-3"
-                 style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+              <a href="/voluntarios" class="btn px-4 py-2 fw-semibold rounded-3 btn-postular-miperfil">
                 <i class="bi bi-person-plus me-2"></i> Postularse ahora
               </a>
             </div>
@@ -120,36 +117,34 @@
     <div class="col-lg-8">
       
       <!-- Solicitudes pendientes -->
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden mb-4">
-        <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
-          <h5 class="mb-0 fw-semibold" style="color: #5D4037;"><i class="bi bi-bell-fill me-2" style="color: #fd6704bd;"></i> Solicitudes de ayuda pendientes</h5>
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden mb-4 solicitudes-card">
+        <div class="px-4 py-3 solicitudes-header">
+          <h5 class="mb-0 fw-semibold"><i class="bi bi-bell-fill me-2"></i> Solicitudes de ayuda pendientes</h5>
         </div>
-        <div class="card-body p-0">
+        <div class="card-body p-0 solicitudes-body">
           <% if (asignaciones && asignaciones.length > 0) { %>
             <div class="list-group list-group-flush">
               <% asignaciones.forEach(a => { %>
-                <div class="list-group-item px-4 py-3" style="border-color: #f0d5c0;">
+                <div class="list-group-item px-4 py-3 solicitud-item" style="border-color: #f0d5c0;">
                   <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
-                    <h6 class="mb-0 fw-semibold"><i class="bi bi-chat-square-text me-2" style="color: #fd6704bd;"></i> <%= a.titulo %></h6>
-                    <span class="badge px-3 py-1 rounded-pill" style="background: #ffc107; color: #333;">
+                    <h6 class="mb-0 fw-semibold solicitud-titulo"><i class="bi bi-chat-square-text me-2"></i> <%= a.titulo %></h6>
+                    <span class="badge px-3 py-1 rounded-pill solicitud-estado-pendiente">
                       <i class="bi bi-clock-history me-1"></i> Pendiente
                     </span>
                   </div>
-                  <p class="text-muted small mb-2"><%= a.descripcion ? (a.descripcion.length > 100 ? a.descripcion.substring(0, 100) + '...' : a.descripcion) : 'Sin descripción' %></p>
-                  <p class="mb-2 small"><i class="bi bi-geo-alt me-1" style="color: #fd6704bd;"></i> <strong>Calle:</strong> <%= a.calle %></p>
+                  <p class="text-muted small mb-2 solicitud-descripcion"><%= a.descripcion ? (a.descripcion.length > 100 ? a.descripcion.substring(0, 100) + '...' : a.descripcion) : 'Sin descripción' %></p>
+                  <p class="mb-2 small solicitud-calle"><i class="bi bi-geo-alt me-1"></i> <strong>Calle:</strong> <%= a.calle %></p>
                   <div class="d-flex gap-2 mt-3">
                     <form action="/voluntarios/asignacion/<%= a.id %>/responder" method="POST" class="d-inline">
                       <input type="hidden" name="accion" value="aceptado">
-                      <button type="submit" class="btn btn-sm px-3 py-1 fw-semibold rounded-3" 
-                              style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none;"
+                      <button type="submit" class="btn btn-sm px-3 py-1 fw-semibold rounded-3 btn-aceptar-solicitud" 
                               onclick="return confirm('¿Aceptar esta solicitud de ayuda?')">
                         <i class="bi bi-check-lg me-1"></i> Aceptar
                       </button>
                     </form>
                     <form action="/voluntarios/asignacion/<%= a.id %>/responder" method="POST" class="d-inline">
                       <input type="hidden" name="accion" value="rechazado">
-                      <button type="submit" class="btn btn-sm px-3 py-1 fw-semibold rounded-3" 
-                              style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none;"
+                      <button type="submit" class="btn btn-sm px-3 py-1 fw-semibold rounded-3 btn-rechazar-solicitud" 
                               onclick="return confirm('¿Rechazar esta solicitud de ayuda?')">
                         <i class="bi bi-x-lg me-1"></i> Rechazar
                       </button>
@@ -159,7 +154,7 @@
               <% }) %>
             </div>
           <% } else { %>
-            <div class="text-center py-5">
+            <div class="text-center py-5 solicitud-empty">
               <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
               <p class="text-muted mb-0">No tienes solicitudes de ayuda pendientes</p>
             </div>
@@ -168,19 +163,19 @@
       </div>
 
       <!-- Reportes en los que está ayudando -->
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
-          <h5 class="mb-0 fw-semibold" style="color: #5D4037;"><i class="bi bi-heart-fill me-2" style="color: #fd6704bd;"></i> Reportes en los que estás ayudando</h5>
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden ayudas-card">
+        <div class="px-4 py-3 ayudas-header">
+          <h5 class="mb-0 fw-semibold"><i class="bi bi-heart-fill me-2"></i> Reportes en los que estás ayudando</h5>
         </div>
-        <div class="card-body p-0">
+        <div class="card-body p-0 ayudas-body">
           <% if (asignacionesAceptadas && asignacionesAceptadas.length > 0) { %>
             <div class="list-group list-group-flush">
               <% asignacionesAceptadas.forEach(a => { %>
-                <div class="list-group-item px-4 py-3" style="border-color: #f0d5c0;">
+                <div class="list-group-item px-4 py-3 ayuda-item" style="border-color: #f0d5c0;">
                   <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
-                    <h6 class="mb-0 fw-semibold"><i class="bi bi-chat-square-text me-2" style="color: #fd6704bd;"></i> <%= a.titulo %></h6>
-                    <span class="badge px-3 py-1 rounded-pill"
-                          style="background: <% if (a.reporte_estado === 'Pendiente') { %>#ffc107<% } else if (a.reporte_estado === 'En Progreso') { %>#17a2b8<% } else { %>#28a745<% } %>; color: <% if (a.reporte_estado === 'Pendiente') { %>#333<% } else { %>white<% } %>;">
+                    <h6 class="mb-0 fw-semibold ayuda-titulo"><i class="bi bi-chat-square-text me-2"></i> <%= a.titulo %></h6>
+                    <span class="badge px-3 py-1 rounded-pill ayuda-estado
+                          <%= a.reporte_estado === 'Pendiente' ? 'ayuda-estado-pendiente' : a.reporte_estado === 'En Progreso' ? 'ayuda-estado-progreso' : 'ayuda-estado-resuelto' %>">
                       <% if (a.reporte_estado === 'Pendiente') { %>
                         <i class="bi bi-clock-history me-1"></i> Pendiente
                       <% } else if (a.reporte_estado === 'En Progreso') { %>
@@ -190,17 +185,16 @@
                       <% } %>
                     </span>
                   </div>
-                  <p class="text-muted small mb-2"><%= a.descripcion ? (a.descripcion.length > 100 ? a.descripcion.substring(0, 100) + '...' : a.descripcion) : 'Sin descripción' %></p>
-                  <p class="mb-0 small"><i class="bi bi-geo-alt me-1" style="color: #fd6704bd;"></i> <strong>Calle:</strong> <%= a.calle %></p>
+                  <p class="text-muted small mb-2 ayuda-descripcion"><%= a.descripcion ? (a.descripcion.length > 100 ? a.descripcion.substring(0, 100) + '...' : a.descripcion) : 'Sin descripción' %></p>
+                  <p class="mb-0 small ayuda-calle"><i class="bi bi-geo-alt me-1"></i> <strong>Calle:</strong> <%= a.calle %></p>
                 </div>
               <% }) %>
             </div>
           <% } else { %>
-            <div class="text-center py-5">
+            <div class="text-center py-5 ayuda-empty">
               <i class="bi bi-heart fs-1 text-muted d-block mb-2"></i>
               <p class="text-muted mb-0">No estás ayudando en ningún reporte actualmente</p>
-              <a href="/voluntarios" class="btn btn-sm mt-3 px-3 py-1 rounded-3"
-                 style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">Ver oportunidades</a>
+              <a href="/voluntarios" class="btn btn-sm mt-3 px-3 py-1 rounded-3 btn-ver-oportunidades">Ver oportunidades</a>
             </div>
           <% } %>
         </div>
@@ -209,3 +203,314 @@
     </div>
   </div>
 </div>
+
+<style>
+  /* ========== ESTILOS BASE (MODO CLARO) ========== */
+  
+  /* Títulos */
+  .miperfil-title {
+    color: #5D4037;
+  }
+  .miperfil-title i {
+    color: #fd6704bd;
+  }
+  .miperfil-subtitle {
+    color: #8B6B5A;
+  }
+  .miperfil-subtitle i {
+    color: #fd6704bd;
+  }
+  
+  /* Botones */
+  .btn-editar-miperfil {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+    transition: all 0.2s ease;
+  }
+  .btn-editar-miperfil:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
+  }
+  .btn-postular-miperfil {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+    transition: all 0.2s ease;
+  }
+  .btn-postular-miperfil:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Tarjeta de perfil */
+  .miperfil-card {
+    background: white;
+  }
+  .miperfil-card-header {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+  }
+  .miperfil-avatar {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    border-radius: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(253, 103, 4, 0.3);
+  }
+  .miperfil-nombre {
+    color: #5D4037;
+  }
+  .miperfil-estado {
+    background: #28a745;
+    color: white;
+  }
+  .estado-pendiente {
+    background: #ffc107;
+    color: #333;
+  }
+  .estado-rechazado {
+    background: #dc3545;
+    color: white;
+  }
+  .miperfil-card-body {
+    background: white;
+  }
+  .miperfil-list-item {
+    background: transparent;
+    border-bottom-color: #f0d5c0;
+  }
+  .miperfil-icon {
+    color: #fd6704bd;
+  }
+  .miperfil-label {
+    color: #8B6B5A;
+  }
+  .miperfil-valor {
+    color: #5D4037;
+  }
+  
+  /* Solicitudes card */
+  .solicitudes-card {
+    background: white;
+  }
+  .solicitudes-header {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+    color: #5D4037;
+  }
+  .solicitudes-body {
+    background: white;
+  }
+  .solicitud-item {
+    border-bottom-color: #f0d5c0;
+  }
+  .solicitud-titulo {
+    color: #5D4037;
+  }
+  .solicitud-descripcion {
+    color: #6c757d;
+  }
+  .solicitud-calle {
+    color: #6c757d;
+  }
+  .solicitud-estado-pendiente {
+    background: #ffc107;
+    color: #333;
+  }
+  .btn-aceptar-solicitud {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    transition: all 0.2s ease;
+  }
+  .btn-aceptar-solicitud:hover {
+    transform: translateY(-2px);
+  }
+  .btn-rechazar-solicitud {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    transition: all 0.2s ease;
+  }
+  .btn-rechazar-solicitud:hover {
+    transform: translateY(-2px);
+  }
+  .solicitud-empty i {
+    color: #6c757d;
+    opacity: 0.5;
+  }
+  .solicitud-empty p {
+    color: #6c757d;
+  }
+  
+  /* Ayudas card */
+  .ayudas-card {
+    background: white;
+  }
+  .ayudas-header {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+    color: #5D4037;
+  }
+  .ayudas-body {
+    background: white;
+  }
+  .ayuda-item {
+    border-bottom-color: #f0d5c0;
+  }
+  .ayuda-titulo {
+    color: #5D4037;
+  }
+  .ayuda-descripcion {
+    color: #6c757d;
+  }
+  .ayuda-calle {
+    color: #6c757d;
+  }
+  .ayuda-estado-pendiente {
+    background: #ffc107;
+    color: #333;
+  }
+  .ayuda-estado-progreso {
+    background: #17a2b8;
+    color: white;
+  }
+  .ayuda-estado-resuelto {
+    background: #28a745;
+    color: white;
+  }
+  .ayuda-empty i {
+    color: #6c757d;
+    opacity: 0.5;
+  }
+  .ayuda-empty p {
+    color: #6c757d;
+  }
+  .btn-ver-oportunidades {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+    transition: all 0.2s ease;
+  }
+  .btn-ver-oportunidades:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Alertas */
+  .alert-success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+  }
+  .alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+  }
+  
+  /* ========== MODO NOCTURNO ========== */
+  body.dark-mode .miperfil-title {
+    color: #e4e4e7;
+  }
+  body.dark-mode .miperfil-subtitle {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .miperfil-card {
+    background: #27272a;
+  }
+  body.dark-mode .miperfil-card-header {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+  }
+  body.dark-mode .miperfil-nombre {
+    color: #e4e4e7;
+  }
+  body.dark-mode .miperfil-card-body {
+    background: #27272a;
+  }
+  body.dark-mode .miperfil-list-item {
+    border-bottom-color: #3f3f46;
+  }
+  body.dark-mode .miperfil-label {
+    color: #a1a1aa;
+  }
+  body.dark-mode .miperfil-valor {
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .solicitudes-card {
+    background: #27272a;
+  }
+  body.dark-mode .solicitudes-header {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+    color: #e4e4e7;
+  }
+  body.dark-mode .solicitudes-body {
+    background: #27272a;
+  }
+  body.dark-mode .solicitud-item {
+    border-bottom-color: #3f3f46;
+  }
+  body.dark-mode .solicitud-titulo {
+    color: #e4e4e7;
+  }
+  body.dark-mode .solicitud-descripcion,
+  body.dark-mode .solicitud-calle {
+    color: #a1a1aa;
+  }
+  body.dark-mode .solicitud-empty i {
+    color: #a1a1aa;
+  }
+  body.dark-mode .solicitud-empty p {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .ayudas-card {
+    background: #27272a;
+  }
+  body.dark-mode .ayudas-header {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+    color: #e4e4e7;
+  }
+  body.dark-mode .ayudas-body {
+    background: #27272a;
+  }
+  body.dark-mode .ayuda-item {
+    border-bottom-color: #3f3f46;
+  }
+  body.dark-mode .ayuda-titulo {
+    color: #e4e4e7;
+  }
+  body.dark-mode .ayuda-descripcion,
+  body.dark-mode .ayuda-calle {
+    color: #a1a1aa;
+  }
+  body.dark-mode .ayuda-empty i {
+    color: #a1a1aa;
+  }
+  body.dark-mode .ayuda-empty p {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .alert-success {
+    background: #0d3b1f;
+    color: #a3e4b7;
+  }
+  body.dark-mode .alert-danger {
+    background: #3d1a1f;
+    color: #f5a3a3;
+  }
+  
+  body.dark-mode .btn-outline-secondary {
+    border-color: #3f3f46;
+    color: #e4e4e7;
+  }
+  body.dark-mode .btn-outline-secondary:hover {
+    background: #3f3f46;
+  }
+  
+  /* Transiciones */
+  .btn-sm, .btn {
+    transition: all 0.2s ease;
+  }
+  
+  .card {
+    transition: transform 0.2s ease;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+  }
+</style>

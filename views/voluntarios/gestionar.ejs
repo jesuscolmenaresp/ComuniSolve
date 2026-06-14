@@ -3,21 +3,19 @@
   <!-- Encabezado -->
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
     <div>
-      <h2 class="fw-bold mb-1" style="color: #5D4037;">
-        <i class="bi bi-person-check me-2" style="color: #fd6704bd;"></i> Gestionar Voluntarios
+      <h2 class="fw-bold mb-1 gestionar-title">
+        <i class="bi bi-person-check me-2"></i> Gestionar Voluntarios
       </h2>
-      <p class="text-muted small mb-0" style="color: #8B6B5A;">Revisa y administra las solicitudes de voluntariado</p>
+      <p class="text-muted small mb-0 gestionar-subtitle">Revisa y administra las solicitudes de voluntariado</p>
     </div>
     <div class="d-flex gap-2">
-      <select id="filtroEstadoExport" class="form-select form-select-sm rounded-3" 
-              style="border-color: #f0d5c0; background-color: #fefaf7; color: #5D4037; width: 160px;">
+      <select id="filtroEstadoExport" class="form-select form-select-sm rounded-3 filtro-estado-gestionar" style="width: 160px;">
         <option value="todos">📋 Todos los estados</option>
         <option value="pendiente">⏳ Pendientes</option>
         <option value="aprobado">✅ Aprobados</option>
         <option value="rechazado">❌ Rechazados</option>
       </select>
-      <a href="/voluntarios/exportar/excel" id="btnExportarVoluntarios" class="btn px-3 py-2 fw-semibold rounded-3"
-         style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
+      <a href="/voluntarios/exportar/excel" id="btnExportarVoluntarios" class="btn px-3 py-2 fw-semibold rounded-3 btn-exportar-gestionar">
         <i class="bi bi-file-excel me-1"></i> Exportar
       </a>
     </div>
@@ -43,9 +41,9 @@
   <% } %>
 
   <!-- Pestañas -->
-  <ul class="nav nav-pills mb-4 justify-content-center gap-2" id="tabSolicitudes">
+  <ul class="nav nav-pills mb-4 justify-content-center gap-2 flex-wrap" id="tabSolicitudes">
     <li class="nav-item">
-      <a class="nav-link active rounded-pill px-4" data-bs-toggle="tab" href="#pendientes" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+      <a class="nav-link active rounded-pill px-4 py-2 tab-pendientes" data-bs-toggle="tab" href="#pendientes">
         <i class="bi bi-clock-history me-1"></i> Pendientes
         <% if (solicitudes && solicitudes.length > 0) { %>
           <span class="badge bg-white text-dark rounded-pill ms-1"><%= solicitudes.length %></span>
@@ -53,18 +51,18 @@
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link rounded-pill px-4" data-bs-toggle="tab" href="#aprobados" style="color: #5D4037;">
+      <a class="nav-link rounded-pill px-4 py-2 tab-aprobados" data-bs-toggle="tab" href="#aprobados">
         <i class="bi bi-check-circle me-1"></i> Aprobados
         <% if (aprobados && aprobados.length > 0) { %>
-          <span class="badge rounded-pill ms-1" style="background: #28a745; color: white;"><%= aprobados.length %></span>
+          <span class="badge rounded-pill ms-1 badge-aprobados"><%= aprobados.length %></span>
         <% } %>
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link rounded-pill px-4" data-bs-toggle="tab" href="#rechazados" style="color: #5D4037;">
+      <a class="nav-link rounded-pill px-4 py-2 tab-rechazados" data-bs-toggle="tab" href="#rechazados">
         <i class="bi bi-x-circle me-1"></i> Rechazados
         <% if (rechazados && rechazados.length > 0) { %>
-          <span class="badge rounded-pill ms-1" style="background: #dc3545; color: white;"><%= rechazados.length %></span>
+          <span class="badge rounded-pill ms-1 badge-rechazados"><%= rechazados.length %></span>
         <% } %>
       </a>
     </li>
@@ -75,47 +73,45 @@
     
     <!-- PENDIENTES -->
     <div class="tab-pane fade show active" id="pendientes">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
-          <h5 class="mb-0 fw-semibold" style="color: #fd6704bd;"><i class="bi bi-clock-history me-2"></i> Solicitudes pendientes</h5>
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden tabla-card">
+        <div class="px-4 py-3 tabla-header-pendientes">
+          <h5 class="mb-0 fw-semibold"><i class="bi bi-clock-history me-2"></i> Solicitudes pendientes de revisión</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="table-light">
+            <table class="table table-hover mb-0 tabla-gestionar">
+              <thead class="tabla-thead">
                 <tr class="text-center">
-                  <th><i class="bi bi-calendar3"></i> Fecha</th>
-                  <th><i class="bi bi-person"></i> Nombre</th>
-                  <th><i class="bi bi-envelope"></i> Email</th>
-                  <th><i class="bi bi-tools"></i> Habilidad</th>
-                  <th><i class="bi bi-journal-bookmark"></i> Experiencia</th>
-                  <th><i class="bi bi-clock"></i> Disponibilidad</th>
-                  <th><i class="bi bi-gear"></i> Acciones</th>
+                  <th style="width: 10%">Fecha</th>
+                  <th style="width: 15%">Nombre</th>
+                  <th style="width: 20%">Email</th>
+                  <th style="width: 12%">Habilidad</th>
+                  <th style="width: 20%">Experiencia</th>
+                  <th style="width: 13%">Disponibilidad</th>
+                  <th style="width: 10%">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 <% if (solicitudes && solicitudes.length > 0) { %>
                   <% solicitudes.forEach(s => { %>
                     <tr>
-                      <td class="text-center"><small><%= new Date(s.fecha_solicitud).toLocaleDateString() %></small></td>
+                      <td class="text-center"><%= new Date(s.fecha_solicitud).toLocaleDateString() %></td>
                       <td><strong><%= s.nombre %></strong></td>
-                      <td><small><%= s.email %></small></td>
-                      <td><span class="badge px-2 py-1 rounded-pill" style="background: #fce5d4; color: #fd6704bd;"><%= s.habilidad %></span></td>
-                      <td><small><%= s.experiencia ? s.experiencia.substring(0, 40) : '—' %></small></td>
-                      <td><small><%= s.disponibilidad_horaria || '—' %></small></td>
-                      <td>
-                        <div class="d-flex gap-1 justify-content-center">
+                      <td><%= s.email %></td>
+                      <td class="text-center"><span class="badge px-2 py-1 rounded-pill badge-habilidad-pendiente"><%= s.habilidad %></span></td>
+                      <td><small><%= s.experiencia ? (s.experiencia.length > 50 ? s.experiencia.substring(0, 50) + '...' : s.experiencia) : '—' %></small></td>
+                      <td class="text-center"><small><%= s.disponibilidad_horaria || '—' %></small></td>
+                      <td class="text-center">
+                        <div class="btn-group btn-group-sm" role="group">
                           <form action="/voluntarios/<%= s.id %>/aprobar" method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-sm px-3 py-1 fw-semibold rounded-3"
-                                    style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none;">
-                              <i class="bi bi-check-lg me-1"></i> Aprobar
+                            <button type="submit" class="btn btn-sm btn-success rounded-3 me-1" title="Aprobar">
+                              <i class="bi bi-check-lg"></i> Aprobar
                             </button>
                           </form>
                           <form action="/voluntarios/<%= s.id %>/rechazar" method="POST" class="d-inline"
                                 onsubmit="return confirm('¿Rechazar a <%= s.nombre %>?')">
-                            <button type="submit" class="btn btn-sm px-3 py-1 fw-semibold rounded-3"
-                                    style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none;">
-                              <i class="bi bi-x-lg me-1"></i> Rechazar
+                            <button type="submit" class="btn btn-sm btn-danger rounded-3" title="Rechazar">
+                              <i class="bi bi-x-lg"></i> Rechazar
                             </button>
                           </form>
                         </div>
@@ -124,9 +120,9 @@
                   <% }) %>
                 <% } else { %>
                   <tr>
-                    <td colspan="7" class="text-center py-5">
-                      <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
-                      <p class="text-muted mb-0">No hay solicitudes pendientes</p>
+                    <td colspan="7" class="text-center py-5 empty-state">
+                      <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                      <p class="mb-0">No hay solicitudes pendientes</p>
                     </td>
                   </tr>
                 <% } %>
@@ -139,51 +135,48 @@
 
     <!-- APROBADOS -->
     <div class="tab-pane fade" id="aprobados">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="px-4 py-3" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);">
-          <h5 class="mb-0 fw-semibold" style="color: #28a745;"><i class="bi bi-check-circle me-2"></i> Voluntarios aprobados</h5>
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden tabla-card">
+        <div class="px-4 py-3 tabla-header-aprobados">
+          <h5 class="mb-0 fw-semibold"><i class="bi bi-check-circle me-2"></i> Voluntarios aprobados</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="table-light">
+            <table class="table table-hover mb-0 tabla-gestionar">
+              <thead class="tabla-thead">
                 <tr class="text-center">
-                  <th><i class="bi bi-person"></i> Nombre</th>
-                  <th><i class="bi bi-envelope"></i> Email</th>
-                  <th><i class="bi bi-tools"></i> Habilidad</th>
-                  <th><i class="bi bi-journal-bookmark"></i> Experiencia</th>
-                  <th><i class="bi bi-clock"></i> Disponibilidad</th>
-                  <th><i class="bi bi-gear"></i> Acciones</th>
-                </tr>
+                  <th style="width: 18%">Nombre</th>
+                  <th style="width: 22%">Email</th>
+                  <th style="width: 15%">Habilidad</th>
+                  <th style="width: 25%">Experiencia</th>
+                  <th style="width: 12%">Disponibilidad</th>
+                  <th style="width: 8%">Acciones</th>
+                </td>
               </thead>
               <tbody>
                 <% if (aprobados && aprobados.length > 0) { %>
                   <% aprobados.forEach(v => { %>
                     <tr>
-                      <td><strong><%= v.nombre %></strong></td>
-                      <td><small><%= v.email %></small></td>
-                      <td><span class="badge px-2 py-1 rounded-pill" style="background: #d4edda; color: #28a745;"><%= v.habilidad %></span></td>
-                      <td><small><%= v.experiencia ? v.experiencia.substring(0, 40) : '—' %></small></td>
-                      <td><small><%= v.disponibilidad_horaria || '—' %></small></td>
-                      <td>
-                        <div class="d-flex gap-1 justify-content-center">
-                          <form action="/voluntarios/<%= v.id %>/cambiar-estado" method="POST" class="d-inline"
-                                onsubmit="return confirm('¿Cambiar a <%= v.nombre %> a RECHAZADO?')">
-                            <input type="hidden" name="nuevo_estado" value="rechazado">
-                            <button type="submit" class="btn btn-sm px-3 py-1 fw-semibold rounded-3"
-                                    style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #333; border: none;">
-                              <i class="bi bi-arrow-repeat me-1"></i> Rechazar
-                            </button>
-                          </form>
-                        </div>
+                      <td class="align-middle"><strong><%= v.nombre %></strong></td>
+                      <td class="align-middle"><%= v.email %></td>
+                      <td class="text-center align-middle"><span class="badge px-2 py-1 rounded-pill badge-habilidad-aprobado"><%= v.habilidad %></span></td>
+                      <td class="align-middle"><small><%= v.experiencia ? (v.experiencia.length > 60 ? v.experiencia.substring(0, 60) + '...' : v.experiencia) : '—' %></small></td>
+                      <td class="text-center align-middle"><small><%= v.disponibilidad_horaria || '—' %></small></td>
+                      <td class="text-center align-middle">
+                        <form action="/voluntarios/<%= v.id %>/cambiar-estado" method="POST" class="d-inline"
+                              onsubmit="return confirm('¿Cambiar a <%= v.nombre %> a RECHAZADO?')">
+                          <input type="hidden" name="nuevo_estado" value="rechazado">
+                          <button type="submit" class="btn btn-sm btn-warning rounded-3" title="Cambiar a Rechazado">
+                            <i class="bi bi-arrow-repeat me-1"></i> Rechazar
+                          </button>
+                        </form>
                       </td>
                     </tr>
                   <% }) %>
                 <% } else { %>
                   <tr>
-                    <td colspan="6" class="text-center py-5">
-                      <i class="bi bi-person-x fs-1 text-muted d-block mb-2"></i>
-                      <p class="text-muted mb-0">No hay voluntarios aprobados</p>
+                    <td colspan="6" class="text-center py-5 empty-state">
+                      <i class="bi bi-person-x fs-1 d-block mb-2"></i>
+                      <p class="mb-0">No hay voluntarios aprobados</p>
                     </td>
                   </tr>
                 <% } %>
@@ -196,49 +189,46 @@
 
     <!-- RECHAZADOS -->
     <div class="tab-pane fade" id="rechazados">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="px-4 py-3" style="background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);">
-          <h5 class="mb-0 fw-semibold" style="color: #dc3545;"><i class="bi bi-x-circle me-2"></i> Solicitudes rechazadas</h5>
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden tabla-card">
+        <div class="px-4 py-3 tabla-header-rechazados">
+          <h5 class="mb-0 fw-semibold"><i class="bi bi-x-circle me-2"></i> Solicitudes rechazadas</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="table-light">
+            <table class="table table-hover mb-0 tabla-gestionar">
+              <thead class="tabla-thead">
                 <tr class="text-center">
-                  <th><i class="bi bi-calendar3"></i> Fecha</th>
-                  <th><i class="bi bi-person"></i> Nombre</th>
-                  <th><i class="bi bi-envelope"></i> Email</th>
-                  <th><i class="bi bi-tools"></i> Habilidad</th>
-                  <th><i class="bi bi-gear"></i> Acciones</th>
+                  <th style="width: 12%">Fecha</th>
+                  <th style="width: 23%">Nombre</th>
+                  <th style="width: 30%">Email</th>
+                  <th style="width: 20%">Habilidad</th>
+                  <th style="width: 15%">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 <% if (rechazados && rechazados.length > 0) { %>
                   <% rechazados.forEach(v => { %>
                     <tr>
-                      <td class="text-center"><small><%= new Date(v.fecha_respuesta).toLocaleDateString() %></small></td>
-                      <td><strong><%= v.nombre %></strong></td>
-                      <td><small><%= v.email %></small></td>
-                      <td><span class="badge px-2 py-1 rounded-pill" style="background: #f8d7da; color: #dc3545;"><%= v.habilidad %></span></td>
-                      <td>
-                        <div class="d-flex gap-1 justify-content-center">
-                          <form action="/voluntarios/<%= v.id %>/cambiar-estado" method="POST" class="d-inline"
-                                onsubmit="return confirm('¿Cambiar a <%= v.nombre %> a APROBADO?')">
-                            <input type="hidden" name="nuevo_estado" value="aprobado">
-                            <button type="submit" class="btn btn-sm px-3 py-1 fw-semibold rounded-3"
-                                    style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none;">
-                              <i class="bi bi-check-lg me-1"></i> Aprobar
-                            </button>
-                          </form>
-                        </div>
+                      <td class="text-center align-middle"><%= new Date(v.fecha_respuesta).toLocaleDateString() %></td>
+                      <td class="align-middle"><strong><%= v.nombre %></strong></td>
+                      <td class="align-middle"><%= v.email %></td>
+                      <td class="text-center align-middle"><span class="badge px-2 py-1 rounded-pill badge-habilidad-rechazado"><%= v.habilidad %></span></td>
+                      <td class="text-center align-middle">
+                        <form action="/voluntarios/<%= v.id %>/cambiar-estado" method="POST" class="d-inline"
+                              onsubmit="return confirm('¿Cambiar a <%= v.nombre %> a APROBADO?')">
+                          <input type="hidden" name="nuevo_estado" value="aprobado">
+                          <button type="submit" class="btn btn-sm btn-success rounded-3" title="Aprobar">
+                            <i class="bi bi-check-lg me-1"></i> Aprobar
+                          </button>
+                        </form>
                       </td>
                     </tr>
                   <% }) %>
                 <% } else { %>
                   <tr>
-                    <td colspan="5" class="text-center py-5">
-                      <i class="bi bi-check-circle fs-1 text-muted d-block mb-2"></i>
-                      <p class="text-muted mb-0">No hay solicitudes rechazadas</p>
+                    <td colspan="5" class="text-center py-5 empty-state">
+                      <i class="bi bi-check-circle fs-1 d-block mb-2"></i>
+                      <p class="mb-0">No hay solicitudes rechazadas</p>
                     </td>
                   </tr>
                 <% } %>
@@ -253,14 +243,13 @@
 </div>
 
 <script>
-  // Actualizar enlace de exportación según filtro
   const filtroEstado = document.getElementById('filtroEstadoExport');
   const btnExportar = document.getElementById('btnExportarVoluntarios');
   
   function actualizarEnlaceExportacion() {
     const estado = filtroEstado.value;
     if (estado !== 'todos') {
-      btnExportar.href = `/voluntarios/exportar/excel?estado=${estado}`;
+      btnExportar.href = '/voluntarios/exportar/excel?estado=' + estado;
     } else {
       btnExportar.href = '/voluntarios/exportar/excel';
     }
@@ -269,3 +258,216 @@
   filtroEstado.addEventListener('change', actualizarEnlaceExportacion);
   actualizarEnlaceExportacion();
 </script>
+
+<style>
+  /* ========== ESTILOS BASE (MODO CLARO) ========== */
+  .gestionar-title {
+    color: #5D4037;
+  }
+  .gestionar-title i {
+    color: #fd6704bd;
+  }
+  .gestionar-subtitle {
+    color: #8B6B5A;
+  }
+  
+  .filtro-estado-gestionar {
+    border-color: #f0d5c0;
+    background-color: #fefaf7;
+    color: #5D4037;
+  }
+  .filtro-estado-gestionar:focus {
+    border-color: #fd6704bd;
+    box-shadow: 0 0 0 3px rgba(253, 103, 4, 0.15);
+  }
+  
+  .btn-exportar-gestionar {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    transition: all 0.2s ease;
+    border: none;
+  }
+  .btn-exportar-gestionar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  }
+  
+  .tab-pendientes {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+    border: none;
+  }
+  .tab-aprobados, .tab-rechazados {
+    color: #5D4037;
+    background: #f8f9fa;
+    border: 1px solid #f0d5c0;
+  }
+  .badge-aprobados {
+    background: #28a745;
+    color: white;
+  }
+  .badge-rechazados {
+    background: #dc3545;
+    color: white;
+  }
+  
+  .tabla-card {
+    background: white;
+  }
+  .tabla-header-pendientes {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+    color: #fd6704bd;
+  }
+  .tabla-header-aprobados {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #28a745;
+  }
+  .tabla-header-rechazados {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #dc3545;
+  }
+  
+  .tabla-gestionar {
+    background: white;
+    width: 100%;
+  }
+  .tabla-thead {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+  }
+  .tabla-thead th {
+    color: #5D4037;
+    font-weight: 700;
+    border-bottom: 2px solid #fd6704bd;
+    padding: 14px 10px;
+    font-size: 0.85rem;
+  }
+  .tabla-gestionar tbody tr {
+    border-bottom: 1px solid #f0d5c0;
+  }
+  .tabla-gestionar tbody tr:hover {
+    background-color: #fff8f0 !important;
+  }
+  .tabla-gestionar td {
+    padding: 14px 10px;
+    vertical-align: middle;
+    font-size: 0.85rem;
+  }
+  
+  .badge-habilidad-pendiente {
+    background: #fce5d4;
+    color: #fd6704bd;
+  }
+  .badge-habilidad-aprobado {
+    background: #d4edda;
+    color: #28a745;
+  }
+  .badge-habilidad-rechazado {
+    background: #f8d7da;
+    color: #dc3545;
+  }
+  
+  .btn-sm {
+    transition: all 0.2s ease;
+  }
+  .btn-sm:hover {
+    transform: translateY(-2px);
+  }
+  
+  .empty-state i {
+    color: #6c757d;
+    opacity: 0.5;
+  }
+  .empty-state p {
+    color: #6c757d;
+  }
+  
+  /* ========== MODO NOCTURNO ========== */
+  body.dark-mode .gestionar-title {
+    color: #e4e4e7;
+  }
+  body.dark-mode .gestionar-subtitle {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .filtro-estado-gestionar {
+    border-color: #3f3f46;
+    background-color: #3f3f46;
+    color: #e4e4e7;
+  }
+  body.dark-mode .filtro-estado-gestionar:focus {
+    border-color: #f7931e;
+  }
+  
+  body.dark-mode .tab-aprobados, body.dark-mode .tab-rechazados {
+    color: #e4e4e7;
+    background: #2d2d44;
+    border-color: #3f3f46;
+  }
+  body.dark-mode .tab-pendientes {
+    background: linear-gradient(135deg, #f7931e 0%, #e08515 100%);
+  }
+  
+  body.dark-mode .tabla-card {
+    background: #1a1a2e;
+  }
+  body.dark-mode .tabla-header-pendientes {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+    color: #f7931e;
+  }
+  body.dark-mode .tabla-header-aprobados {
+    background: linear-gradient(135deg, #0d3b1f 0%, #0a2a16 100%);
+    color: #a3e4b7;
+  }
+  body.dark-mode .tabla-header-rechazados {
+    background: linear-gradient(135deg, #3d1a1f 0%, #2d0f12 100%);
+    color: #f5a3a3;
+  }
+  
+  /* CORRECCIÓN PRINCIPAL - FONDO OSCURO PARA TABLA APROBADOS */
+  body.dark-mode .tabla-gestionar,
+  body.dark-mode .tabla-gestionar tbody,
+  body.dark-mode .tabla-gestionar tr,
+  body.dark-mode .tabla-gestionar td {
+    background-color: #1a1a2e !important;
+    color: #e4e4e7 !important;
+  }
+  
+  body.dark-mode .tabla-gestionar td {
+    border-bottom-color: #3f3f46 !important;
+  }
+  
+  body.dark-mode .tabla-gestionar tr:hover td {
+    background-color: #2d2d44 !important;
+  }
+  
+  body.dark-mode .tabla-thead {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%) !important;
+  }
+  body.dark-mode .tabla-thead th {
+    color: #e4e4e7 !important;
+    border-bottom-color: #f7931e !important;
+  }
+  
+  body.dark-mode .badge-habilidad-aprobado {
+    background: #0d3b1f !important;
+    color: #a3e4b7 !important;
+  }
+  
+  body.dark-mode .btn-warning {
+    background: linear-gradient(135deg, #e0a800 0%, #c69500 100%) !important;
+    color: #333 !important;
+  }
+  
+  body.dark-mode .empty-state i {
+    color: #a1a1aa;
+  }
+  body.dark-mode .empty-state p {
+    color: #a1a1aa;
+  }
+  
+  @media (max-width: 768px) {
+    .table-responsive {
+      overflow-x: auto;
+    }
+  }
+</style>

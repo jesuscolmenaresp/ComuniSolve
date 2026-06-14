@@ -1,39 +1,43 @@
 <!-- Hero Section - Compacta y moderna -->
-<section class="hero-section py-4 mx-3" style="background: linear-gradient(135deg, #fff9f0 0%, #f8dbc6 80%); border-radius: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+<section class="hero-section py-5 mx-3">
   <div class="container">
     <div class="text-center">
-      <p class="mb-1" style="color: #4d3c30; font-size: 1.2rem; letter-spacing: 5px;">BIENVENIDO A</p>
-      <h2 style="font-size: 2.3rem; font-weight: 700; margin-bottom: 0;">
-        <span style="color: #5D4037;">COMUNI</span><span style="color: #fd6704bd;">SOLVE</span>
-      </h2>
-      <p class="mt-2 mb-0" style="font-size: 0.90rem; color: #828181;">La plataforma de gestión comunitaria que transforma tu comunidad</p>
+      <div class="hero-badge mb-3 d-inline-block">BIENVENIDO A</div>
+      <h1 class="hero-title mb-3">
+        <span class="hero-title-dark">COMUNI</span><span class="hero-title-primary">SOLVE</span>
+      </h1>
+      <p class="hero-description mx-auto">La plataforma de gestión comunitaria que transforma tu comunidad</p>
     </div>
   </div>
 </section>
+
 <!-- 🗺️ Mapa -->
 <div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h2 class="mb-0"><i class="bi bi-map"></i> Reportes en el Mapa</h2>
-    <a href="/reportar" class="btn btn-primary btn-lg">
-      <i class="bi bi-plus-circle"></i> Reportar problema
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h2 class="section-title"><i class="bi bi-map me-2"></i> Reportes en el Mapa</h2>
+    <a href="/reportar" class="btn btn-primary btn-lg px-4">
+      <i class="bi bi-plus-circle me-2"></i> Reportar problema
     </a>
   </div>
-  <div id="map" class="shadow rounded"></div>
+  <div id="map" class="shadow-lg rounded-4"></div>
 </div>
 
 <!-- 📌 Sección ¿Qué es ComuniSolve? -->
-<section class="mt-5 py-5" style="background: linear-gradient(135deg, #fce9d8 0%, #fff5ec 100%); border-radius: 16px;">
+<section class="mt-5 py-5 info-section">
   <div class="container">
     <div class="text-center">
-      <h2 class="display-6 fw-bold mb-4">¿Qué es <span class="text-primary">ComuniSolve</span>?</h2>
+      <div class="info-badge d-inline-block mb-3">¿QUÉ ES?</div>
+      <h2 class="display-5 fw-bold mb-4">Comuni<span class="text-gradient">Solve</span></h2>
       <div class="row justify-content-center">
         <div class="col-lg-10">
-          <p class="lead mb-0">
-            ComuniSolve es un software de gestión comunitaria diseñado para facilitar la participación ciudadana 
-            en la <strong>Comuna Socialista Nuestra Señora de las Mercedes</strong>. 
-            Permite reportar problemas, ver incidencias geolocalizadas en un mapa, 
-            votar por prioridades y fortalecer la organización local mediante herramientas tecnológicas accesibles y eficientes.
-          </p>
+          <div class="info-card p-4 rounded-4">
+            <p class="info-text mb-0">
+              ComuniSolve es un software de gestión comunitaria diseñado para facilitar la participación ciudadana 
+              en la <strong class="text-highlight">Comuna Socialista Nuestra Señora de las Mercedes</strong>. 
+              Permite reportar problemas, ver incidencias geolocalizadas en un mapa, 
+              votar por prioridades y fortalecer la organización local mediante herramientas tecnológicas accesibles y eficientes.
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -41,44 +45,47 @@
 </section>
 
 <!-- 📌 Sección ¿Cómo funciona? -->
-<section class="mt-5">
+<section class="mt-5 py-4">
   <div class="container">
-    <h2 class="text-center mb-5">¿Cómo funciona ComuniSolve?</h2>
+    <div class="text-center mb-5">
+      <div class="features-badge d-inline-block mb-3">CÓMO FUNCIONA</div>
+      <h2 class="display-5 fw-bold features-title">Descubre el <span class="text-gradient">proceso</span></h2>
+    </div>
     <div class="row g-4">
       <div class="col-md-3">
-        <div class="feature-card text-center p-4 bg-white shadow-sm rounded h-100">
+        <div class="feature-card text-center p-4 rounded-4 h-100">
           <div class="feature-icon mb-3">
-            <img src="/images/icons/megaphone-fill.svg" alt="Reporta" class="img-fluid" style="width: 55px;">
+            <i class="bi bi-megaphone-fill fs-1"></i>
           </div>
-          <h4>Reporta</h4>
-          <p class="text-muted mb-0">Informa cualquier problema en tu comunidad con descripción, imagen y ubicación.</p>
+          <h4 class="feature-card-title">Reporta</h4>
+          <p class="feature-text mb-0">Informa cualquier problema en tu comunidad con descripción, imagen y ubicación.</p>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="feature-card text-center p-4 bg-white shadow-sm rounded h-100">
+        <div class="feature-card text-center p-4 rounded-4 h-100">
           <div class="feature-icon mb-3">
-            <img src="/images/icons/map-fill.svg" alt="Visualiza" class="img-fluid" style="width: 55px;">
+            <i class="bi bi-map-fill fs-1"></i>
           </div>
-          <h4>Visualiza</h4>
-          <p class="text-muted mb-0">Todos los reportes se muestran en un mapa interactivo accesible a la comunidad.</p>
+          <h4 class="feature-card-title">Visualiza</h4>
+          <p class="feature-text mb-0">Todos los reportes se muestran en un mapa interactivo accesible a la comunidad.</p>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="feature-card text-center p-4 bg-white shadow-sm rounded h-100">
+        <div class="feature-card text-center p-4 rounded-4 h-100">
           <div class="feature-icon mb-3">
-            <img src="/images/icons/hand-thumbs-up-fill.svg" alt="Prioriza" class="img-fluid" style="width: 55px;">
+            <i class="bi bi-hand-thumbs-up-fill fs-1"></i>
           </div>
-          <h4>Prioriza</h4>
-          <p class="text-muted mb-0">Los vecinos pueden votar y comentar los reportes, ayudando a decidir qué atender primero.</p>
+          <h4 class="feature-card-title">Prioriza</h4>
+          <p class="feature-text mb-0">Los vecinos pueden votar y comentar los reportes, ayudando a decidir qué atender primero.</p>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="feature-card text-center p-4 bg-white shadow-sm rounded h-100">
+        <div class="feature-card text-center p-4 rounded-4 h-100">
           <div class="feature-icon mb-3">
-            <img src="/images/icons/people-fill.svg" alt="Actúa" class="img-fluid" style="width: 55px;">
+            <i class="bi bi-people-fill fs-1"></i>
           </div>
-          <h4>Actúa</h4>
-          <p class="text-muted mb-0">Líderes y voluntarios coordinan acciones para resolver los problemas priorizados.</p>
+          <h4 class="feature-card-title">Actúa</h4>
+          <p class="feature-text mb-0">Líderes y voluntarios coordinan acciones para resolver los problemas priorizados.</p>
         </div>
       </div>
     </div>
@@ -86,63 +93,116 @@
 </section>
 
 <!-- 📌 Sectores que atiende -->
-<section class="mt-5">
+<section class="mt-4 py-5 sectors-wrapper">
   <div class="container">
-    <h2 class="text-center mb-5">Sectores que atiende ComuniSolve</h2>
-    <div class="row g-3">
-      <div class="col-md-3 col-sm-6"><div class="sector-card text-center p-3"><h5 class="mb-0">Virgen de Lourdes</h5></div></div>
-      <div class="col-md-3 col-sm-6"><div class="sector-card text-center p-3"><h5 class="mb-0">Nuestra Señora de Las Mercedes</h5></div></div>
-      <div class="col-md-3 col-sm-6"><div class="sector-card text-center p-3"><h5 class="mb-0">Brisas de las Mercedes</h5></div></div>
-      <div class="col-md-3 col-sm-6"><div class="sector-card text-center p-3"><h5 class="mb-0">Las Mercedes</h5></div></div>
-      <div class="col-md-4 col-sm-6"><div class="sector-card text-center p-3"><h5 class="mb-0">Asentamiento campesino</h5></div></div>
-      <div class="col-md-4 col-sm-6"><div class="sector-card text-center p-3"><h5 class="mb-0">Urbanización La Providencia</h5></div></div>
-      <div class="col-md-4 col-sm-6"><div class="sector-card text-center p-3"><h5 class="mb-0">Santa Eduviges</h5></div></div>
+    <div class="text-center mb-5">
+      <div class="sectors-badge d-inline-block mb-3">NUESTRA COBERTURA</div>
+      <h2 class="display-5 fw-bold sectors-title">Sectores que <span class="text-gradient">atiende</span></h2>
+    </div>
+    <div class="row g-3 justify-content-center">
+      <div class="col-md-3 col-sm-6">
+        <div class="sector-card text-center p-3 rounded-3">
+          <h5 class="mb-0">Virgen de Lourdes</h5>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="sector-card text-center p-3 rounded-3">
+          <h5 class="mb-0">Nuestra Señora de Las Mercedes</h5>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="sector-card text-center p-3 rounded-3">
+          <h5 class="mb-0">Brisas de las Mercedes</h5>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="sector-card text-center p-3 rounded-3">
+          <h5 class="mb-0">Las Mercedes</h5>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6">
+        <div class="sector-card text-center p-3 rounded-3">
+          <h5 class="mb-0">Asentamiento campesino</h5>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6">
+        <div class="sector-card text-center p-3 rounded-3">
+          <h5 class="mb-0">Urbanización La Providencia</h5>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6">
+        <div class="sector-card text-center p-3 rounded-3">
+          <h5 class="mb-0">Santa Eduviges</h5>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- 📢 Últimos reportes - Fondo de iglesia más visible -->
-<section class="mt-5 py-5" style="background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('/images/iglesia-mercedes.jpg'); background-size: cover; background-position: center; background-attachment: fixed;">
+<!-- 📢 Últimos reportes -->
+<section class="mt-4 py-5 reports-section">
   <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-      <h3><i class="bi bi-newspaper"></i> Últimos reportes</h3>
-      <img src="/images/logotipo.png" alt="ComuniSolve" style="height: 60px;">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+      <div>
+        <div class="reports-badge d-inline-block mb-2">ACTIVIDAD RECIENTE</div>
+        <h3 class="reports-title mb-0"><i class="bi bi-newspaper me-2"></i> Últimos reportes</h3>
+      </div>
+      <img src="/images/logotipo.png" alt="ComuniSolve" style="height: 60px;" class="reports-logo">
     </div>
     
     <div class="row g-4">
       <% if (reportes && reportes.length > 0) { %>
         <% reportes.slice(0,3).forEach(r => { %>
           <div class="col-md-4">
-            <div class="report-card">
-              <h5><%= r.titulo %></h5>
-              <p class="text-muted"><%= r.descripcion.substring(0, 80) %>...</p>
-              <p><strong>Categoría:</strong> 
-                <span class="badge bg-<%= r.categoria_color || 'primary' %>">
+            <div class="report-card h-100">
+              <div class="report-card-header mb-3">
+                <span class="badge categoria-badge" style="background: <%= r.categoria_color === 'primary' ? '#fd6704bd' : r.categoria_color === 'success' ? '#28a745' : r.categoria_color === 'warning' ? '#ffc107' : '#17a2b8' %>;">
                   <%= r.categoria_icono ? r.categoria_icono + ' ' : '' %><%= r.categoria_nombre %>
                 </span>
-              </p>
-              <p><strong>Calle:</strong> <%= r.nombre_calle %></p>
-              <p><span class="badge <%= r.estado === 'Pendiente' ? 'bg-warning' : r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>"><%= r.estado %></span></p>
+                <span class="badge estado-badge ms-2 <%= r.estado === 'Pendiente' ? 'bg-warning text-dark' : r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>">
+                  <%= r.estado === 'Pendiente' ? '⏳ Pendiente' : r.estado === 'En Progreso' ? '🔄 En Progreso' : '✅ Resuelto' %>
+                </span>
+              </div>
+              <h5 class="report-card-title"><%= r.titulo %></h5>
+              <p class="report-description"><%= r.descripcion.substring(0, 100) %>...</p>
+              <div class="report-card-footer mt-auto">
+                <p class="mb-1"><i class="bi bi-geo-alt"></i> <%= r.nombre_calle %></p>
+                <small class="text-muted"><i class="bi bi-calendar3"></i> <%= new Date(r.fecha).toLocaleDateString() %></small>
+              </div>
             </div>
           </div>
         <% }) %>
       <% } else { %>
         <div class="col-12">
-          <div class="alert alert-info text-center">No hay reportes registrados aún. ¡Sé el primero en reportar!</div>
+          <div class="empty-state text-center py-5 rounded-4">
+            <i class="bi bi-inbox fs-1 mb-3 d-block"></i>
+            <h5>No hay reportes registrados aún</h5>
+            <p class="mb-0">¡Sé el primero en reportar un problema en tu comunidad!</p>
+          </div>
         </div>
       <% } %>
     </div>
 
     <!-- Botones de acción -->
-    <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
-      <a href="/reportes" class="btn btn-outline-primary"><i class="bi bi-list-ul"></i> Ver todos los reportes</a>
-      <a href="/voluntarios" class="btn btn-success"><i class="bi bi-person-heart"></i> Únete como voluntario</a>
+    <div class="text-center mt-5 d-flex justify-content-center gap-3 flex-wrap">
+      <a href="/reportes" class="btn btn-primary-custom px-4 py-2 rounded-3">
+        <i class="bi bi-list-ul me-2"></i> Ver todos los reportes
+      </a>
+      <a href="/voluntarios" class="btn btn-success-custom px-4 py-2 rounded-3">
+        <i class="bi bi-person-heart me-2"></i> Únete como voluntario
+      </a>
       <% if (usuario && usuario.rol_id === 4) { %>
-        <a href="/reportes" class="btn btn-warning text-white"><i class="bi bi-star"></i> Votar / priorizar</a>
+        <a href="/reportes" class="btn btn-warning-custom px-4 py-2 rounded-3">
+          <i class="bi bi-star me-2"></i> Votar / priorizar
+        </a>
       <% } else if (!usuario) { %>
-        <a href="/login" class="btn btn-warning text-white"><i class="bi bi-box-arrow-in-right"></i> Inicia sesión para votar</a>
+        <a href="/login" class="btn btn-warning-custom px-4 py-2 rounded-3">
+          <i class="bi bi-box-arrow-in-right me-2"></i> Inicia sesión para votar
+        </a>
       <% } else { %>
-        <a href="/reportes" class="btn btn-secondary"><i class="bi bi-gear"></i> Gestionar reportes</a>
+        <a href="/reportes" class="btn btn-secondary-custom px-4 py-2 rounded-3">
+          <i class="bi bi-gear me-2"></i> Gestionar reportes
+        </a>
       <% } %>
     </div>
   </div>
@@ -161,61 +221,467 @@
     if (r.ubicacion_lat && r.ubicacion_lng) {
       L.marker([r.ubicacion_lat, r.ubicacion_lng])
         .addTo(map)
-        .bindPopup(`<strong>${r.titulo}</strong><br>${r.descripcion}`);
+        .bindPopup(`
+          <strong>${r.titulo}</strong><br>
+          ${r.descripcion.substring(0, 100)}<br>
+          <small>Estado: ${r.estado}</small>
+        `);
     }
   });
 </script>
 
-<!-- CSS adicional -->
+<!-- CSS adicional con soporte para modo nocturno -->
 <style>
+  /* ========== ESTILOS BASE ========== */
+  :root {
+    --primary-orange: #fd6704bd;
+    --primary-orange-dark: #e85d2c;
+    --primary-orange-light: #ff8c5a;
+    --gradient-orange: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+  }
+  
+  .text-gradient {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  /* Hero Section */
   .hero-section {
-    border-bottom: 1px solid #f0e0d0;
+    background: linear-gradient(135deg, #fff9f0 0%, #fce5d4 100%);
+    border-radius: 40px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
   }
+  
+  .hero-badge {
+    background: rgba(253, 103, 4, 0.1);
+    color: #fd6704bd;
+    padding: 6px 18px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    font-weight: 600;
+  }
+  
+  .hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+  }
+  
+  .hero-title-dark {
+    color: #2c1810;
+  }
+  
+  .hero-title-primary {
+    color: #fd6704bd;
+  }
+  
+  .hero-description {
+    max-width: 600px;
+    font-size: 1rem;
+    color: #6c757d;
+  }
+  
+  .section-title {
+    color: #2c1810;
+    font-weight: 700;
+  }
+  
+  /* Info Section */
+  .info-section {
+    background: linear-gradient(135deg, #faf4ed 0%, #fff5ec 100%);
+    border-radius: 30px;
+  }
+  
+  .info-badge {
+    background: rgba(253, 103, 4, 0.1);
+    color: #fd6704bd;
+    padding: 6px 18px;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    font-weight: 600;
+  }
+  
+  .info-card {
+    background: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border: 1px solid rgba(253, 103, 4, 0.1);
+  }
+  
+  .info-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #4a5568;
+  }
+  
+  .text-highlight {
+    color: #fd6704bd;
+  }
+  
+  /* Features Section */
+  .features-badge {
+    background: rgba(253, 103, 4, 0.1);
+    color: #fd6704bd;
+    padding: 6px 18px;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    font-weight: 600;
+  }
+  
+  .features-title {
+    color: #2c1810;
+  }
+  
   .feature-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: white;
+    transition: all 0.3s ease;
+    border: 1px solid #f0e0d0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.03);
   }
+  
   .feature-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 35px rgba(253, 103, 4, 0.15);
+    border-color: rgba(253, 103, 4, 0.3);
   }
+  
   .feature-icon {
-    background: linear-gradient(135deg, #fce9d8 0%, #fff5ec 100%);
-    display: inline-block;
-    padding: 12px;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #fff5ed 0%, #fce5d4 100%);
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
   }
+  
+  .feature-card:hover .feature-icon {
+    background: var(--gradient-orange);
+  }
+  
+  .feature-card:hover .feature-icon i {
+    color: white !important;
+  }
+  
+  .feature-icon i {
+    font-size: 2.5rem;
+    color: #fd6704bd;
+    transition: all 0.3s ease;
+  }
+  
+  .feature-card-title {
+    margin: 1rem 0 0.75rem;
+    font-weight: 700;
+    color: #2c1810;
+  }
+  
+  .feature-text {
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+  
+  /* Sectors Section */
+  .sectors-wrapper {
+    background: linear-gradient(135deg, #faf4ed 0%, #fff5ec 100%);
+    border-radius: 30px;
+  }
+  
+  .sectors-badge {
+    background: rgba(253, 103, 4, 0.1);
+    color: #fd6704bd;
+    padding: 6px 18px;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    font-weight: 600;
+  }
+  
+  .sectors-title {
+    color: #2c1810;
+  }
+  
   .sector-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: white;
+    transition: all 0.3s ease;
+    border: 1px solid #f0e0d0;
     cursor: pointer;
   }
+  
   .sector-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    background-color: #fff8f0;
-    border-color: var(--primary-color);
+    background: var(--gradient-orange);
+    border-color: transparent;
   }
+  
+  .sector-card:hover h5 {
+    color: white !important;
+  }
+  
+  .sector-card h5 {
+    color: #2c1810;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  /* Reports Section */
+  .reports-section {
+    background: linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)), url('/images/iglesia-mercedes.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    border-radius: 30px;
+  }
+  
+  .reports-badge {
+    background: rgba(253, 103, 4, 0.1);
+    color: #fd6704bd;
+    padding: 4px 14px;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    font-weight: 600;
+  }
+  
+  .reports-title {
+    color: #2c1810;
+    font-weight: 700;
+  }
+  
   .report-card {
-    transition: transform 0.3s ease;
     background: white;
-    border-radius: 12px;
+    border-radius: 20px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid #f0e0d0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.03);
   }
+  
   .report-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 35px rgba(0,0,0,0.1);
   }
+  
+  .report-card-title {
+    font-weight: 700;
+    color: #2c1810;
+    margin-bottom: 0.75rem;
+  }
+  
+  .report-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+  
+  .categoria-badge, .estado-badge {
+    font-size: 0.7rem;
+    padding: 4px 10px;
+  }
+  
+  .empty-state {
+    background: white;
+    border: 2px dashed #f0e0d0;
+  }
+  
+  .empty-state i {
+    font-size: 3rem;
+    color: #fd6704bd;
+    opacity: 0.5;
+  }
+  
+  /* Botones personalizados */
+  .btn-primary-custom {
+    background: var(--gradient-orange);
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+  }
+  
+  .btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(253, 103, 4, 0.4);
+    color: white;
+  }
+  
+  .btn-success-custom {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+  }
+  
+  .btn-success-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+    color: white;
+  }
+  
+  .btn-warning-custom {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: #2c1810;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+  }
+  
+  .btn-warning-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);
+  }
+  
+  .btn-secondary-custom {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+  }
+  
+  .btn-secondary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
+    color: white;
+  }
+  
   #map {
     height: 400px;
     width: 100%;
-    border-radius: 12px;
+    border-radius: 20px;
+    z-index: 1;
   }
+  
+  /* ========== MODO NOCTURNO ========== */
+  body.dark-mode .hero-section {
+    background: linear-gradient(135deg, #1e1e2a 0%, #2a2a35 100%);
+  }
+  
+  body.dark-mode .hero-badge {
+    background: rgba(247, 147, 30, 0.15);
+    color: #f7931e;
+  }
+  
+  body.dark-mode .hero-title-dark {
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .hero-description {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .section-title {
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .info-section {
+    background: linear-gradient(135deg, #1a1a2e 0%, #1f1f35 100%);
+  }
+  
+  body.dark-mode .info-card {
+    background: #27272a;
+    border-color: #3f3f46;
+  }
+  
+  body.dark-mode .info-text {
+    color: #d4d4d8;
+  }
+  
+  body.dark-mode .features-badge,
+  body.dark-mode .sectors-badge,
+  body.dark-mode .reports-badge {
+    background: rgba(247, 147, 30, 0.15);
+    color: #f7931e;
+  }
+  
+  body.dark-mode .features-title,
+  body.dark-mode .sectors-title,
+  body.dark-mode .reports-title {
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .feature-card {
+    background: #27272a;
+    border-color: #3f3f46;
+  }
+  
+  body.dark-mode .feature-icon {
+    background: linear-gradient(135deg, #3d3d5c 0%, #2d2d44 100%);
+  }
+  
+  body.dark-mode .feature-icon i {
+    color: #f7931e;
+  }
+  
+  body.dark-mode .feature-card-title {
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .feature-text {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .sectors-wrapper {
+    background: linear-gradient(135deg, #1a1a2e 0%, #1f1f35 100%);
+  }
+  
+  body.dark-mode .sector-card {
+    background: #27272a;
+    border-color: #3f3f46;
+  }
+  
+  body.dark-mode .sector-card h5 {
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .reports-section {
+    background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('/images/iglesia-mercedes.jpg');
+  }
+  
+  body.dark-mode .report-card {
+    background: #27272a;
+    border-color: #3f3f46;
+  }
+  
+  body.dark-mode .report-card-title {
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .report-description {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .empty-state {
+    background: #27272a;
+    border-color: #3f3f46;
+  }
+  
+  body.dark-mode .empty-state i {
+    color: #f7931e;
+    opacity: 0.6;
+  }
+  
   @media (max-width: 768px) {
-    .hero-section .display-4 {
-      font-size: 1.8rem;
+    .hero-title {
+      font-size: 2rem;
+    }
+    .hero-section {
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
     }
     #map {
       height: 300px;
     }
     .feature-card {
-      margin-bottom: 15px;
+      margin-bottom: 1rem;
+    }
+    .display-5 {
+      font-size: 1.8rem;
     }
   }
 </style>

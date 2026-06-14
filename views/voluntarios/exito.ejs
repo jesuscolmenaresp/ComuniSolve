@@ -1,29 +1,194 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card shadow text-center">
-                <div class="card-body p-5">
-                    <div class="mb-4">
-                        <span style="font-size: 4rem;">🎉</span>
+            <div class="card border-0 rounded-4 shadow-lg overflow-hidden exito-card">
+                <div class="card-body p-5 text-center exito-body">
+                    
+                    <!-- Icono animado -->
+                    <div class="exito-icono mb-4">
+                        <div class="exito-icono-wrapper">
+                            <i class="bi bi-check2-circle fs-1 text-white"></i>
+                        </div>
                     </div>
-                    <h3 class="text-success mb-3">¡Gracias por unirte!</h3>
+                    
+                    <h3 class="fw-bold mb-3 exito-title">¡Gracias por unirte!</h3>
                     
                     <% if (mensaje) { %>
-                        <p class="lead"><%= mensaje %></p>
+                        <p class="lead exito-mensaje"><%= mensaje %></p>
                     <% } else { %>
-                        <p class="lead">Tu solicitud ha sido registrada exitosamente.</p>
+                        <p class="lead exito-mensaje">Tu solicitud ha sido registrada exitosamente.</p>
                     <% } %>
                     
-                    <p class="text-muted">
-                        Un líder comunitario se comunicará contigo pronto.
-                    </p>
-                    
-                    <div class="mt-4">
-                        <a href="/" class="btn btn-primary">Volver al inicio</a>
-                        <a href="/voluntarios" class="btn btn-outline-success">Otro voluntario</a>
+                    <div class="exito-info-card mt-4 mb-4">
+                        <i class="bi bi-info-circle-fill exito-info-icon me-2"></i>
+                        <span class="exito-info-text">Un líder comunitario se comunicará contigo pronto.</span>
                     </div>
+                    
+                    <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
+                        <a href="/" class="btn px-4 py-2 fw-semibold rounded-3 btn-volver-inicio">
+                            <i class="bi bi-house-door me-2"></i> Volver al inicio
+                        </a>
+                        <a href="/voluntarios" class="btn px-4 py-2 fw-semibold rounded-3 btn-otro-voluntario">
+                            <i class="bi bi-person-plus me-2"></i> Otro voluntario
+                        </a>
+                    </div>
+                    
+                </div>
+                <div class="card-footer exito-footer text-center py-3">
+                    <small class="exito-footer-text">
+                        <i class="bi bi-heart-fill me-1"></i> Juntos transformamos la comunidad
+                    </small>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* ========== ESTILOS BASE (MODO CLARO) ========== */
+    
+    .exito-card {
+        background: #ffffff;
+    }
+    
+    .exito-body {
+        background: #ffffff;
+    }
+    
+    .exito-icono-wrapper {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 12px 30px rgba(40, 167, 69, 0.5);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+        }
+    }
+    
+    .exito-title {
+        color: #28a745;
+    }
+    
+    .exito-mensaje {
+        color: #5D4037;
+        font-size: 1.1rem;
+    }
+    
+    .exito-info-card {
+        background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+        border-radius: 12px;
+        padding: 12px 20px;
+        display: inline-block;
+        width: auto;
+        max-width: 90%;
+    }
+    
+    .exito-info-icon {
+        color: #fd6704bd;
+        font-size: 1.2rem;
+    }
+    
+    .exito-info-text {
+        color: #5D4037;
+        font-size: 0.9rem;
+    }
+    
+    .btn-volver-inicio {
+        background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+        color: white;
+        border: none;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-volver-inicio:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
+        color: white;
+    }
+    
+    .btn-otro-voluntario {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        color: white;
+        border: none;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-otro-voluntario:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+        color: white;
+    }
+    
+    .exito-footer {
+        background: #f8f9fa;
+        border-top: 1px solid #f0d5c0;
+    }
+    
+    .exito-footer-text {
+        color: #8B6B5A;
+    }
+    
+    .exito-footer-text i {
+        color: #fd6704bd;
+    }
+    
+    /* ========== MODO NOCTURNO ========== */
+    body.dark-mode .exito-card {
+        background: #27272a;
+    }
+    
+    body.dark-mode .exito-body {
+        background: #27272a;
+    }
+    
+    body.dark-mode .exito-title {
+        color: #a3e4b7;
+    }
+    
+    body.dark-mode .exito-mensaje {
+        color: #e4e4e7;
+    }
+    
+    body.dark-mode .exito-info-card {
+        background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+    }
+    
+    body.dark-mode .exito-info-text {
+        color: #e4e4e7;
+    }
+    
+    body.dark-mode .exito-footer {
+        background: #1a1a2e;
+        border-top-color: #3f3f46;
+    }
+    
+    body.dark-mode .exito-footer-text {
+        color: #a1a1aa;
+    }
+    
+    body.dark-mode .btn-volver-inicio {
+        background: linear-gradient(135deg, #f7931e 0%, #e08515 100%);
+    }
+    
+    body.dark-mode .btn-otro-voluntario {
+        background: linear-gradient(135deg, #138496 0%, #0e5c6b 100%);
+    }
+</style>

@@ -11,7 +11,11 @@
   --primary-color: #fd6704bd;
   --primary-dark: #e85d2c;
   --primary-light: #ff8c5a;
-  --secondary-color: #fff5ed;
+  --secondary-gradient: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  --secondary-color: #17a2b8;
+  --secondary-dark: #138496;
+  --secondary-light: #6ec8d8;
+  --accent-color: #fff5ed;
   --text-color: #1a1a2e;
   --text-light: #6c757d;
   --bg-light: #fffaf7;
@@ -20,6 +24,7 @@
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.12);
   --shadow-hover: 0 8px 28px rgba(253, 103, 4, 0.15);
+  --shadow-hover-secondary: 0 8px 28px rgba(23, 162, 184, 0.2);
   --border-color: #f0f0f0;
   --border-dark: #e0e0e0;
   --border-radius: 16px;
@@ -130,6 +135,17 @@ header .nav-link.active::after {
   box-shadow: 0 8px 25px rgba(253, 103, 4, 0.4);
 }
 
+.btn-secondary-custom {
+  background: var(--secondary-gradient);
+  color: white;
+  box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+}
+
+.btn-secondary-custom:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(23, 162, 184, 0.4);
+}
+
 .btn-outline-primary {
   background: transparent;
   border: 2px solid var(--primary-color);
@@ -138,6 +154,19 @@ header .nav-link.active::after {
 
 .btn-outline-primary:hover {
   background: var(--primary-gradient);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-2px);
+}
+
+.btn-outline-secondary-custom {
+  background: transparent;
+  border: 2px solid var(--secondary-color);
+  color: var(--secondary-color);
+}
+
+.btn-outline-secondary-custom:hover {
+  background: var(--secondary-gradient);
   color: white;
   border-color: transparent;
   transform: translateY(-2px);
@@ -179,6 +208,14 @@ header .nav-link.active::after {
   border-bottom: 1px solid var(--border-color);
   font-weight: 600;
   padding: 1rem 1.5rem;
+}
+
+.card-header-secondary {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdef5 100%);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  color: #0c5460;
 }
 
 /* ========================================
@@ -278,6 +315,7 @@ header .nav-link.active::after {
 }
 
 .badge.bg-primary { background: var(--primary-gradient) !important; }
+.badge.bg-secondary-custom { background: var(--secondary-gradient) !important; color: white; }
 .badge.bg-success { background: linear-gradient(135deg, #10b981, #059669) !important; }
 .badge.bg-warning { background: linear-gradient(135deg, #f59e0b, #d97706) !important; color: #333; }
 .badge.bg-info { background: linear-gradient(135deg, #06b6d4, #0891b2) !important; }
@@ -292,6 +330,30 @@ header .nav-link.active::after {
   padding: 0.8rem 1rem;
   margin-bottom: 1.5rem;
   box-shadow: var(--shadow-sm);
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+  border-left: 4px solid #dc3545;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  color: #856404;
+  border-left: 4px solid #ffc107;
+}
+
+.alert-info {
+  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+  color: #0c5460;
+  border-left: 4px solid #17a2b8;
 }
 
 /* ========================================
@@ -310,8 +372,14 @@ header .nav-link.active::after {
   color: white;
 }
 
+.nav-pills-secondary .nav-link.active {
+  background: var(--secondary-gradient);
+  box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+  color: white;
+}
+
 /* ========================================
-   FOOTER - CLARO (por defecto)
+   FOOTER
    ======================================== */
 footer {
   background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
@@ -335,8 +403,11 @@ footer .small {
    UTILIDADES
    ======================================== */
 .text-primary { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; color: transparent !important; }
+.text-secondary-custom { color: var(--secondary-color) !important; }
 .bg-primary { background: var(--primary-gradient) !important; }
+.bg-secondary-custom { background: var(--secondary-gradient) !important; }
 .border-primary { border-color: var(--primary-color) !important; }
+.border-secondary-custom { border-color: var(--secondary-color) !important; }
 
 /* ========================================
    RESPONSIVE
@@ -364,6 +435,7 @@ footer .small {
     margin-bottom: 15px;
   }
 }
+
 /* ========================================
    MODO NOCTURNO - Controlado por SuperAdmin
    ======================================== */
@@ -372,7 +444,11 @@ body.dark-mode {
   --primary-color: #f7931e;
   --primary-dark: #fd6704;
   --primary-light: #ffa04d;
-  --secondary-color: #2d2d3d;
+  --secondary-gradient: linear-gradient(135deg, #138496 0%, #0e5c6b 100%);
+  --secondary-color: #138496;
+  --secondary-dark: #0e5c6b;
+  --secondary-light: #1fa6bb;
+  --accent-color: #2d2d3d;
   --text-color: #e4e4e7;
   --text-light: #a1a1aa;
   --bg-light: #1a1a2e;
@@ -381,6 +457,7 @@ body.dark-mode {
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.5);
   --shadow-hover: 0 8px 28px rgba(253, 103, 4, 0.25);
+  --shadow-hover-secondary: 0 8px 28px rgba(19, 132, 150, 0.25);
   --border-color: #3f3f46;
   --border-dark: #52525b;
   --bg-gradient: linear-gradient(135deg, #18181b 0%, #1f1f2e 100%);
@@ -450,7 +527,7 @@ body.dark-mode .dropdown-item {
 }
 
 body.dark-mode .dropdown-item:hover {
-  background: var(--secondary-color);
+  background: var(--accent-color);
 }
 
 body.dark-mode .alert {
@@ -474,7 +551,7 @@ body.dark-mode .table tbody tr {
 }
 
 body.dark-mode .table tbody tr:hover {
-  background-color: var(--secondary-color) !important;
+  background-color: var(--accent-color) !important;
 }
 
 body.dark-mode .table-light {
@@ -486,7 +563,7 @@ body.dark-mode .text-muted {
 }
 
 body.dark-mode .bg-light {
-  background: var(--secondary-color) !important;
+  background: var(--accent-color) !important;
 }
 
 body.dark-mode .list-group-item {
@@ -516,8 +593,18 @@ body.dark-mode .btn-outline-secondary {
 }
 
 body.dark-mode .btn-outline-secondary:hover {
-  background: var(--secondary-color);
+  background: var(--accent-color);
   color: var(--text-color);
+}
+
+body.dark-mode .btn-outline-secondary-custom {
+  border-color: var(--secondary-color);
+  color: var(--secondary-color);
+}
+
+body.dark-mode .btn-outline-secondary-custom:hover {
+  background: var(--secondary-gradient);
+  color: white;
 }
 
 body.dark-mode ::-webkit-scrollbar {
@@ -547,4 +634,211 @@ body.dark-mode .modal-content,
 body.dark-mode .form-control,
 body.dark-mode .dropdown-menu {
   transition: all 0.3s ease;
+}
+/* ========================================
+   MODO NOCTURNO - CORRECCIONES ADICIONALES
+   ======================================== */
+
+/* Texto del navbar (Hola, Super Admin) */
+body.dark-mode .navbar-text,
+body.dark-mode .navbar-text strong,
+body.dark-mode .navbar-text span {
+  color: #e4e4e7 !important;
+}
+
+/* Tarjetas de características en la página principal */
+body.dark-mode .card-title,
+body.dark-mode .card-text,
+body.dark-mode .card-body p,
+body.dark-mode .card-body h5,
+body.dark-mode .card-body h3,
+body.dark-mode .card-body .h3,
+body.dark-mode .card-body .h5 {
+  color: var(--text-color) !important;
+}
+
+/* Párrafos generales */
+body.dark-mode p,
+body.dark-mode .lead,
+body.dark-mode .text-center p {
+  color: var(--text-color) !important;
+}
+
+/* Textos de la sección "¿Qué es ComuniSolve?" */
+body.dark-mode .col-md-6 p,
+body.dark-mode .row .col-md-6 p,
+body.dark-mode .feature-box p,
+body.dark-mode .description-text {
+  color: var(--text-light) !important;
+}
+
+/* Footer */
+body.dark-mode footer,
+body.dark-mode footer p,
+body.dark-mode footer .small,
+body.dark-mode footer .mb-0,
+body.dark-mode footer .col-md-4 p,
+body.dark-mode footer .col-md-4 .small {
+  background: var(--footer-bg) !important;
+  color: var(--footer-text) !important;
+}
+
+body.dark-mode footer .small {
+  color: var(--footer-small) !important;
+}
+
+/* Login y registro */
+body.dark-mode .card-body h3,
+body.dark-mode .card-body h4,
+body.dark-mode .card-body .fw-bold,
+body.dark-mode .card-title,
+body.dark-mode .card-subtitle,
+body.dark-mode .form-label,
+body.dark-mode .text-muted,
+body.dark-mode .small.text-muted {
+  color: var(--text-color) !important;
+}
+
+body.dark-mode .form-label {
+  color: var(--text-light) !important;
+}
+
+body.dark-mode .card {
+  background: var(--card-bg) !important;
+}
+
+/* Enlaces y botones outline */
+body.dark-mode a:not(.btn):not(.nav-link):not(.dropdown-item) {
+  color: var(--secondary-color) !important;
+}
+
+body.dark-mode a:not(.btn):not(.nav-link):not(.dropdown-item):hover {
+  color: var(--primary-color) !important;
+}
+
+/* Textos de características (iconos + texto) */
+body.dark-mode .feature-icon + h3,
+body.dark-mode .feature-icon + .h3,
+body.dark-mode .bi + h3,
+body.dark-mode .bi + .h3 {
+  color: var(--text-color) !important;
+}
+
+/* Texto en botones transparentes */
+body.dark-mode .btn-outline-primary,
+body.dark-mode .btn-outline-secondary,
+body.dark-mode .btn-outline-success,
+body.dark-mode .btn-outline-danger {
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+}
+
+body.dark-mode .btn-outline-primary:hover,
+body.dark-mode .btn-outline-secondary:hover {
+  color: white !important;
+}
+
+/* Corrección para el texto "Hola, nombre" */
+body.dark-mode .navbar-text.me-2 {
+  color: var(--text-color) !important;
+}
+
+body.dark-mode .navbar-text.me-2 strong {
+  color: var(--primary-color) !important;
+}
+
+/* Alertas */
+body.dark-mode .alert-info {
+  background: #1a3d3d !important;
+  color: #a3e4e4 !important;
+}
+
+/* Tarjetas de estadísticas en el dashboard */
+body.dark-mode .card-body .h2,
+body.dark-mode .card-body h2,
+body.dark-mode .card-body .h5,
+body.dark-mode .card-body h5 {
+  color: var(--text-color) !important;
+}
+
+/* Textos de la sección de bienvenida */
+body.dark-mode .display-4,
+body.dark-mode .display-6,
+body.dark-mode .lead {
+  color: var(--text-color) !important;
+}
+
+/* Dropdown menu en modo nocturno */
+body.dark-mode .dropdown-menu {
+  background: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+body.dark-mode .dropdown-item {
+  color: var(--text-color) !important;
+}
+
+body.dark-mode .dropdown-item:hover {
+  background: var(--secondary-color) !important;
+  color: white !important;
+}
+
+/* Modal en modo nocturno */
+body.dark-mode .modal-content {
+  background: var(--card-bg) !important;
+  color: var(--text-color) !important;
+}
+
+body.dark-mode .modal-header {
+  border-bottom-color: var(--border-color) !important;
+}
+
+body.dark-mode .modal-footer {
+  border-top-color: var(--border-color) !important;
+}
+
+body.dark-mode .modal-header .btn-close {
+  filter: invert(1);
+}
+
+/* Página de inicio (index) */
+body.dark-mode .jumbotron,
+body.dark-mode .hero-section {
+  background: var(--card-bg) !important;
+}
+
+body.dark-mode .hero-section h1,
+body.dark-mode .hero-section p {
+  color: var(--text-color) !important;
+}
+
+/* Sección de características */
+body.dark-mode .features-section .col-md-3,
+body.dark-mode .features-section .col-lg-3 {
+  background: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Textos de las tarjetas de reportes */
+body.dark-mode .report-card .card-title,
+body.dark-mode .report-card h5,
+body.dark-mode .report-card p {
+  color: var(--text-color) !important;
+}
+
+/* Placeholder de formularios */
+body.dark-mode ::-webkit-input-placeholder {
+  color: var(--text-light) !important;
+}
+
+body.dark-mode :-ms-input-placeholder {
+  color: var(--text-light) !important;
+}
+
+body.dark-mode ::placeholder {
+  color: var(--text-light) !important;
+}
+/* Logo del footer en modo nocturno - opcional si quieres cambiar la imagen */
+body.dark-mode .footer-logo {
+  filter: brightness(0.8) invert(1);
 }

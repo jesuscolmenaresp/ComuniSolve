@@ -56,13 +56,21 @@ if (process.env.NODE_ENV === 'production') {
 
 app.use(session(sessionConfig));
 
-// Pasar datos de sesión a todas las vistas
+// ================================================
+// MIDDLEWARES GLOBALES (se ejecutan en orden)
+// ================================================
+
+// 1. Pasar datos de sesión a todas las vistas
 app.use((req, res, next) => {
   res.locals.usuario = req.session.usuario || null;
   next();
 });
 
-// Middleware para verificar si el usuario es voluntario
+// 2. Cargar configuración del sistema (modo nocturno, etc.)
+const { cargarConfiguracion } = require('./middleware/configMiddleware');
+app.use(cargarConfiguracion);
+
+// 3. Middleware para verificar si el usuario es voluntario
 app.use(async (req, res, next) => {
   if (req.session.usuario && req.session.usuario.rol_id === 4) {
     try {
@@ -85,7 +93,9 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Motor de vistas
+// ================================================
+// MOTOR DE VISTAS
+// ================================================
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
@@ -93,7 +103,9 @@ app.set('view engine', 'ejs');
 app.use(expressLayouts);
 app.set('layout', 'layout');
 
-// Rutas
+// ================================================
+// RUTAS
+// ================================================
 const authRoutes = require('./routes/auth');
 const reporteRoutes = require('./routes/reportes');
 const indexRouter = require('./routes/index');
@@ -144,7 +156,9 @@ app.use(perfilRoutes);
 
 app.use('/superadmin', superadminRoutes);
 
-// Iniciar servidor
+// ================================================
+// INICIAR SERVIDOR
+// ================================================
 app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
   console.log(`📦 Entorno: ${process.env.NODE_ENV || 'development'}`);

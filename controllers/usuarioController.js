@@ -2,13 +2,16 @@ const db = require('../models/db');
 const bcrypt = require('bcryptjs');
 const { registrarAuditoria } = require('../middleware/auditoriaMiddleware');
 
-// 📌 Listar todos los usuarios
+// ==========================
+// 📌 LISTAR USUARIOS ACTIVOS
+// ==========================
 exports.listar = async (req, res) => {
   try {
     const [usuarios] = await db.query(`
       SELECT u.*, r.nombre as rol_nombre
       FROM usuarios u
       INNER JOIN roles r ON u.rol_id = r.id
+      WHERE u.activo = 1
       ORDER BY 
         CASE u.estado
           WHEN 'pendiente' THEN 1
@@ -30,7 +33,7 @@ exports.listar = async (req, res) => {
         const [calles] = await db.query(`
           SELECT nombre 
           FROM calles 
-          WHERE lider_id = ?
+          WHERE lider_id = ? AND activo = 1
           ORDER BY nombre
         `, [usuario.id]);
         usuario.calles_lideradas = calles.map(c => c.nombre);
@@ -39,7 +42,7 @@ exports.listar = async (req, res) => {
         const [calle] = await db.query(`
           SELECT nombre 
           FROM calles 
-          WHERE id = ?
+          WHERE id = ? AND activo = 1
         `, [usuario.calle_id]);
         usuario.calle_nombre = calle[0]?.nombre;
       }
@@ -47,7 +50,7 @@ exports.listar = async (req, res) => {
         const [calle] = await db.query(`
           SELECT nombre 
           FROM calles 
-          WHERE id = ?
+          WHERE id = ? AND activo = 1
         `, [usuario.calle_id]);
         usuario.calle_nombre = calle[0]?.nombre;
       }
@@ -56,7 +59,7 @@ exports.listar = async (req, res) => {
           SELECT c.nombre 
           FROM comunidades c
           INNER JOIN ubch_comunidades uc ON c.id = uc.comunidad_id
-          WHERE uc.ubch_id = ?
+          WHERE uc.ubch_id = ? AND c.activo = 1
           ORDER BY c.nombre
         `, [usuario.id]);
         usuario.comunidades_atiende = comunidades.map(c => c.nombre);
@@ -74,7 +77,48 @@ exports.listar = async (req, res) => {
   }
 };
 
-// 📌 Mostrar formulario de nuevo usuario
+// ==========================
+// 📌 LISTAR USUARIOS INACTIVOS (UBCH y SuperAdmin)
+// ==========================
+exports.listarInactivos = async (req, res) => {
+  try {
+    // Verificar que sea UBCH o SuperAdmin
+    if (!req.session.usuario || (req.session.usuario.rol_id !== 1 && req.session.usuario.rol_id !== 5)) {
+      req.session.error = 'No autorizado';
+      return res.redirect('/dashboard');
+    }
+
+    let query = `
+      SELECT u.*, r.nombre as rol_nombre
+      FROM usuarios u
+      INNER JOIN roles r ON u.rol_id = r.id
+      WHERE u.activo = 0
+    `;
+    
+    // Si es UBCH (rol 1), no mostrar SuperAdmins inactivos
+    if (req.session.usuario.rol_id === 1) {
+      query += " AND u.rol_id != 5";
+    }
+    
+    query += " ORDER BY u.id DESC";
+    
+    const [usuarios] = await db.query(query);
+
+    res.render('usuarios/inactivos', { 
+      usuarios,
+      usuario: req.session.usuario,
+      session: req.session
+    });
+  } catch (err) {
+    console.error(err);
+    req.session.error = 'Error al listar usuarios inactivos';
+    res.redirect('/dashboard');
+  }
+};
+
+// ==========================
+// 📌 MOSTRAR FORMULARIO DE NUEVO USUARIO
+// ==========================
 exports.formCrear = async (req, res) => {
   try {
     const [roles] = await db.query('SELECT * FROM roles');
@@ -84,10 +128,11 @@ exports.formCrear = async (req, res) => {
              CONCAT(c.nombre, ' (Jefe: ', u.nombre, ')') as nombre_completo
       FROM calles c
       LEFT JOIN usuarios u ON c.jefe_id = u.id
+      WHERE c.activo = 1
       ORDER BY c.nombre
     `);
     
-    const [comunidades] = await db.query('SELECT * FROM comunidades ORDER BY nombre');
+    const [comunidades] = await db.query('SELECT * FROM comunidades WHERE activo = 1 ORDER BY nombre');
 
     res.render('usuarios/crear', { 
       roles, 
@@ -101,13 +146,22 @@ exports.formCrear = async (req, res) => {
   }
 };
 
-// 📌 Guardar nuevo usuario (con cédula)
+// ==========================
+// 📌 GUARDAR NUEVO USUARIO
+// ==========================
 exports.crear = async (req, res) => {
   const { cedula, nombre, email, password, telefono, rol_id, calle_id, calles_lider, comunidades } = req.body;
 
   try {
+    // ========== VALIDACIÓN DE PERMISOS PARA CREAR SUPERADMIN ==========
+    // Solo SuperAdmin puede crear otro SuperAdmin
+    if (rol_id == 5 && req.session.usuario.rol_id !== 5) {
+      req.session.error = 'No tiene permisos para crear un SuperAdministrador';
+      return res.redirect('/usuarios/nuevo');
+    }
+
     // Verificar si el email ya existe
-    const [existente] = await db.query('SELECT id FROM usuarios WHERE email = ?', [email]);
+    const [existente] = await db.query('SELECT id FROM usuarios WHERE email = ? AND activo = 1', [email]);
     if (existente.length > 0) {
       req.session.error = 'El email ya está registrado';
       return res.redirect('/usuarios/nuevo');
@@ -115,7 +169,7 @@ exports.crear = async (req, res) => {
 
     // Verificar si la cédula ya existe
     if (cedula && cedula.trim() !== '') {
-      const [cedulaExistente] = await db.query('SELECT id FROM usuarios WHERE cedula = ?', [cedula]);
+      const [cedulaExistente] = await db.query('SELECT id FROM usuarios WHERE cedula = ? AND activo = 1', [cedula]);
       if (cedulaExistente.length > 0) {
         req.session.error = 'La cédula ya está registrada';
         return res.redirect('/usuarios/nuevo');
@@ -137,8 +191,8 @@ exports.crear = async (req, res) => {
       }
 
       const [result] = await connection.query(
-        `INSERT INTO usuarios (cedula, nombre, email, password, telefono, rol_id, calle_id) 
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO usuarios (cedula, nombre, email, password, telefono, rol_id, calle_id, activo) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
         [cedula || null, nombre, email, passwordHash, telefono || null, rol_id, calleAsignada]
       );
 
@@ -193,26 +247,29 @@ exports.crear = async (req, res) => {
   }
 };
 
-// 📌 Mostrar formulario de edición
+// ==========================
+// 📌 MOSTRAR FORMULARIO DE EDICIÓN
+// ==========================
 exports.formEditar = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [usuario] = await db.query('SELECT * FROM usuarios WHERE id = ?', [id]);
+    const [usuario] = await db.query('SELECT * FROM usuarios WHERE id = ? AND activo = 1', [id]);
     if (usuario.length === 0) {
       return res.status(404).send('Usuario no encontrado');
     }
 
     let callesLideradas = [];
     if (usuario[0].rol_id === 2) {
-      const [calles] = await db.query('SELECT id FROM calles WHERE lider_id = ?', [id]);
+      const [calles] = await db.query('SELECT id FROM calles WHERE lider_id = ? AND activo = 1', [id]);
       callesLideradas = calles.map(c => c.id);
     }
 
     let comunidadesAsignadas = [];
     if (usuario[0].rol_id === 1) {
       const [comunidades] = await db.query(
-        'SELECT comunidad_id FROM ubch_comunidades WHERE ubch_id = ?',
+        `SELECT comunidad_id FROM ubch_comunidades 
+         WHERE ubch_id = ? AND comunidad_id IN (SELECT id FROM comunidades WHERE activo = 1)`,
         [id]
       );
       comunidadesAsignadas = comunidades.map(c => c.comunidad_id);
@@ -224,10 +281,11 @@ exports.formEditar = async (req, res) => {
              CONCAT(c.nombre, ' (Jefe: ', u.nombre, ')') as nombre_completo
       FROM calles c
       LEFT JOIN usuarios u ON c.jefe_id = u.id
+      WHERE c.activo = 1
       ORDER BY c.nombre
     `);
     
-    const [comunidades] = await db.query('SELECT * FROM comunidades ORDER BY nombre');
+    const [comunidades] = await db.query('SELECT * FROM comunidades WHERE activo = 1 ORDER BY nombre');
 
     res.render('usuarios/editar', { 
       usuario: usuario[0],
@@ -244,7 +302,9 @@ exports.formEditar = async (req, res) => {
   }
 };
 
-// 📌 Actualizar usuario (con cédula)
+// ==========================
+// 📌 ACTUALIZAR USUARIO
+// ==========================
 exports.actualizar = async (req, res) => {
   const { id } = req.params;
   const { 
@@ -256,14 +316,49 @@ exports.actualizar = async (req, res) => {
   } = req.body;
 
   try {
+    // ========== VALIDACIONES DE PERMISOS PARA EDITAR ==========
+    
+    // Obtener el usuario actual para verificar su rol
+    const [usuarioActual] = await db.query('SELECT rol_id FROM usuarios WHERE id = ?', [id]);
+    
+    if (usuarioActual.length === 0) {
+      req.session.error = 'Usuario no encontrado';
+      return res.redirect('/usuarios');
+    }
+    
+    const rolActual = usuarioActual[0].rol_id;
+    
+    // 1. Si el usuario actual es SuperAdmin y quien edita NO es SuperAdmin -> NO PERMITIR
+    if (rolActual === 5 && req.session.usuario.rol_id !== 5) {
+      req.session.error = 'No tiene permisos para editar un SuperAdministrador';
+      return res.redirect('/usuarios');
+    }
+    
+    // 2. Si intentan cambiar el rol a SuperAdmin pero quien edita NO es SuperAdmin -> NO PERMITIR
+    if (rol_id == 5 && req.session.usuario.rol_id !== 5) {
+      req.session.error = 'No tiene permisos para asignar el rol de SuperAdministrador';
+      return res.redirect(`/usuarios/${id}/editar`);
+    }
+    
+    // 3. Si quien edita es UBCH (rol 1) y el usuario a editar es UBCH (rol 1) -> NO PERMITIR
+    // (Un UBCH no puede editar a otro UBCH, solo SuperAdmin puede)
+    if (req.session.usuario.rol_id === 1 && rolActual === 1) {
+      req.session.error = 'No tiene permisos para editar otro usuario UBCH';
+      return res.redirect('/usuarios');
+    }
+
     const connection = await db.getConnection();
     await connection.beginTransaction();
 
     try {
       const [usuarioAnterior] = await connection.query(
-        'SELECT nombre, email, telefono, rol_id, calle_id, cedula FROM usuarios WHERE id = ?',
+        'SELECT nombre, email, telefono, rol_id, calle_id, cedula FROM usuarios WHERE id = ? AND activo = 1',
         [id]
       );
+
+      if (usuarioAnterior.length === 0) {
+        throw new Error('Usuario no encontrado');
+      }
 
       let updates = [];
       let params = [];
@@ -376,54 +471,191 @@ exports.actualizar = async (req, res) => {
     res.redirect(`/usuarios/${id}/editar`);
   }
 };
-
-// 📌 Eliminar usuario
+// ==========================
+// 📌 DESACTIVAR USUARIO (SOFT DELETE)
+// ==========================
 exports.eliminar = async (req, res) => {
   const { id } = req.params;
+  const { motivo } = req.body;
 
   try {
+    // No permitir desactivarse a sí mismo
     if (parseInt(id) === req.session.usuario.id) {
-      req.session.error = 'No puedes eliminarte a ti mismo';
+      req.session.error = 'No puedes desactivarte a ti mismo';
       return res.redirect('/usuarios');
     }
 
-    const [usuarioAEliminar] = await db.query(
-      'SELECT nombre, email, rol_id FROM usuarios WHERE id = ?',
+    const [usuarioADesactivar] = await db.query(
+      'SELECT nombre, email, rol_id FROM usuarios WHERE id = ? AND activo = 1',
       [id]
     );
 
-    await db.query('DELETE FROM usuarios WHERE id = ?', [id]);
+    if (usuarioADesactivar.length === 0) {
+      req.session.error = 'Usuario no encontrado o ya está inactivo';
+      return res.redirect('/usuarios');
+    }
+
+    // Desactivar usuario (soft delete)
+    await db.query('UPDATE usuarios SET activo = 0 WHERE id = ?', [id]);
 
     await registrarAuditoria(
       req.session.usuario,
-      'ELIMINAR',
+      'DESACTIVAR',
       'usuarios',
       id,
-      usuarioAEliminar[0],
-      null
+      usuarioADesactivar[0],
+      { motivo: motivo || 'Desactivado por administrador', activo: false }
     );
 
-    req.session.mensaje = 'Usuario eliminado exitosamente';
+    req.session.mensaje = `Usuario "${usuarioADesactivar[0].nombre}" desactivado correctamente`;
     res.redirect('/usuarios');
   } catch (err) {
     console.error(err);
-    req.session.error = 'Error al eliminar usuario';
+    req.session.error = 'Error al desactivar usuario';
     res.redirect('/usuarios');
   }
 };
 
-// 📌 Aprobar ciudadano
+// ==========================
+// 📌 ACTIVAR USUARIO (REACTIVAR)
+// ==========================
+exports.activar = async (req, res) => {
+  const { id } = req.params;
+  const { motivo } = req.body;
+
+  try {
+    const [usuarioAActivar] = await db.query(
+      'SELECT nombre, email, rol_id FROM usuarios WHERE id = ? AND activo = 0',
+      [id]
+    );
+
+    if (usuarioAActivar.length === 0) {
+      req.session.error = 'Usuario no encontrado o ya está activo';
+      return res.redirect('/usuarios/inactivos');
+    }
+
+    // Activar usuario
+    await db.query('UPDATE usuarios SET activo = 1 WHERE id = ?', [id]);
+
+    await registrarAuditoria(
+      req.session.usuario,
+      'ACTIVAR',
+      'usuarios',
+      id,
+      { activo: false },
+      { motivo: motivo || 'Reactivado por administrador', activo: true }
+    );
+
+    req.session.mensaje = `Usuario "${usuarioAActivar[0].nombre}" activado correctamente`;
+    res.redirect('/usuarios/inactivos');
+  } catch (err) {
+    console.error(err);
+    req.session.error = 'Error al activar usuario';
+    res.redirect('/usuarios/inactivos');
+  }
+};
+
+// ==========================
+// 📌 ELIMINAR FÍSICAMENTE (SOLO SUPERADMIN CON MOTIVO)
+// ==========================
+exports.destruir = async (req, res) => {
+  const { id } = req.params;
+  const { motivo } = req.body;
+
+  console.log('=== DESTRUIR USUARIO ===');
+  console.log('ID:', id);
+  console.log('Motivo recibido:', motivo);
+
+  try {
+    // Verificar que sea SuperAdmin
+    if (!req.session.usuario || req.session.usuario.rol_id !== 5) {
+      req.session.error = 'No autorizado';
+      return res.redirect('/usuarios/inactivos');
+    }
+
+    // Validar que se ingrese un motivo
+    if (!motivo || motivo.trim() === '') {
+      req.session.error = 'Debe especificar un motivo para eliminar permanentemente al usuario';
+      return res.redirect('/usuarios/inactivos');
+    }
+
+    // No permitir eliminarse a sí mismo
+    if (parseInt(id) === req.session.usuario.id) {
+      req.session.error = 'No puedes eliminarte a ti mismo';
+      return res.redirect('/usuarios/inactivos');
+    }
+
+    const [usuarioAEliminar] = await db.query(
+      'SELECT nombre, email, cedula, rol_id FROM usuarios WHERE id = ?',
+      [id]
+    );
+
+    if (usuarioAEliminar.length === 0) {
+      req.session.error = 'Usuario no encontrado';
+      return res.redirect('/usuarios/inactivos');
+    }
+
+    // Guardar datos para auditoría antes de eliminar
+    const datosUsuario = usuarioAEliminar[0];
+    
+    // Crear un objeto con los datos del usuario y el motivo
+    const datosParaAuditoria = {
+      id: datosUsuario.id,
+      nombre: datosUsuario.nombre,
+      email: datosUsuario.email,
+      cedula: datosUsuario.cedula || 'No registrada',
+      rol_id: datosUsuario.rol_id,
+      motivo_eliminacion: motivo.trim(),
+      eliminado_por: req.session.usuario.nombre,
+      eliminado_por_id: req.session.usuario.id,
+      fecha_eliminacion: new Date().toLocaleString()
+    };
+
+    console.log('Datos a guardar en auditoría:', datosParaAuditoria);
+
+    // Eliminación física permanente
+    await db.query('DELETE FROM usuarios WHERE id = ?', [id]);
+
+    // Registrar en auditoría con el motivo (PASANDO req PARA IP Y USER-AGENT)
+    await registrarAuditoria(
+      req.session.usuario,
+      'ELIMINAR_PERMANENTEMENTE',
+      'usuarios',
+      id,
+      datosParaAuditoria,  // Datos anteriores (lo que se eliminó con el motivo)
+      { 
+        motivo: motivo.trim(), 
+        eliminado_por: req.session.usuario.nombre,
+        accion: 'Eliminación permanente'
+      },
+      req  // 👈 IMPORTANTE: pasar req para IP y User-Agent
+    );
+
+    req.session.mensaje = `Usuario "${datosUsuario.nombre}" eliminado permanentemente. Motivo: ${motivo}`;
+    res.redirect('/usuarios/inactivos');
+  } catch (err) {
+    console.error('Error en destruir:', err);
+    req.session.error = 'Error al eliminar usuario permanentemente: ' + err.message;
+    res.redirect('/usuarios/inactivos');
+  }
+};
+
+// ==========================
+// 📌 APROBAR CIUDADANO (con auditoría)
+// ==========================
 exports.aprobar = async (req, res) => {
   const { id } = req.params;
   const adminId = req.session.usuario.id;
 
   try {
-    const [usuario] = await db.query('SELECT email, nombre FROM usuarios WHERE id = ?', [id]);
+    const [usuario] = await db.query('SELECT email, nombre, estado FROM usuarios WHERE id = ? AND activo = 1', [id]);
     
     if (usuario.length === 0) {
       req.session.error = 'Usuario no encontrado';
       return res.redirect('/usuarios');
     }
+
+    const estadoAnterior = usuario[0].estado;
 
     await db.query(
       `UPDATE usuarios 
@@ -432,13 +664,15 @@ exports.aprobar = async (req, res) => {
       [adminId, id]
     );
 
+    // Registrar en auditoría
     await registrarAuditoria(
       req.session.usuario,
       'EDITAR',
       'usuarios',
       id,
-      { estado: 'pendiente' },
-      { estado: 'aprobado' }
+      { estado: estadoAnterior },
+      { estado: 'aprobado', aprobado_por: adminId },
+      req
     );
 
     const { enviarNotificacionEstadoUsuario } = require('../services/emailService');
@@ -453,14 +687,23 @@ exports.aprobar = async (req, res) => {
   }
 };
 
-// 📌 Rechazar ciudadano
+// ==========================
+// 📌 RECHAZAR CIUDADANO (con auditoría)
+// ==========================
 exports.rechazar = async (req, res) => {
   const { id } = req.params;
   const adminId = req.session.usuario.id;
   const { motivo } = req.body;
 
   try {
-    const [usuario] = await db.query('SELECT email, nombre FROM usuarios WHERE id = ?', [id]);
+    const [usuario] = await db.query('SELECT email, nombre, estado FROM usuarios WHERE id = ? AND activo = 1', [id]);
+    
+    if (usuario.length === 0) {
+      req.session.error = 'Usuario no encontrado';
+      return res.redirect('/usuarios');
+    }
+
+    const estadoAnterior = usuario[0].estado;
 
     await db.query(
       `UPDATE usuarios 
@@ -469,13 +712,15 @@ exports.rechazar = async (req, res) => {
       [adminId, id]
     );
 
+    // Registrar en auditoría
     await registrarAuditoria(
       req.session.usuario,
       'EDITAR',
       'usuarios',
       id,
-      { estado: 'pendiente' },
-      { estado: 'rechazado', motivo }
+      { estado: estadoAnterior },
+      { estado: 'rechazado', motivo: motivo || 'No especificado', aprobado_por: adminId },
+      req
     );
 
     const { enviarNotificacionEstadoUsuario } = require('../services/emailService');
@@ -486,6 +731,57 @@ exports.rechazar = async (req, res) => {
   } catch (err) {
     console.error(err);
     req.session.error = 'Error al rechazar usuario';
+    res.redirect('/usuarios');
+  }
+};
+// ==========================
+// 📌 REAPROBAR USUARIO (cambiar de rechazado a aprobado)
+// ==========================
+exports.reaprobar = async (req, res) => {
+  const { id } = req.params;
+  const adminId = req.session.usuario.id;
+
+  try {
+    const [usuario] = await db.query('SELECT email, nombre, estado FROM usuarios WHERE id = ? AND activo = 1', [id]);
+    
+    if (usuario.length === 0) {
+      req.session.error = 'Usuario no encontrado';
+      return res.redirect('/usuarios');
+    }
+
+    if (usuario[0].estado !== 'rechazado') {
+      req.session.error = 'Este usuario no está rechazado';
+      return res.redirect('/usuarios');
+    }
+
+    const estadoAnterior = usuario[0].estado;
+
+    await db.query(
+      `UPDATE usuarios 
+       SET estado = 'aprobado', fecha_aprobacion = NOW(), aprobado_por = ? 
+       WHERE id = ?`,
+      [adminId, id]
+    );
+
+    // Registrar en auditoría
+    await registrarAuditoria(
+      req.session.usuario,
+      'REAPROBAR',
+      'usuarios',
+      id,
+      { estado: estadoAnterior },
+      { estado: 'aprobado', reaprobado_por: adminId, motivo: 'Reaprobado por administrador' },
+      req
+    );
+
+    const { enviarNotificacionEstadoUsuario } = require('../services/emailService');
+    await enviarNotificacionEstadoUsuario(usuario[0], 'aprobado', null, true);
+
+    req.session.mensaje = `Usuario "${usuario[0].nombre}" ha sido reaprobado exitosamente`;
+    res.redirect('/usuarios');
+  } catch (err) {
+    console.error(err);
+    req.session.error = 'Error al reaprobar usuario';
     res.redirect('/usuarios');
   }
 };

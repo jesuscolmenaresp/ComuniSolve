@@ -21,22 +21,20 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
   <!-- ========== ENCABEZADO ========== -->
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-      <h2 class="fw-bold mb-1" style="color: #5D4037;">
-        <i class="bi bi-shield-lock-fill me-2" style="color: #ffc107;"></i> Panel SuperAdministrador
+      <h2 class="fw-bold mb-1 superadmin-title">
+        <i class="bi bi-shield-lock-fill me-2"></i> Panel SuperAdministrador
       </h2>
-      <p class="text-muted small mb-0" style="color: #8B6B5A;">Gestión global del sistema - Estadísticas completas - Control total</p>
+      <p class="text-muted small mb-0 superadmin-subtitle">Gestión global del sistema - Estadísticas completas - Control total</p>
     </div>
     <div class="d-flex gap-2">
-      <button onclick="window.location.reload()" class="btn btn-sm px-3 py-2 rounded-3"
-              style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;">
+      <button onclick="window.location.reload()" class="btn btn-sm px-3 py-2 rounded-3 btn-actualizar-sa">
         <i class="bi bi-arrow-repeat me-1"></i> Actualizar
       </button>
-      <button id="btnModoOscuro" class="btn btn-sm px-3 py-2 rounded-3"
-              style="background: #6c757d; color: white; border: none;">
-        <i class="bi bi-moon-stars-fill me-1"></i> Modo Oscuro
+      <button id="btnDarkModeGlobal" class="btn btn-sm px-3 py-2 rounded-3 btn-darkmode-toggle">
+        <i class="bi bi-moon-stars-fill me-1"></i> 
+        <span id="darkModeText">Modo Nocturno</span>
       </button>
-      <a href="/auditoria" class="btn btn-sm px-3 py-2 rounded-3"
-         style="background: #17a2b8; color: white; border: none;">
+      <a href="/auditoria" class="btn btn-sm px-3 py-2 rounded-3 btn-auditoria-sa">
         <i class="bi bi-clock-history me-1"></i> Auditoría completa
       </a>
     </div>
@@ -45,110 +43,136 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
   <!-- ========== FILA 1: TARJETAS PRINCIPALES ========== -->
   <div class="row g-4 mb-5">
     <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="card-body p-3 text-center tarjeta-usuarios">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
+        <div class="card-body p-3 text-center stat-card-sa-usuarios">
           <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+            <div class="stat-icon-sa">
               <i class="bi bi-people-fill fs-3 text-white"></i>
             </div>
           </div>
-          <h2 class="fw-bold mb-0"><%= totales.usuarios || 0 %></h2>
-          <p class="small mb-0">Usuarios totales</p>
+          <h2 class="fw-bold mb-0 stat-number-sa"><%= totales.usuarios || 0 %></h2>
+          <p class="small mb-0 stat-label-sa">Usuarios totales</p>
         </div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="card-body p-3 text-center tarjeta-reportes">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
+        <div class="card-body p-3 text-center stat-card-sa-reportes">
           <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div style="width: 50px; height: 50px; background: #ffc107; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+            <div class="stat-icon-sa">
               <i class="bi bi-file-text-fill fs-3 text-white"></i>
             </div>
           </div>
-          <h2 class="fw-bold mb-0"><%= totales.reportes || 0 %></h2>
-          <p class="small mb-0">Reportes totales</p>
+          <h2 class="fw-bold mb-0 stat-number-sa"><%= totales.reportes || 0 %></h2>
+          <p class="small mb-0 stat-label-sa">Reportes totales</p>
         </div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="card-body p-3 text-center tarjeta-calles">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
+        <div class="card-body p-3 text-center stat-card-sa-calles">
           <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div style="width: 50px; height: 50px; background: #17a2b8; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+            <div class="stat-icon-sa">
               <i class="bi bi-geo-alt-fill fs-3 text-white"></i>
             </div>
           </div>
-          <h2 class="fw-bold mb-0"><%= totales.calles || 0 %></h2>
-          <p class="small mb-0">Calles registradas</p>
+          <h2 class="fw-bold mb-0 stat-number-sa"><%= totales.calles || 0 %></h2>
+          <p class="small mb-0 stat-label-sa">Calles registradas</p>
         </div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="card-body p-3 text-center tarjeta-voluntarios">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
+        <div class="card-body p-3 text-center stat-card-sa-voluntarios">
           <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div style="width: 50px; height: 50px; background: #28a745; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+            <div class="stat-icon-sa">
               <i class="bi bi-person-badge-fill fs-3 text-white"></i>
             </div>
           </div>
-          <h2 class="fw-bold mb-0"><%= totales.voluntarios || 0 %></h2>
-          <p class="small mb-0">Voluntarios totales</p>
+          <h2 class="fw-bold mb-0 stat-number-sa"><%= totales.voluntarios || 0 %></h2>
+          <p class="small mb-0 stat-label-sa">Voluntarios totales</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ========== FILA 2: TARJETAS SECUNDARIAS + ACTIVIDAD ========== -->
+  <!-- ========== FILA 2: TARJETAS SECUNDARIAS ========== -->
   <div class="row g-4 mb-5">
-    <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="card-body p-3 text-center tarjeta-comunidades">
+    <div class="col-md-2 col-sm-6">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
+        <div class="card-body p-3 text-center stat-card-sa-comunidades">
           <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-              <i class="bi bi-building fs-3 text-white"></i>
+            <div class="stat-icon-sa-sm">
+              <i class="bi bi-building fs-4 text-white"></i>
             </div>
           </div>
-          <h2 class="fw-bold mb-0"><%= totales.comunidades || 0 %></h2>
-          <p class="small mb-0">Comunidades</p>
+          <h2 class="fw-bold mb-0 fs-4 stat-number-sa"><%= totales.comunidades || 0 %></h2>
+          <p class="small mb-0 stat-label-sa">Comunidades</p>
         </div>
       </div>
     </div>
-    <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="card-body p-3 text-center tarjeta-empresas">
+    <div class="col-md-2 col-sm-6">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
+        <div class="card-body p-3 text-center stat-card-sa-empresas">
           <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div style="width: 50px; height: 50px; background: #6c757d; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-              <i class="bi bi-building fs-3 text-white"></i>
+            <div class="stat-icon-sa-sm">
+              <i class="bi bi-building fs-4 text-white"></i>
             </div>
           </div>
-          <h2 class="fw-bold mb-0"><%= totales.empresas || 0 %></h2>
-          <p class="small mb-0">Empresas</p>
+          <h2 class="fw-bold mb-0 fs-4 stat-number-sa"><%= totales.empresas || 0 %></h2>
+          <p class="small mb-0 stat-label-sa">Empresas</p>
         </div>
       </div>
     </div>
-    <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="card-body p-3 text-center tarjeta-categorias">
+    <div class="col-md-2 col-sm-6">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
+        <div class="card-body p-3 text-center stat-card-sa-categorias">
           <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div style="width: 50px; height: 50px; background: #6c757d; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-              <i class="bi bi-tags-fill fs-3 text-white"></i>
+            <div class="stat-icon-sa-sm">
+              <i class="bi bi-tags-fill fs-4 text-white"></i>
             </div>
           </div>
-          <h2 class="fw-bold mb-0"><%= totales.categorias || 0 %></h2>
-          <p class="small mb-0">Categorías</p>
+          <h2 class="fw-bold mb-0 fs-4 stat-number-sa"><%= totales.categorias || 0 %></h2>
+          <p class="small mb-0 stat-label-sa">Categorías</p>
         </div>
       </div>
     </div>
-    <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="card-body p-3 text-center tarjeta-actividad">
+    <div class="col-md-2 col-sm-6">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
+        <div class="card-body p-3 text-center stat-card-sa-actividad">
           <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div style="width: 50px; height: 50px; background: #0d6efd; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-              <i class="bi bi-activity fs-3 text-white"></i>
+            <div class="stat-icon-sa-sm">
+              <i class="bi bi-activity fs-4 text-white"></i>
             </div>
           </div>
-          <h5 class="fw-bold mb-0"><%= totales.reportesHoy || 0 %></h5>
-          <p class="small mb-0">Reportes hoy</p>
+          <h5 class="fw-bold mb-0 fs-4 stat-number-sa"><%= totales.reportesHoy || 0 %></h5>
+          <p class="small mb-0 stat-label-sa">Reportes hoy</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-sm-6">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
+        <div class="card-body p-3 text-center stat-card-sa-aprobados">
+          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
+            <div class="stat-icon-sa-sm">
+              <i class="bi bi-check-circle-fill fs-4 text-white"></i>
+            </div>
+          </div>
+          <h2 class="fw-bold mb-0 fs-4 stat-number-sa-aprobados"><%= totales.voluntariosAprobados || 0 %></h2>
+          <p class="small mb-0 stat-label-sa-aprobados">Aprobados</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-sm-6">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
+        <div class="card-body p-3 text-center stat-card-sa-pendientes">
+          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
+            <div class="stat-icon-sa-sm">
+              <i class="bi bi-clock-history fs-4 text-white"></i>
+            </div>
+          </div>
+          <h2 class="fw-bold mb-0 fs-4 stat-number-sa-pendientes"><%= totales.voluntariosPendientes || 0 %></h2>
+          <p class="small mb-0 stat-label-sa-pendientes">Pendientes</p>
         </div>
       </div>
     </div>
@@ -157,21 +181,21 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
   <!-- ========== FILA 3: GRÁFICOS ========== -->
   <div class="row g-4 mb-5">
     <div class="col-md-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100">
-        <div class="px-4 py-3 card-header-custom">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100 chart-card-sa">
+        <div class="px-4 py-3 chart-card-header-sa">
           <h5 class="mb-0 fw-semibold"><i class="bi bi-pie-chart me-2"></i> Reportes por Estado</h5>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body p-4 chart-card-body-sa">
           <canvas id="chartEstado" style="max-height: 280px; width: 100%;"></canvas>
         </div>
       </div>
     </div>
     <div class="col-md-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100">
-        <div class="px-4 py-3 card-header-custom">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100 chart-card-sa">
+        <div class="px-4 py-3 chart-card-header-sa">
           <h5 class="mb-0 fw-semibold"><i class="bi bi-bar-chart me-2"></i> Voluntarios por Habilidad</h5>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body p-4 chart-card-body-sa">
           <canvas id="chartHabilidades" style="max-height: 280px; width: 100%;"></canvas>
         </div>
       </div>
@@ -181,13 +205,13 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
   <!-- ========== FILA 4: VOLUNTARIOS ========== -->
   <div class="row g-4 mb-5">
     <div class="col-md-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="px-4 py-3 card-header-custom">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden table-card-sa">
+        <div class="px-4 py-3 table-card-header-sa">
           <h5 class="mb-0 fw-semibold"><i class="bi bi-person-badge me-2"></i> Voluntarios Pendientes de Aprobación</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0 tabla-sa">
               <thead>
                 <tr class="text-center">
                   <th><i class="bi bi-person"></i> Nombre</th>
@@ -205,7 +229,7 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
                       <td><small><%= new Date(v.fecha_solicitud).toLocaleDateString() %></small></td>
                       <td>
                         <% if (v.estado === 'pendiente') { %>
-                          <a href="/voluntarios/gestionar" class="btn btn-sm btn-success px-2 py-1 rounded-3">
+                          <a href="/voluntarios/gestionar" class="btn btn-sm btn-success px-2 py-1 rounded-3 btn-revisar">
                             <i class="bi bi-check-lg"></i> Revisar
                           </a>
                         <% } else { %>
@@ -223,19 +247,19 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
             </table>
           </div>
         </div>
-        <div class="card-footer bg-transparent text-center">
+        <div class="card-footer bg-transparent text-center table-footer-sa">
           <a href="/voluntarios/gestionar" class="btn btn-sm btn-outline-primary rounded-3">Ver todos los voluntarios</a>
         </div>
       </div>
     </div>
     <div class="col-md-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="px-4 py-3 card-header-custom">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden table-card-sa">
+        <div class="px-4 py-3 table-card-header-sa">
           <h5 class="mb-0 fw-semibold"><i class="bi bi-clock-history me-2"></i> Últimos Usuarios Registrados</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0 tabla-sa">
               <thead>
                 <tr class="text-center">
                   <th><i class="bi bi-person"></i> Nombre</th>
@@ -250,7 +274,7 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
                     <tr class="text-center">
                       <td class="text-start"><strong><%= u.nombre %></strong></td>
                       <td><small><%= u.email %></small></td>
-                      <td><span class="badge rounded-pill px-2 py-1" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;"><%= u.rol %></span></td>
+                      <td><span class="badge rounded-pill px-2 py-1 rol-badge-sa"><%= u.rol %></span></td>
                       <td><small><%= new Date(u.fecha_registro).toLocaleDateString() %></small></td>
                     </tr>
                   <% }) %>
@@ -263,7 +287,7 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
             </table>
           </div>
         </div>
-        <div class="card-footer bg-transparent text-center">
+        <div class="card-footer bg-transparent text-center table-footer-sa">
           <a href="/usuarios" class="btn btn-sm btn-outline-primary rounded-3">Ver todos los usuarios</a>
         </div>
       </div>
@@ -273,13 +297,13 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
   <!-- ========== FILA 5: AUDITORÍA Y ACCIONES RÁPIDAS ========== -->
   <div class="row g-4 mb-5">
     <div class="col-md-7">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="px-4 py-3 card-header-custom">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden table-card-sa">
+        <div class="px-4 py-3 table-card-header-sa">
           <h5 class="mb-0 fw-semibold"><i class="bi bi-shield-check me-2"></i> Últimas Acciones de Auditoría</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0 tabla-sa">
               <thead>
                 <tr class="text-center">
                   <th><i class="bi bi-person"></i> Usuario</th>
@@ -315,43 +339,29 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
             </table>
           </div>
         </div>
-        <div class="card-footer bg-transparent text-center">
+        <div class="card-footer bg-transparent text-center table-footer-sa">
           <a href="/auditoria" class="btn btn-sm btn-outline-primary rounded-3">Ver auditoría completa</a>
         </div>
       </div>
     </div>
     <div class="col-md-5">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="px-4 py-3 card-header-custom">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden acciones-card-sa">
+        <div class="px-4 py-3 acciones-card-header-sa">
           <h5 class="mb-0 fw-semibold"><i class="bi bi-lightning-charge me-2"></i> Acciones Rápidas</h5>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body p-4 acciones-card-body-sa">
           <div class="d-grid gap-2">
-            <a href="/usuarios" class="btn btn-outline-primary rounded-3 py-2">
-              <i class="bi bi-people-fill me-2"></i> Gestionar usuarios
-            </a>
-            <a href="/reportes" class="btn btn-outline-primary rounded-3 py-2">
-              <i class="bi bi-file-text-fill me-2"></i> Ver todos los reportes
-            </a>
-            <a href="/auditoria" class="btn btn-outline-primary rounded-3 py-2">
-              <i class="bi bi-clock-history me-2"></i> Auditoría completa
-            </a>
-            <a href="/voluntarios/gestionar" class="btn btn-outline-primary rounded-3 py-2">
-              <i class="bi bi-person-badge me-2"></i> Gestionar voluntarios
-            </a>
-            <a href="/calles" class="btn btn-outline-primary rounded-3 py-2">
-              <i class="bi bi-geo-alt-fill me-2"></i> Gestionar calles
-            </a>
-            <a href="/comunidades" class="btn btn-outline-primary rounded-3 py-2">
-              <i class="bi bi-building me-2"></i> Gestionar comunidades
-            </a>
-            <hr>
-            <button class="btn btn-warning rounded-3 py-2" data-bs-toggle="modal" data-bs-target="#modalBackup">
-              <i class="bi bi-database me-2"></i> Respaldo de base de datos
+            <a href="/usuarios" class="btn btn-outline-primary rounded-3 py-2 btn-accion-sa">👥 Gestionar usuarios</a>
+            <a href="/reportes" class="btn btn-outline-primary rounded-3 py-2 btn-accion-sa">📋 Ver todos los reportes</a>
+            <a href="/auditoria" class="btn btn-outline-primary rounded-3 py-2 btn-accion-sa">📜 Auditoría completa</a>
+            <a href="/voluntarios/gestionar" class="btn btn-outline-primary rounded-3 py-2 btn-accion-sa">🤝 Gestionar voluntarios</a>
+            <a href="/calles" class="btn btn-outline-primary rounded-3 py-2 btn-accion-sa">📍 Gestionar calles</a>
+            <a href="/comunidades" class="btn btn-outline-primary rounded-3 py-2 btn-accion-sa">🏘️ Gestionar comunidades</a>
+            <hr class="separador-sa">
+            <button class="btn btn-warning rounded-3 py-2 btn-backup-sa" data-bs-toggle="modal" data-bs-target="#modalBackup">
+              💾 Respaldo de base de datos
             </button>
-            <a href="/dashboard/admin" class="btn btn-secondary rounded-3 py-2">
-              <i class="bi bi-speedometer2 me-2"></i> Ir a panel UBCH
-            </a>
+            <a href="/dashboard/admin" class="btn btn-secondary rounded-3 py-2 btn-ubch-sa">📊 Ir a panel UBCH</a>
           </div>
         </div>
       </div>
@@ -361,40 +371,40 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
   <!-- ========== MONITOREO DEL SISTEMA ========== -->
   <div class="row g-4 mb-5">
     <div class="col-md-12">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-        <div class="px-4 py-3 card-header-custom">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden monitoreo-card-sa">
+        <div class="px-4 py-3 monitoreo-card-header-sa">
           <h5 class="mb-0 fw-semibold"><i class="bi bi-bar-chart-steps me-2"></i> Monitoreo del Sistema</h5>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body p-4 monitoreo-card-body-sa">
           <div class="row text-center">
             <div class="col-md-3">
-              <div class="p-3 rounded-3 bg-light">
-                <i class="bi bi-database fs-2" style="color: #28a745;"></i>
+              <div class="p-3 rounded-3 monitoreo-item-sa">
+                <i class="bi bi-database fs-2"></i>
                 <h6 class="mt-2 mb-0">Base de Datos</h6>
                 <small class="text-muted">MySQL Local</small>
                 <div><span class="badge bg-success mt-2">✅ Conectada</span></div>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="p-3 rounded-3 bg-light">
-                <i class="bi bi-hdd-stack fs-2" style="color: #fd6704bd;"></i>
+              <div class="p-3 rounded-3 monitoreo-item-sa">
+                <i class="bi bi-hdd-stack fs-2"></i>
                 <h6 class="mt-2 mb-0">Almacenamiento</h6>
                 <small class="text-muted">Base de datos</small>
                 <div><span class="badge bg-primary mt-2">~ 50 MB</span></div>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="p-3 rounded-3 bg-light">
-                <i class="bi bi-people fs-2" style="color: #17a2b8;"></i>
+              <div class="p-3 rounded-3 monitoreo-item-sa">
+                <i class="bi bi-people fs-2"></i>
                 <h6 class="mt-2 mb-0">Usuarios activos hoy</h6>
-                <h3 class="mb-0 fw-bold" style="color: #17a2b8;"><%= totales.usuariosActivosHoy || 0 %></h3>
+                <h3 class="mb-0 fw-bold"><%= totales.usuariosActivosHoy || 0 %></h3>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="p-3 rounded-3 bg-light">
-                <i class="bi bi-file-text fs-2" style="color: #ffc107;"></i>
+              <div class="p-3 rounded-3 monitoreo-item-sa">
+                <i class="bi bi-file-text fs-2"></i>
                 <h6 class="mt-2 mb-0">Reportes hoy</h6>
-                <h3 class="mb-0 fw-bold" style="color: #ffc107;"><%= totales.reportesHoy || 0 %></h3>
+                <h3 class="mb-0 fw-bold"><%= totales.reportesHoy || 0 %></h3>
               </div>
             </div>
           </div>
@@ -405,8 +415,8 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
 
   <!-- ========== BADGE INFORMATIVO ========== -->
   <div class="text-center mt-2">
-    <small class="text-muted">
-      <i class="bi bi-shield-lock-fill me-1" style="color: #ffc107;"></i> 
+    <small class="text-muted badge-info-sa">
+      <i class="bi bi-shield-lock-fill me-1"></i> 
       Panel exclusivo para SuperAdministradores - Acceso total al sistema
     </small>
   </div>
@@ -415,32 +425,26 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
 <!-- ========== MODAL PARA RESPALDOS ========== -->
 <div class="modal fade" id="modalBackup" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 rounded-4 shadow-lg">
-      <div class="modal-header" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);">
+    <div class="modal-content border-0 rounded-4 shadow-lg modal-backup-sa">
+      <div class="modal-header modal-backup-header-sa">
         <h5 class="modal-title text-white">
           <i class="bi bi-database me-2"></i> Respaldo de Base de Datos
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body p-4">
+      <div class="modal-body p-4 modal-backup-body-sa">
         <p class="mb-3">Seleccione el tipo de respaldo que desea generar:</p>
         <div class="d-grid gap-2">
-          <a href="/superadmin/backup/completo" class="btn btn-primary rounded-3 py-2">
-            <i class="bi bi-database me-2"></i> Respaldo completo (SQL)
-          </a>
-          <a href="/superadmin/backup/estructura" class="btn btn-outline-secondary rounded-3 py-2">
-            <i class="bi bi-diagram-3 me-2"></i> Solo estructura
-          </a>
-          <a href="/superadmin/backup/datos" class="btn btn-outline-secondary rounded-3 py-2">
-            <i class="bi bi-file-spreadsheet me-2"></i> Solo datos
-          </a>
+          <a href="/superadmin/backup/completo" class="btn btn-primary rounded-3 py-2">📚 Respaldo completo (SQL)</a>
+          <a href="/superadmin/backup/estructura" class="btn btn-outline-secondary rounded-3 py-2">🏗️ Solo estructura</a>
+          <a href="/superadmin/backup/datos" class="btn btn-outline-secondary rounded-3 py-2">📊 Solo datos</a>
         </div>
         <hr>
         <p class="small text-muted mb-0 mt-3">
           <i class="bi bi-info-circle me-1"></i> Los respaldos se generan en formato SQL y se descargan automáticamente.
         </p>
       </div>
-      <div class="modal-footer bg-light">
+      <div class="modal-footer bg-light modal-backup-footer-sa">
         <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
@@ -448,37 +452,6 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
 </div>
 
 <!-- ========== SCRIPTS ========== -->
-<script>
-  // Modo oscuro/claro mejorado
-  let modoOscuro = localStorage.getItem('superadminDarkMode') === 'true';
-  const btnModoOscuro = document.getElementById('btnModoOscuro');
-  
-  function aplicarModoOscuro(activar) {
-    if (activar) {
-      document.body.classList.add('dark-mode');
-      btnModoOscuro.innerHTML = '<i class="bi bi-sun-fill me-1"></i> Modo Claro';
-      localStorage.setItem('superadminDarkMode', 'true');
-    } else {
-      document.body.classList.remove('dark-mode');
-      btnModoOscuro.innerHTML = '<i class="bi bi-moon-stars-fill me-1"></i> Modo Oscuro';
-      localStorage.setItem('superadminDarkMode', 'false');
-    }
-    modoOscuro = activar;
-  }
-  
-  // Aplicar modo guardado al cargar
-  if (modoOscuro) {
-    aplicarModoOscuro(true);
-  }
-  
-  if (btnModoOscuro) {
-    btnModoOscuro.addEventListener('click', function() {
-      aplicarModoOscuro(!modoOscuro);
-    });
-  }
-</script>
-
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   // Gráfico de Estados
@@ -538,37 +511,394 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
   }
 </script>
 
+<script>
+  // ========== MODO NOCTURNO GLOBAL (Controlado por SuperAdmin) ==========
+  
+  async function toggleDarkModeGlobal() {
+    console.log('🖱️ Botón clickeado');
+    const btn = document.getElementById('btnDarkModeGlobal');
+    if (!btn) {
+      console.error('❌ Botón no encontrado');
+      return;
+    }
+    
+    const span = document.getElementById('darkModeText');
+    const icon = btn.querySelector('i');
+    
+    const isDark = icon.classList.contains('bi-sun-fill');
+    const newMode = !isDark;
+    
+    console.log('Cambiando a modo:', newMode ? 'oscuro' : 'claro');
+    
+    try {
+      const response = await fetch('/superadmin/config/dark-mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ darkMode: newMode })
+      });
+      
+      const data = await response.json();
+      console.log('Respuesta:', data);
+      
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert('Error al cambiar el modo: ' + (data.error || 'Error desconocido'));
+      }
+    } catch (error) {
+      console.error('Error en la petición:', error);
+      alert('Error al cambiar el modo');
+    }
+  }
+
+  async function cargarEstadoDarkMode() {
+    try {
+      const response = await fetch('/superadmin/config/dark-mode');
+      const data = await response.json();
+      
+      const btn = document.getElementById('btnDarkModeGlobal');
+      if (!btn) return;
+      
+      const span = document.getElementById('darkModeText');
+      const icon = btn.querySelector('i');
+      
+      if (data.darkMode) {
+        icon.className = 'bi bi-sun-fill me-1';
+        span.textContent = 'Modo Claro';
+        btn.style.background = '#fd6704bd';
+      } else {
+        icon.className = 'bi bi-moon-stars-fill me-1';
+        span.textContent = 'Modo Nocturno';
+        btn.style.background = '#6c757d';
+      }
+    } catch (error) {
+      console.error('Error al cargar estado:', error);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('btnDarkModeGlobal');
+    if (btn) {
+      btn.removeEventListener('click', toggleDarkModeGlobal);
+      btn.addEventListener('click', toggleDarkModeGlobal);
+    }
+    cargarEstadoDarkMode();
+  });
+</script>
+
 <style>
-  .table-hover tbody tr:hover {
-    background-color: #fff8f0 !important;
+  /* ========== ESTILOS BASE (MODO CLARO) ========== */
+  
+  /* Títulos */
+  .superadmin-title {
+    color: #5D4037;
   }
-  .badge {
-    font-weight: normal;
+  .superadmin-title i {
+    color: #ffc107;
   }
-  .btn-outline-primary, .btn-primary, .btn-secondary {
-    transition: all 0.2s ease;
-  }
-  .btn-outline-primary:hover, .btn-primary:hover, .btn-secondary:hover {
-    transform: translateY(-2px);
-  }
-  .card-footer {
-    border-top: 1px solid #f0d5c0;
+  .superadmin-subtitle {
+    color: #8B6B5A;
   }
   
-  /* Modo oscuro - estilos adicionales */
-  body.dark-mode .table-hover tbody tr:hover {
+  /* Botones */
+  .btn-actualizar-sa {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-actualizar-sa:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
+  }
+  .btn-auditoria-sa {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-auditoria-sa:hover {
+    transform: translateY(-2px);
+    background: #138496;
+  }
+  
+  /* Tarjetas de estadísticas */
+  .stat-card-sa {
+    transition: all 0.2s ease;
+  }
+  .stat-card-sa:hover {
+    transform: translateY(-4px);
+  }
+  .stat-icon-sa {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stat-icon-sa-sm {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stat-number-sa {
+    color: #5D4037;
+  }
+  .stat-label-sa {
+    color: #8B6B5A;
+  }
+  
+  /* Tarjetas específicas */
+  .stat-card-sa-usuarios { background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%); }
+  .stat-card-sa-reportes { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); }
+  .stat-card-sa-calles { background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%); }
+  .stat-card-sa-voluntarios { background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); }
+  .stat-card-sa-comunidades { background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%); }
+  .stat-card-sa-empresas { background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%); }
+  .stat-card-sa-categorias { background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%); }
+  .stat-card-sa-actividad { background: linear-gradient(135deg, #cfe2ff 0%, #b6d4fe 100%); }
+  .stat-card-sa-aprobados { background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); }
+  .stat-card-sa-pendientes { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); }
+  
+  .stat-number-sa-aprobados { color: #155724; }
+  .stat-label-sa-aprobados { color: #155724; }
+  .stat-number-sa-pendientes { color: #856404; }
+  .stat-label-sa-pendientes { color: #856404; }
+  
+  /* Gráficos */
+  .chart-card-header-sa {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+    color: #5D4037;
+  }
+  .chart-card-body-sa {
+    background: white;
+  }
+  
+  /* Tablas */
+  .table-card-header-sa {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+    color: #5D4037;
+  }
+  .tabla-sa {
+    background: white;
+  }
+  .tabla-sa thead th {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+    color: #5D4037;
+    border-bottom: 2px solid #fd6704bd;
+  }
+  .tabla-sa tbody tr:hover {
+    background-color: #fff8f0 !important;
+  }
+  .table-footer-sa {
+    border-top: 1px solid #f0d5c0;
+  }
+  .rol-badge-sa {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+  }
+  
+  /* Acciones rápidas */
+  .acciones-card-header-sa {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+    color: #5D4037;
+  }
+  .btn-accion-sa {
+    transition: all 0.2s ease;
+  }
+  .btn-accion-sa:hover {
+    transform: translateY(-2px);
+  }
+  .separador-sa {
+    border-color: #f0d5c0;
+  }
+  .btn-backup-sa {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: #333;
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-backup-sa:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #e0a800 0%, #c69500 100%);
+  }
+  .btn-ubch-sa {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-ubch-sa:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Monitoreo */
+  .monitoreo-card-header-sa {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+    color: #5D4037;
+  }
+  .monitoreo-item-sa {
+    background: #f8f9fa;
+  }
+  
+  /* Modal */
+  .modal-backup-header-sa {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+  }
+  .modal-backup-body-sa {
+    background: #fefaf7;
+  }
+  .modal-backup-footer-sa {
+    background: #f8f9fa;
+  }
+  
+  /* Badge informativo */
+  .badge-info-sa {
+    color: #6c757d;
+  }
+  .badge-info-sa i {
+    color: #ffc107;
+  }
+  
+  /* ========== MODO NOCTURNO ========== */
+  body.dark-mode .superadmin-title {
+    color: #e4e4e7;
+  }
+  body.dark-mode .superadmin-subtitle {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .stat-card-sa-usuarios,
+  body.dark-mode .stat-card-sa-comunidades,
+  body.dark-mode .stat-card-sa-empresas,
+  body.dark-mode .stat-card-sa-categorias {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+  }
+  body.dark-mode .stat-card-sa-reportes,
+  body.dark-mode .stat-card-sa-pendientes {
+    background: linear-gradient(135deg, #3d2e1a 0%, #2d1f0a 100%);
+  }
+  body.dark-mode .stat-card-sa-calles {
+    background: linear-gradient(135deg, #1a3d3d 0%, #0f2a2a 100%);
+  }
+  body.dark-mode .stat-card-sa-voluntarios,
+  body.dark-mode .stat-card-sa-aprobados {
+    background: linear-gradient(135deg, #0d3b1f 0%, #0a2a16 100%);
+  }
+  body.dark-mode .stat-card-sa-actividad {
+    background: linear-gradient(135deg, #1a2a4d 0%, #0f1f3a 100%);
+  }
+  
+  body.dark-mode .stat-number-sa {
+    color: #e4e4e7;
+  }
+  body.dark-mode .stat-label-sa {
+    color: #a1a1aa;
+  }
+  body.dark-mode .stat-number-sa-aprobados {
+    color: #a3e4b7;
+  }
+  body.dark-mode .stat-label-sa-aprobados {
+    color: #a3e4b7;
+  }
+  body.dark-mode .stat-number-sa-pendientes {
+    color: #f5dba3;
+  }
+  body.dark-mode .stat-label-sa-pendientes {
+    color: #f5dba3;
+  }
+  
+  body.dark-mode .chart-card-header-sa {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+    color: #e4e4e7;
+  }
+  body.dark-mode .chart-card-body-sa {
+    background: #27272a;
+  }
+  
+  body.dark-mode .table-card-header-sa {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+    color: #e4e4e7;
+  }
+  body.dark-mode .tabla-sa {
+    background: #27272a;
+  }
+  body.dark-mode .tabla-sa thead th {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+    color: #e4e4e7;
+  }
+  body.dark-mode .tabla-sa tbody tr {
+    border-bottom-color: #3f3f46;
+  }
+  body.dark-mode .tabla-sa tbody tr:hover {
     background-color: #3d3d5c !important;
   }
-  body.dark-mode .card-footer {
-    border-top-color: var(--border-color);
+  body.dark-mode .tabla-sa td,
+  body.dark-mode .tabla-sa th {
+    color: #e4e4e7;
   }
-  body.dark-mode .bg-light {
-    background: var(--secondary-color) !important;
+  body.dark-mode .table-footer-sa {
+    border-top-color: #3f3f46;
+    background: #27272a;
   }
-  body.dark-mode .text-muted {
-    color: var(--text-light) !important;
+  
+  body.dark-mode .acciones-card-header-sa {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+    color: #e4e4e7;
   }
-  body.dark-mode .modal-footer {
-    background: var(--card-bg) !important;
+  body.dark-mode .acciones-card-body-sa {
+    background: #27272a;
+  }
+  body.dark-mode .separador-sa {
+    border-color: #3f3f46;
+  }
+  body.dark-mode .monitoreo-card-header-sa {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+    color: #e4e4e7;
+  }
+  body.dark-mode .monitoreo-card-body-sa {
+    background: #27272a;
+  }
+  body.dark-mode .monitoreo-item-sa {
+    background: #1f1f2e;
+  }
+  body.dark-mode .monitoreo-item-sa .text-muted {
+    color: #a1a1aa !important;
+  }
+  
+  body.dark-mode .modal-backup-body-sa {
+    background: #27272a;
+    color: #e4e4e7;
+  }
+  body.dark-mode .modal-backup-footer-sa {
+    background: #1f1f2e;
+  }
+  
+  body.dark-mode .badge-info-sa {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .btn-outline-primary {
+    border-color: #f7931e;
+    color: #f7931e;
+  }
+  body.dark-mode .btn-outline-primary:hover {
+    background: linear-gradient(135deg, #fd6704 0%, #f7931e 100%);
+    color: white;
+  }
+  
+  body.dark-mode .btn-secondary {
+    background: #3f3f46;
+    border-color: #3f3f46;
+  }
+  
+  body.dark-mode canvas {
+    filter: brightness(0.9);
   }
 </style>

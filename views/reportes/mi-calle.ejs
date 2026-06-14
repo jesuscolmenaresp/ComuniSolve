@@ -3,15 +3,15 @@
   <!-- Encabezado -->
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-      <h2 class="fw-bold mb-1" style="color: #5D4037;">
-        <i class="bi bi-house-heart me-2" style="color: #fd6704bd;"></i> Reportes de mi calle
+      <h2 class="fw-bold mb-1 micalle-title">
+        <i class="bi bi-house-heart me-2"></i> Reportes de mi calle
       </h2>
-      <p class="text-muted small mb-0" style="color: #8B6B5A;">
-        <i class="bi bi-pin-map-fill me-1" style="color: #fd6704bd;"></i> 
+      <p class="text-muted small mb-0 micalle-subtitle">
+        <i class="bi bi-pin-map-fill me-1"></i> 
         <span class="fw-semibold"><%= usuario.calle_nombre || 'No asignada' %></span>
       </p>
     </div>
-    <a href="/reportar" class="btn btn-sm px-4 py-2 fw-semibold rounded-3" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+    <a href="/reportar" class="btn btn-sm px-4 py-2 fw-semibold rounded-3 btn-crear-reporte-micalle">
       <i class="bi bi-plus-circle me-1"></i> Crear nuevo reporte
     </a>
   </div>
@@ -36,13 +36,13 @@
   <% } %>
 
   <!-- Pestañas de filtro -->
-  <div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden">
-    <div class="px-4 py-3" style="background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);">
-      <h5 class="mb-0 fw-semibold" style="color: #5D4037;">
-        <i class="bi bi-funnel me-2" style="color: #fd6704bd;"></i> Filtros
+  <div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden filtros-card-micalle">
+    <div class="px-4 py-3 filtros-header-micalle">
+      <h5 class="mb-0 fw-semibold">
+        <i class="bi bi-funnel me-2"></i> Filtros
       </h5>
     </div>
-    <div class="card-body p-4">
+    <div class="card-body p-4 filtros-body-micalle">
       <ul class="nav nav-pills justify-content-center gap-2 mb-4" id="filtroTipo">
         <li class="nav-item">
           <a class="nav-link active rounded-pill px-4" data-tipo="todos" href="#">
@@ -51,17 +51,17 @@
         </li>
         <li class="nav-item">
           <a class="nav-link rounded-pill px-4" data-tipo="con_votos" href="#">
-            <i class="bi bi-hand-thumbs-up-fill text-warning me-1"></i> Más votados
+            <i class="bi bi-hand-thumbs-up-fill me-1"></i> Más votados
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link rounded-pill px-4" data-tipo="pendientes" href="#">
-            <i class="bi bi-clock-history text-warning me-1"></i> Pendientes
+            <i class="bi bi-clock-history me-1"></i> Pendientes
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link rounded-pill px-4" data-tipo="resueltos" href="#">
-            <i class="bi bi-check-circle-fill text-success me-1"></i> Resueltos
+            <i class="bi bi-check-circle-fill me-1"></i> Resueltos
           </a>
         </li>
       </ul>
@@ -70,12 +70,11 @@
       <div class="row justify-content-center">
         <div class="col-md-6">
           <div class="input-group">
-            <span class="input-group-text bg-white border-end-0" style="border-color: #f0d5c0;">
-              <i class="bi bi-search" style="color: #fd6704bd;"></i>
+            <span class="input-group-text buscador-icon-micalle">
+              <i class="bi bi-search"></i>
             </span>
-            <input type="text" id="buscarReporte" class="form-control border-start-0 rounded-3" 
-                   placeholder="Buscar por título o descripción..."
-                   style="border: 1px solid #f0d5c0; background-color: #fefaf7;">
+            <input type="text" id="buscarReporte" class="form-control border-start-0 rounded-3 buscador-input-micalle" 
+                   placeholder="Buscar por título o descripción...">
           </div>
         </div>
       </div>
@@ -86,12 +85,12 @@
   <div class="row g-4" id="vistaTarjetas">
     <% if (reportes.length === 0) { %>
       <div class="col-12">
-        <div class="card border-0 rounded-4 shadow-sm bg-light">
+        <div class="card border-0 rounded-4 shadow-sm empty-card-micalle">
           <div class="card-body text-center py-5">
-            <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
-            <h5 class="text-muted">No hay reportes en tu calle aún</h5>
-            <p class="text-muted mb-3">¡Sé el primero en reportar un problema en tu comunidad!</p>
-            <a href="/reportar" class="btn btn-sm px-4 py-2 fw-semibold rounded-3" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+            <i class="bi bi-inbox fs-1 d-block mb-3 empty-icon-micalle"></i>
+            <h5 class="empty-title-micalle">No hay reportes en tu calle aún</h5>
+            <p class="empty-text-micalle mb-3">¡Sé el primero en reportar un problema en tu comunidad!</p>
+            <a href="/reportar" class="btn btn-sm px-4 py-2 fw-semibold rounded-3 btn-crear-reporte-micalle">
               <i class="bi bi-plus-circle me-1"></i> Crear nuevo reporte
             </a>
           </div>
@@ -104,7 +103,7 @@
            if (anchoVotos > 100) anchoVotos = 100;
       %>
         <div class="col-md-6 col-lg-6">
-          <div class="card border-0 rounded-4 shadow-sm h-100 reporte-tarjeta" 
+          <div class="card border-0 rounded-4 shadow-sm h-100 reporte-tarjeta-micalle" 
                data-estado="<%= r.estado %>" 
                data-votos="<%= r.total_votos || 0 %>"
                data-titulo="<%= r.titulo %>"
@@ -113,15 +112,14 @@
             <div class="card-body p-4">
               <!-- Encabezado -->
               <div class="d-flex justify-content-between align-items-start mb-3">
-                <h5 class="card-title mb-0 fw-bold" style="color: #5D4037;">
-                  <i class="bi bi-chat-square-text me-2" style="color: #fd6704bd;"></i>
+                <h5 class="card-title mb-0 fw-bold tarjeta-titulo-micalle">
+                  <i class="bi bi-chat-square-text me-2 tarjeta-icon-micalle"></i>
                   <%= r.titulo %>
                 </h5>
                 <span class="badge rounded-pill px-3 py-1 
-                  <% if (r.estado === 'Pendiente') { %>bg-warning<% } 
-                  else if (r.estado === 'En Progreso') { %>bg-info<% } 
-                  else { %>bg-success<% } %>" 
-                  style="<%= r.estado === 'Pendiente' ? 'color: #333;' : 'color: white;' %>">
+                  <% if (r.estado === 'Pendiente') { %>estado-pendiente-micalle<% } 
+                  else if (r.estado === 'En Progreso') { %>estado-progreso-micalle<% } 
+                  else { %>estado-resuelto-micalle<% } %>">
                   <% if (r.estado === 'Pendiente') { %>
                     <i class="bi bi-clock-history me-1"></i> Pendiente
                   <% } else if (r.estado === 'En Progreso') { %>
@@ -134,16 +132,16 @@
               
               <!-- Categoría y fecha -->
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="badge rounded-pill px-3 py-1" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+                <span class="badge rounded-pill px-3 py-1 badge-categoria-micalle">
                   <%= r.categoria_icono ? r.categoria_icono + ' ' : '' %><%= r.categoria_nombre %>
                 </span>
-                <small class="text-muted">
-                  <i class="bi bi-calendar3 me-1" style="color: #fd6704bd;"></i> <%= new Date(r.fecha).toLocaleDateString() %>
+                <small class="fecha-micalle">
+                  <i class="bi bi-calendar3 me-1 fecha-icon-micalle"></i> <%= new Date(r.fecha).toLocaleDateString() %>
                 </small>
               </div>
               
               <!-- Descripción -->
-              <p class="card-text text-muted mb-3" style="color: #6c757d;">
+              <p class="card-text descripcion-micalle mb-3">
                 <% if (r.descripcion && r.descripcion.length > 100) { %>
                   <%= r.descripcion.substring(0, 100) + '...' %>
                 <% } else { %>
@@ -154,14 +152,13 @@
               <!-- Votos y acciones -->
               <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
                 <div class="d-flex align-items-center gap-2">
-                  <div class="badge bg-secondary rounded-pill px-3 py-1">
+                  <div class="badge bg-secondary rounded-pill px-3 py-1 badge-votos-micalle">
                     <i class="bi bi-hand-thumbs-up me-1"></i>
                     <span class="votos-count"><%= r.total_votos || 0 %></span> votos
                   </div>
                   <% if (r.imagen) { %>
-                    <button type="button" class="btn btn-sm btn-outline-info rounded-3 px-3 py-1" 
-                            onclick="verImagenGrande('<%= r.imagen %>')"
-                            style="border-color: #f0d5c0; color: #17a2b8;">
+                    <button type="button" class="btn btn-sm btn-outline-info rounded-3 px-3 py-1 btn-imagen-micalle" 
+                            onclick="verImagenGrande('<%= r.imagen %>')">
                       <i class="bi bi-image me-1"></i> Ver imagen
                     </button>
                   <% } %>
@@ -169,14 +166,13 @@
                 
                 <% if (!votosUsuario[r.id]) { %>
                   <form action="/reportes/<%= r.id %>/votar" method="POST" class="d-inline">
-                    <button type="submit" class="btn btn-sm rounded-3 px-3 py-1" 
-                            style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #333; border: none;"
+                    <button type="submit" class="btn btn-sm rounded-3 px-3 py-1 btn-votar-micalle" 
                             onclick="return confirm('¿Votar por este reporte?')">
                       <i class="bi bi-hand-thumbs-up me-1"></i> Votar
                     </button>
                   </form>
                 <% } else { %>
-                  <span class="badge bg-success rounded-pill px-3 py-1">
+                  <span class="badge bg-success rounded-pill px-3 py-1 badge-ya-votaste-micalle">
                     <i class="bi bi-check-circle me-1"></i> Ya votaste
                   </span>
                 <% } %>
@@ -186,14 +182,14 @@
             <!-- Barra de progreso -->
             <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4">
               <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-people-fill text-secondary small" style="color: #fd6704bd;"></i>
+                <i class="bi bi-people-fill text-secondary small progreso-icon-micalle"></i>
                 <div class="flex-grow-1">
-                  <div class="progress" style="height: 6px; background-color: #f0d5c0; border-radius: 10px;">
-                    <div class="progress-bar" style="width: <%= anchoVotos %>%; background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); border-radius: 10px;">
+                  <div class="progress progreso-bar-micalle" style="height: 6px;">
+                    <div class="progress-bar progreso-barra-micalle" style="width: <%= anchoVotos %>%;">
                     </div>
                   </div>
                 </div>
-                <small class="text-muted"><%= r.total_votos || 0 %> apoyos</small>
+                <small class="progreso-texto-micalle"><%= r.total_votos || 0 %> apoyos</small>
               </div>
             </div>
           </div>
@@ -204,7 +200,7 @@
 
   <!-- Botón para volver -->
   <div class="text-center mt-4">
-    <a href="/reportes" class="btn btn-outline-secondary rounded-3 px-4 py-2 fw-semibold" style="border-color: #f0d5c0; color: #5D4037;">
+    <a href="/reportes" class="btn btn-outline-secondary rounded-3 px-4 py-2 fw-semibold btn-volver-micalle">
       <i class="bi bi-arrow-left me-1"></i> Volver a todos los reportes
     </a>
   </div>
@@ -213,15 +209,15 @@
 <!-- Modal para ver imagen -->
 <div class="modal fade" id="modalImagen" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 rounded-4 shadow-lg">
-      <div class="modal-header" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);">
+    <div class="modal-content border-0 rounded-4 shadow-lg modal-imagen-micalle">
+      <div class="modal-header modal-imagen-header-micalle">
         <h5 class="modal-title text-white"><i class="bi bi-image me-2"></i> Imagen del reporte</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body text-center p-4" style="background: #fefaf7;">
+      <div class="modal-body text-center p-4 modal-imagen-body-micalle">
         <img id="imagenGrande" src="" class="img-fluid rounded shadow-sm" style="max-height: 500px;">
       </div>
-      <div class="modal-footer bg-light">
+      <div class="modal-footer modal-imagen-footer-micalle">
         <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
@@ -245,7 +241,7 @@
       this.classList.add('active');
       
       var tipo = this.dataset.tipo;
-      var tarjetas = document.querySelectorAll('.reporte-tarjeta');
+      var tarjetas = document.querySelectorAll('.reporte-tarjeta-micalle');
       
       for (var i = 0; i < tarjetas.length; i++) {
         var tarjeta = tarjetas[i];
@@ -270,7 +266,7 @@
   if (buscarInput) {
     buscarInput.addEventListener('keyup', function() {
       var texto = this.value.toLowerCase();
-      var tarjetas = document.querySelectorAll('.reporte-tarjeta');
+      var tarjetas = document.querySelectorAll('.reporte-tarjeta-micalle');
       for (var i = 0; i < tarjetas.length; i++) {
         var tarjeta = tarjetas[i];
         var titulo = (tarjeta.dataset.titulo || '').toLowerCase();
@@ -286,39 +282,192 @@
 </script>
 
 <style>
-  /* Ocultar tarjetas en los filtros */
-  .filtro-oculto {
-    display: none !important;
+  /* ========== ESTILOS BASE (MODO CLARO) ========== */
+  
+  /* Títulos */
+  .micalle-title {
+    color: #5D4037;
+  }
+  .micalle-title i {
+    color: #fd6704bd;
+  }
+  .micalle-subtitle {
+    color: #8B6B5A;
   }
   
-  /* Estilos de las tarjetas */
-  .reporte-tarjeta {
+  /* Botón crear reporte */
+  .btn-crear-reporte-micalle {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+    transition: all 0.2s ease;
+  }
+  .btn-crear-reporte-micalle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
+  }
+  
+  /* Filtros card */
+  .filtros-card-micalle {
+    background: white;
+  }
+  .filtros-header-micalle {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+    color: #5D4037;
+  }
+  .filtros-body-micalle {
+    background: white;
+  }
+  
+  /* Buscador */
+  .buscador-icon-micalle {
+    background-color: #fefaf7;
+    border-color: #f0d5c0;
+    color: #fd6704bd;
+  }
+  .buscador-input-micalle {
+    border: 1px solid #f0d5c0;
+    background-color: #fefaf7;
+  }
+  .buscador-input-micalle:focus {
+    border-color: #fd6704bd;
+    box-shadow: 0 0 0 3px rgba(253, 103, 4, 0.15);
+  }
+  
+  /* Tarjetas de reportes */
+  .reporte-tarjeta-micalle {
+    background: white;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
     height: 100%;
   }
-  .reporte-tarjeta:hover {
+  .reporte-tarjeta-micalle:hover {
     transform: translateY(-4px);
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
   }
-  .btn-sm {
+  
+  .tarjeta-titulo-micalle {
+    color: #5D4037;
+  }
+  .tarjeta-icon-micalle {
+    color: #fd6704bd;
+  }
+  
+  /* Badge de estado */
+  .estado-pendiente-micalle {
+    background-color: #ffc107;
+    color: #333;
+  }
+  .estado-progreso-micalle {
+    background-color: #17a2b8;
+    color: white;
+  }
+  .estado-resuelto-micalle {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  /* Badge de categoría */
+  .badge-categoria-micalle {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+  }
+  
+  /* Fecha */
+  .fecha-micalle {
+    color: #8B6B5A;
+  }
+  .fecha-icon-micalle {
+    color: #fd6704bd;
+  }
+  
+  /* Descripción */
+  .descripcion-micalle {
+    color: #6c757d;
+  }
+  
+  /* Badge de votos */
+  .badge-votos-micalle {
+    background: #6c757d;
+  }
+  
+  /* Botón imagen */
+  .btn-imagen-micalle {
+    border-color: #f0d5c0;
+    color: #17a2b8;
     transition: all 0.2s ease;
   }
-  .btn-sm:hover {
+  .btn-imagen-micalle:hover {
+    background: #17a2b8;
+    color: white;
     transform: translateY(-2px);
   }
-  .progress {
-    background-color: #e9ecef;
+  
+  /* Botón votar */
+  .btn-votar-micalle {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: #333;
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-votar-micalle:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Badge ya votaste */
+  .badge-ya-votaste-micalle {
+    background: #28a745;
+    color: white;
+  }
+  
+  /* Barra de progreso */
+  .progreso-icon-micalle {
+    color: #fd6704bd;
+  }
+  .progreso-bar-micalle {
+    background-color: #f0d5c0;
     border-radius: 10px;
   }
-  .progress-bar {
+  .progreso-barra-micalle {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
     border-radius: 10px;
     transition: width 0.3s ease;
   }
+  .progreso-texto-micalle {
+    color: #8B6B5A;
+  }
+  
+  /* Botón volver */
+  .btn-volver-micalle {
+    border-color: #f0d5c0;
+    color: #5D4037;
+    transition: all 0.2s ease;
+  }
+  .btn-volver-micalle:hover {
+    background: #f0d5c0;
+    transform: translateY(-2px);
+  }
+  
+  /* Estado vacío */
+  .empty-card-micalle {
+    background: #f8f9fa;
+  }
+  .empty-icon-micalle {
+    color: #6c757d;
+    opacity: 0.5;
+  }
+  .empty-title-micalle {
+    color: #6c757d;
+  }
+  .empty-text-micalle {
+    color: #6c757d;
+  }
+  
+  /* Nav pills */
   .nav-pills .nav-link {
     border-radius: 30px;
     padding: 8px 20px;
     transition: all 0.2s ease;
+    color: #5D4037;
   }
   .nav-pills .nav-link:hover {
     transform: translateY(-2px);
@@ -327,12 +476,24 @@
     background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
     color: white;
   }
-  .card {
-    border-radius: 16px;
-    overflow: hidden;
+  
+  /* Modal de imagen */
+  .modal-imagen-micalle {
+    background: white;
   }
-  .badge {
-    font-weight: normal;
+  .modal-imagen-header-micalle {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+  }
+  .modal-imagen-body-micalle {
+    background: #fefaf7;
+  }
+  .modal-imagen-footer-micalle {
+    background: #f8f9fa;
+  }
+  
+  /* Ocultar tarjetas en los filtros */
+  .filtro-oculto {
+    display: none !important;
   }
   
   /* Responsive para móviles */
@@ -340,5 +501,125 @@
     #vistaTarjetas > div {
       width: 100% !important;
     }
+  }
+  
+  /* ========== MODO NOCTURNO ========== */
+  body.dark-mode .micalle-title {
+    color: #e4e4e7;
+  }
+  body.dark-mode .micalle-subtitle {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .filtros-card-micalle {
+    background: #1a1a2e;
+  }
+  body.dark-mode .filtros-header-micalle {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+    color: #e4e4e7;
+  }
+  body.dark-mode .filtros-body-micalle {
+    background: #1a1a2e;
+  }
+  
+  body.dark-mode .buscador-icon-micalle {
+    background-color: #3f3f46;
+    border-color: #3f3f46;
+    color: #f7931e;
+  }
+  body.dark-mode .buscador-input-micalle {
+    border: 1px solid #3f3f46;
+    background-color: #3f3f46;
+    color: #e4e4e7;
+  }
+  body.dark-mode .buscador-input-micalle:focus {
+    border-color: #f7931e;
+  }
+  body.dark-mode .buscador-input-micalle::placeholder {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .reporte-tarjeta-micalle {
+    background: #27272a;
+  }
+  body.dark-mode .tarjeta-titulo-micalle {
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .descripcion-micalle {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .fecha-micalle {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .badge-votos-micalle {
+    background: #3f3f46;
+  }
+  
+  body.dark-mode .btn-imagen-micalle {
+    border-color: #3f3f46;
+    color: #138496;
+  }
+  body.dark-mode .btn-imagen-micalle:hover {
+    background: #138496;
+    color: white;
+  }
+  
+  body.dark-mode .progreso-bar-micalle {
+    background-color: #3f3f46;
+  }
+  body.dark-mode .progreso-texto-micalle {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .btn-volver-micalle {
+    border-color: #3f3f46;
+    color: #e4e4e7;
+  }
+  body.dark-mode .btn-volver-micalle:hover {
+    background: #3f3f46;
+  }
+  
+  body.dark-mode .empty-card-micalle {
+    background: #1a1a2e;
+  }
+  body.dark-mode .empty-icon-micalle {
+    color: #a1a1aa;
+  }
+  body.dark-mode .empty-title-micalle {
+    color: #a1a1aa;
+  }
+  body.dark-mode .empty-text-micalle {
+    color: #a1a1aa;
+  }
+  
+  body.dark-mode .nav-pills .nav-link {
+    color: #e4e4e7;
+  }
+  body.dark-mode .nav-pills .nav-link.active {
+    background: linear-gradient(135deg, #f7931e 0%, #e08515 100%);
+  }
+  
+  body.dark-mode .modal-imagen-micalle {
+    background: #1a1a2e;
+  }
+  body.dark-mode .modal-imagen-body-micalle {
+    background: #1a1a2e;
+  }
+  body.dark-mode .modal-imagen-footer-micalle {
+    background: #1a1a2e;
+  }
+  
+  body.dark-mode .progress {
+    background-color: #3f3f46;
+  }
+  
+  .btn-sm {
+    transition: all 0.2s ease;
+  }
+  .badge {
+    font-weight: normal;
   }
 </style>

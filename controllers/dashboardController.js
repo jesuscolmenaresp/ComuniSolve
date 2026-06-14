@@ -432,7 +432,7 @@ exports.superAdmin = async (req, res) => {
   console.log("👑 Dashboard SuperAdmin iniciado para usuario:", usuario?.id);
   
   try {
-    // ========== ESTADÍSTICAS GLOBALES ==========
+   // ========== ESTADÍSTICAS GLOBALES ==========
     let totalUsuarios = 0;
     let totalReportes = 0;
     let totalCalles = 0;
@@ -442,7 +442,8 @@ exports.superAdmin = async (req, res) => {
     let totalCategorias = 0;
     let voluntariosPendientes = 0;
     let voluntariosAprobados = 0;
-    
+    let voluntariosRechazados = 0;  // NUEVO
+
     try {
       const [usuariosRow] = await db.query('SELECT COUNT(*) as total FROM usuarios');
       totalUsuarios = usuariosRow[0]?.total || 0;
@@ -471,6 +472,9 @@ exports.superAdmin = async (req, res) => {
       
       const [volApr] = await db.query('SELECT COUNT(*) as total FROM voluntarios WHERE estado = "aprobado"');
       voluntariosAprobados = volApr[0]?.total || 0;
+      
+      const [volRech] = await db.query('SELECT COUNT(*) as total FROM voluntarios WHERE estado = "rechazado"');
+      voluntariosRechazados = volRech[0]?.total || 0;
       
       console.log("✅ Estadísticas SuperAdmin calculadas");
     } catch (err) {
@@ -586,6 +590,7 @@ exports.superAdmin = async (req, res) => {
         voluntarios: totalVoluntarios,
         voluntariosPendientes: voluntariosPendientes,
         voluntariosAprobados: voluntariosAprobados,
+        voluntariosRechazados: voluntariosRechazados,  // NUEVO
         empresas: totalEmpresas,
         categorias: totalCategorias,
         reportesHoy: reportesHoy,
