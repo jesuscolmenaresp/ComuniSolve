@@ -1,23 +1,36 @@
-// routes/calles.js
 const express = require('express');
 const router = express.Router();
 const calleController = require('../controllers/calleController');
 const authMiddleware = require('../middleware/authMiddleware');
 const roleMiddleware = require('../middleware/roleMiddleware');
 
-// Listar calles (UBCH y líderes)
-router.get('/calles', authMiddleware, roleMiddleware([1, 2]), calleController.listarCalles);
+// ========== RUTAS PARA UBCH (rol 1), LÍDER (rol 2) y SUPERADMIN (rol 5) ==========
 
-// Formulario crear calle (solo UBCH)
-router.get('/calles/nueva', authMiddleware, roleMiddleware([1]), calleController.formCrear);
+// Listar calles activas
+router.get('/calles', authMiddleware, roleMiddleware([1, 2, 5]), calleController.listarCalles);
 
-// Guardar nueva calle (solo UBCH)
-router.post('/calles/nueva', authMiddleware, roleMiddleware([1]), calleController.crear);
+// Listar calles inactivas (UBCH y SuperAdmin)
+router.get('/calles/inactivos', authMiddleware, roleMiddleware([1, 5]), calleController.listarCallesInactivas);
 
-// Formulario editar calle (solo UBCH)
-router.get('/calles/:id/editar', authMiddleware, roleMiddleware([1]), calleController.formEditar);
+// Formulario crear calle
+router.get('/calles/nueva', authMiddleware, roleMiddleware([1, 5]), calleController.formCrear);
 
-// Actualizar calle (solo UBCH)
-router.post('/calles/:id/editar', authMiddleware, roleMiddleware([1]), calleController.actualizar);
+// Guardar nueva calle
+router.post('/calles/nueva', authMiddleware, roleMiddleware([1, 5]), calleController.crear);
+
+// Formulario editar calle
+router.get('/calles/:id/editar', authMiddleware, roleMiddleware([1, 5]), calleController.formEditar);
+
+// Actualizar calle
+router.post('/calles/:id/editar', authMiddleware, roleMiddleware([1, 5]), calleController.actualizar);
+
+// DESACTIVAR calle (soft delete)
+router.post('/calles/:id/desactivar', authMiddleware, roleMiddleware([1, 5]), calleController.desactivar);
+
+// ACTIVAR calle (reactivar)
+router.post('/calles/:id/activar', authMiddleware, roleMiddleware([1, 5]), calleController.activar);
+
+// ELIMINAR FÍSICAMENTE (solo SuperAdmin)
+router.post('/calles/:id/destruir', authMiddleware, roleMiddleware([5]), calleController.destruir);
 
 module.exports = router;

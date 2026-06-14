@@ -1,12 +1,16 @@
 const db = require('../models/db');
+const { registrarAuditoria } = require('../middleware/auditoriaMiddleware');
 
-// 📌 Listar comunidades
+// ==========================
+// 📌 LISTAR COMUNIDADES ACTIVAS
+// ==========================
 exports.listar = async (req, res) => {
   try {
     const [comunidades] = await db.query(`
       SELECT c.*, 
-             (SELECT COUNT(*) FROM calles WHERE comunidad_id = c.id) as total_calles
+             (SELECT COUNT(*) FROM calles WHERE comunidad_id = c.id AND activo = 1) as total_calles
       FROM comunidades c
+      WHERE c.activo = 1
       ORDER BY c.nombre
     `);
     
@@ -21,7 +25,39 @@ exports.listar = async (req, res) => {
   }
 };
 
-// 📌 Mostrar formulario de nueva comunidad
+// ==========================
+// 📌 LISTAR COMUNIDADES INACTIVAS
+// ==========================
+exports.listarInactivas = async (req, res) => {
+  try {
+    if (!req.session.usuario || (req.session.usuario.rol_id !== 1 && req.session.usuario.rol_id !== 5)) {
+      req.session.error = 'No autorizado';
+      return res.redirect('/dashboard');
+    }
+
+    const [comunidades] = await db.query(`
+      SELECT c.*, 
+             (SELECT COUNT(*) FROM calles WHERE comunidad_id = c.id) as total_calles
+      FROM comunidades c
+      WHERE c.activo = 0
+      ORDER BY c.nombre
+    `);
+    
+    res.render('comunidades/inactivos', { 
+      comunidades,
+      usuario: req.session.usuario,
+      session: req.session
+    });
+  } catch (err) {
+    console.error(err);
+    req.session.error = 'Error al listar comunidades inactivas';
+    res.redirect('/comunidades');
+  }
+};
+
+// ==========================
+// 📌 MOSTRAR FORMULARIO DE NUEVA COMUNIDAD
+// ==========================
 exports.formCrear = (req, res) => {
   res.render('comunidades/crear', { 
     usuario: req.session.usuario,
@@ -29,15 +65,27 @@ exports.formCrear = (req, res) => {
   });
 };
 
-// 📌 Guardar nueva comunidad
+// ==========================
+// 📌 GUARDAR NUEVA COMUNIDAD
+// ==========================
 exports.crear = async (req, res) => {
   const { nombre, descripcion } = req.body;
   
   try {
-    await db.query(
-      'INSERT INTO comunidades (nombre, descripcion) VALUES (?, ?)',
+    const [result] = await db.query(
+      'INSERT INTO comunidades (nombre, descripcion, activo) VALUES (?, ?, 1)',
       [nombre, descripcion || null]
     );
+    
+    await registrarAuditoria(
+      req.session.usuario,
+      'CREAR',
+      'comunidades',
+      result.insertId,
+      null,
+      { nombre, descripcion }
+    );
+    
     req.session.mensaje = 'Comunidad creada exitosamente';
     res.redirect('/comunidades');
   } catch (err) {
@@ -47,12 +95,14 @@ exports.crear = async (req, res) => {
   }
 };
 
-// 📌 Mostrar formulario de edición
+// ==========================
+// 📌 MOSTRAR FORMULARIO DE EDICIÓN
+// ==========================
 exports.formEditar = async (req, res) => {
   const { id } = req.params;
   
   try {
-    const [comunidad] = await db.query('SELECT * FROM comunidades WHERE id = ?', [id]);
+    const [comunidad] = await db.query('SELECT * FROM comunidades WHERE id = ? AND activo = 1', [id]);
     if (comunidad.length === 0) {
       return res.status(404).send('Comunidad no encontrada');
     }
@@ -68,16 +118,30 @@ exports.formEditar = async (req, res) => {
   }
 };
 
-// 📌 Actualizar comunidad
+// ==========================
+// 📌 ACTUALIZAR COMUNIDAD
+// ==========================
 exports.actualizar = async (req, res) => {
   const { id } = req.params;
   const { nombre, descripcion } = req.body;
   
   try {
+    const [comunidadAnterior] = await db.query('SELECT * FROM comunidades WHERE id = ?', [id]);
+    
     await db.query(
       'UPDATE comunidades SET nombre = ?, descripcion = ? WHERE id = ?',
       [nombre, descripcion || null, id]
     );
+    
+    await registrarAuditoria(
+      req.session.usuario,
+      'EDITAR',
+      'comunidades',
+      id,
+      comunidadAnterior[0],
+      { nombre, descripcion }
+    );
+    
     req.session.mensaje = 'Comunidad actualizada exitosamente';
     res.redirect('/comunidades');
   } catch (err) {
@@ -87,22 +151,164 @@ exports.actualizar = async (req, res) => {
   }
 };
 
-// 📌 Eliminar comunidad
-exports.eliminar = async (req, res) => {
+// ==========================
+// 📌 DESACTIVAR COMUNIDAD (SOFT DELETE)
+// ==========================
+exports.desactivar = async (req, res) => {
   const { id } = req.params;
-  
+  const { motivo } = req.body;
+
   try {
-    await db.query('DELETE FROM comunidades WHERE id = ?', [id]);
-    req.session.mensaje = 'Comunidad eliminada exitosamente';
+    const [comunidadADesactivar] = await db.query(
+      'SELECT nombre FROM comunidades WHERE id = ? AND activo = 1',
+      [id]
+    );
+
+    if (comunidadADesactivar.length === 0) {
+      req.session.error = 'Comunidad no encontrada o ya está inactiva';
+      return res.redirect('/comunidades');
+    }
+
+    // Verificar si tiene calles activas asociadas
+    const [callesAsociadas] = await db.query(
+      'SELECT COUNT(*) as total FROM calles WHERE comunidad_id = ? AND activo = 1',
+      [id]
+    );
+
+    if (callesAsociadas[0].total > 0) {
+      req.session.error = `No se puede desactivar la comunidad porque tiene ${callesAsociadas[0].total} calles activas asociadas. Primero debe desactivar o reasignar las calles.`;
+      return res.redirect('/comunidades');
+    }
+
+    await db.query('UPDATE comunidades SET activo = 0 WHERE id = ?', [id]);
+
+    await registrarAuditoria(
+      req.session.usuario,
+      'DESACTIVAR',
+      'comunidades',
+      id,
+      comunidadADesactivar[0],
+      { motivo: motivo || 'Desactivado por administrador', activo: false }
+    );
+
+    req.session.mensaje = `Comunidad "${comunidadADesactivar[0].nombre}" desactivada correctamente`;
     res.redirect('/comunidades');
   } catch (err) {
     console.error(err);
-    req.session.error = 'Error al eliminar comunidad';
+    req.session.error = 'Error al desactivar comunidad';
     res.redirect('/comunidades');
   }
 };
 
-// 📌 Asignar comunidades a UBCH
+// ==========================
+// 📌 ACTIVAR COMUNIDAD (REACTIVAR)
+// ==========================
+exports.activar = async (req, res) => {
+  const { id } = req.params;
+  const { motivo } = req.body;
+
+  try {
+    const [comunidadAActivar] = await db.query(
+      'SELECT nombre FROM comunidades WHERE id = ? AND activo = 0',
+      [id]
+    );
+
+    if (comunidadAActivar.length === 0) {
+      req.session.error = 'Comunidad no encontrada o ya está activa';
+      return res.redirect('/comunidades/inactivos');
+    }
+
+    await db.query('UPDATE comunidades SET activo = 1 WHERE id = ?', [id]);
+
+    await registrarAuditoria(
+      req.session.usuario,
+      'ACTIVAR',
+      'comunidades',
+      id,
+      { activo: false },
+      { motivo: motivo || 'Reactivado por administrador', activo: true }
+    );
+
+    req.session.mensaje = `Comunidad "${comunidadAActivar[0].nombre}" activada correctamente`;
+    res.redirect('/comunidades/inactivos');
+  } catch (err) {
+    console.error(err);
+    req.session.error = 'Error al activar comunidad';
+    res.redirect('/comunidades/inactivos');
+  }
+};
+
+// ==========================
+// 📌 ELIMINAR FÍSICAMENTE (SOLO SUPERADMIN CON MOTIVO)
+// ==========================
+exports.destruir = async (req, res) => {
+  const { id } = req.params;
+  const { motivo } = req.body;
+
+  try {
+    if (!req.session.usuario || req.session.usuario.rol_id !== 5) {
+      req.session.error = 'No autorizado';
+      return res.redirect('/comunidades/inactivos');
+    }
+
+    if (!motivo || motivo.trim() === '') {
+      req.session.error = 'Debe especificar un motivo para eliminar permanentemente la comunidad';
+      return res.redirect('/comunidades/inactivos');
+    }
+
+    const [comunidadAEliminar] = await db.query(
+      'SELECT nombre, id FROM comunidades WHERE id = ?',
+      [id]
+    );
+
+    if (comunidadAEliminar.length === 0) {
+      req.session.error = 'Comunidad no encontrada';
+      return res.redirect('/comunidades/inactivos');
+    }
+
+    // Verificar si tiene calles asociadas (incluso inactivas)
+    const [callesAsociadas] = await db.query(
+      'SELECT COUNT(*) as total FROM calles WHERE comunidad_id = ?',
+      [id]
+    );
+
+    if (callesAsociadas[0].total > 0) {
+      req.session.error = `No se puede eliminar la comunidad porque tiene ${callesAsociadas[0].total} calles asociadas. Primero debe eliminar o reasignar las calles.`;
+      return res.redirect('/comunidades/inactivos');
+    }
+
+    const datosComunidad = comunidadAEliminar[0];
+    const datosConMotivo = {
+      ...datosComunidad,
+      motivo_eliminacion: motivo.trim(),
+      eliminado_por: req.session.usuario.nombre,
+      fecha_eliminacion: new Date().toLocaleString()
+    };
+
+    await db.query('DELETE FROM comunidades WHERE id = ?', [id]);
+
+    await registrarAuditoria(
+      req.session.usuario,
+      'ELIMINAR_PERMANENTEMENTE',
+      'comunidades',
+      id,
+      datosConMotivo,
+      { motivo: motivo.trim(), eliminado_por: req.session.usuario.nombre },
+      req
+    );
+
+    req.session.mensaje = `Comunidad "${datosComunidad.nombre}" eliminada permanentemente. Motivo: ${motivo}`;
+    res.redirect('/comunidades/inactivos');
+  } catch (err) {
+    console.error('Error en destruir:', err);
+    req.session.error = 'Error al eliminar comunidad permanentemente';
+    res.redirect('/comunidades/inactivos');
+  }
+};
+
+// ==========================
+// 📌 ASIGNAR COMUNIDADES A UBCH
+// ==========================
 exports.asignarUBCH = async (req, res) => {
   const { ubch_id, comunidades } = req.body;
   
@@ -133,7 +339,9 @@ exports.asignarUBCH = async (req, res) => {
   }
 };
 
-// 📌 Obtener comunidades de un UBCH (para edición)
+// ==========================
+// 📌 OBTENER COMUNIDADES DE UN UBCH
+// ==========================
 exports.getComunidadesUBCH = async (req, res) => {
   const { ubch_id } = req.params;
   

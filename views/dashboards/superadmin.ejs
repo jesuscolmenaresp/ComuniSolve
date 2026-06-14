@@ -16,296 +16,350 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
 }
 %>
 
-<div class="container py-4">
+<div class="container-fluid py-4 px-4">
   
-  <!-- ========== ENCABEZADO ========== -->
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <div>
-      <h2 class="fw-bold mb-1 superadmin-title">
-        <i class="bi bi-shield-lock-fill me-2"></i> Panel SuperAdministrador
-      </h2>
-      <p class="text-muted small mb-0 superadmin-subtitle">Gestión global del sistema - Estadísticas completas - Control total</p>
-    </div>
-    <div class="d-flex gap-2">
-      <button onclick="window.location.reload()" class="btn btn-sm px-3 py-2 rounded-3 btn-actualizar-sa">
-        <i class="bi bi-arrow-repeat me-1"></i> Actualizar
-      </button>
-      <button id="btnDarkModeGlobal" class="btn btn-sm px-3 py-2 rounded-3 btn-darkmode-toggle">
-        <i class="bi bi-moon-stars-fill me-1"></i> 
-        <span id="darkModeText">Modo Nocturno</span>
-      </button>
-      <a href="/auditoria" class="btn btn-sm px-3 py-2 rounded-3 btn-auditoria-sa">
-        <i class="bi bi-clock-history me-1"></i> Auditoría completa
-      </a>
-    </div>
-  </div>
-
-  <!-- ========== FILA 1: TARJETAS PRINCIPALES ========== -->
-  <div class="row g-4 mb-5">
-    <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
-        <div class="card-body p-3 text-center stat-card-sa-usuarios">
-          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div class="stat-icon-sa">
-              <i class="bi bi-people-fill fs-3 text-white"></i>
-            </div>
-          </div>
-          <h2 class="fw-bold mb-0 stat-number-sa"><%= totales.usuarios || 0 %></h2>
-          <p class="small mb-0 stat-label-sa">Usuarios totales</p>
+  <!-- ========== ENCABEZADO MEJORADO ========== -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <h1 class="display-5 fw-bold mb-1 superadmin-title" style="background: linear-gradient(135deg, #5D4037 0%, #8B6B5A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            <i class="bi bi-shield-lock-fill me-2" style="background: none; -webkit-text-fill-color: #ffc107;"></i> 
+            Panel SuperAdministrador
+          </h1>
+          <p class="text-muted superadmin-subtitle mt-2">
+            <i class="bi bi-graph-up me-1"></i> Gestión global del sistema | Estadísticas en tiempo real | Control total
+          </p>
         </div>
-      </div>
-    </div>
-    <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
-        <div class="card-body p-3 text-center stat-card-sa-reportes">
-          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div class="stat-icon-sa">
-              <i class="bi bi-file-text-fill fs-3 text-white"></i>
-            </div>
-          </div>
-          <h2 class="fw-bold mb-0 stat-number-sa"><%= totales.reportes || 0 %></h2>
-          <p class="small mb-0 stat-label-sa">Reportes totales</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
-        <div class="card-body p-3 text-center stat-card-sa-calles">
-          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div class="stat-icon-sa">
-              <i class="bi bi-geo-alt-fill fs-3 text-white"></i>
-            </div>
-          </div>
-          <h2 class="fw-bold mb-0 stat-number-sa"><%= totales.calles || 0 %></h2>
-          <p class="small mb-0 stat-label-sa">Calles registradas</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
-        <div class="card-body p-3 text-center stat-card-sa-voluntarios">
-          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div class="stat-icon-sa">
-              <i class="bi bi-person-badge-fill fs-3 text-white"></i>
-            </div>
-          </div>
-          <h2 class="fw-bold mb-0 stat-number-sa"><%= totales.voluntarios || 0 %></h2>
-          <p class="small mb-0 stat-label-sa">Voluntarios totales</p>
+        <div class="d-flex gap-2 flex-wrap">
+          <button onclick="window.location.reload()" class="btn btn-actualizar-sa px-4 py-2 rounded-3">
+            <i class="bi bi-arrow-repeat me-2"></i> Actualizar
+          </button>
+          <button id="btnDarkModeGlobal" class="btn btn-darkmode-toggle px-4 py-2 rounded-3">
+            <i class="bi bi-moon-stars-fill me-2"></i> 
+            <span id="darkModeText">Modo Nocturno</span>
+          </button>
+          <a href="/auditoria" class="btn btn-auditoria-sa px-4 py-2 rounded-3">
+            <i class="bi bi-clock-history me-2"></i> Auditoría Completa
+          </a>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ========== FILA 2: TARJETAS SECUNDARIAS ========== -->
-  <div class="row g-4 mb-5">
-    <div class="col-md-2 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
-        <div class="card-body p-3 text-center stat-card-sa-comunidades">
-          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div class="stat-icon-sa-sm">
-              <i class="bi bi-building fs-4 text-white"></i>
+  <!-- ========== ACCIONES RÁPIDAS DESTACADAS (ARRIBA) ========== -->
+  <div class="row g-3 mb-5">
+    <div class="col-12">
+      <div class="card border-0 rounded-4 shadow-sm acciones-rapidas-card">
+        <div class="card-body p-3">
+          <div class="row g-2 align-items-center">
+            <div class="col-md-3">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-lightning-charge-fill fs-3" style="color: #ffc107;"></i>
+                <h5 class="mb-0 fw-bold">Acciones Rápidas</h5>
+              </div>
+            </div>
+            <div class="col-md-9">
+              <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                <a href="/usuarios" class="btn btn-rapido">
+                  <i class="bi bi-people-fill me-1"></i> Usuarios
+                </a>
+                <a href="/reportes" class="btn btn-rapido">
+                  <i class="bi bi-file-text-fill me-1"></i> Reportes
+                </a>
+                <a href="/voluntarios/gestionar" class="btn btn-rapido">
+                  <i class="bi bi-person-badge-fill me-1"></i> Voluntarios
+                </a>
+                <a href="/calles" class="btn btn-rapido">
+                  <i class="bi bi-geo-alt-fill me-1"></i> Calles
+                </a>
+                <a href="/comunidades" class="btn btn-rapido">
+                  <i class="bi bi-building me-1"></i> Comunidades
+                </a>
+                <a href="/categorias" class="btn btn-rapido">
+                  <i class="bi bi-tags-fill me-1"></i> Categorías
+                </a>
+                <a href="/empresas" class="btn btn-rapido">
+                  <i class="bi bi-building me-1"></i> Empresas
+                </a>
+                <button class="btn btn-backup-rapido" data-bs-toggle="modal" data-bs-target="#modalBackup">
+                  <i class="bi bi-database me-1"></i> Backup
+                </button>
+              </div>
             </div>
           </div>
-          <h2 class="fw-bold mb-0 fs-4 stat-number-sa"><%= totales.comunidades || 0 %></h2>
-          <p class="small mb-0 stat-label-sa">Comunidades</p>
         </div>
       </div>
     </div>
-    <div class="col-md-2 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
-        <div class="card-body p-3 text-center stat-card-sa-empresas">
-          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div class="stat-icon-sa-sm">
-              <i class="bi bi-building fs-4 text-white"></i>
+  </div>
+
+  <!-- ========== FILA 1: TARJETAS PRINCIPALES (4 grandes) ========== -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-3 col-md-6">
+      <div class="card border-0 rounded-4 shadow-sm stat-card-sa stat-card-sa-usuarios h-100">
+        <div class="card-body p-3">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <span class="stat-label-sa">Usuarios Totales</span>
+              <h2 class="fw-bold mb-0 stat-number-sa mt-2"><%= totales.usuarios || 0 %></h2>
+            </div>
+            <div class="stat-icon-sa">
+              <i class="bi bi-people-fill fs-4 text-white"></i>
             </div>
           </div>
-          <h2 class="fw-bold mb-0 fs-4 stat-number-sa"><%= totales.empresas || 0 %></h2>
-          <p class="small mb-0 stat-label-sa">Empresas</p>
+          <div class="stat-footer-sa">
+            <small><i class="bi bi-arrow-up-short"></i> +12% este mes</small>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-md-2 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
-        <div class="card-body p-3 text-center stat-card-sa-categorias">
-          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div class="stat-icon-sa-sm">
-              <i class="bi bi-tags-fill fs-4 text-white"></i>
+    <div class="col-lg-3 col-md-6">
+      <div class="card border-0 rounded-4 shadow-sm stat-card-sa stat-card-sa-reportes h-100">
+        <div class="card-body p-3">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <span class="stat-label-sa">Reportes Totales</span>
+              <h2 class="fw-bold mb-0 stat-number-sa mt-2"><%= totales.reportes || 0 %></h2>
+            </div>
+            <div class="stat-icon-sa">
+              <i class="bi bi-file-text-fill fs-4 text-white"></i>
             </div>
           </div>
-          <h2 class="fw-bold mb-0 fs-4 stat-number-sa"><%= totales.categorias || 0 %></h2>
-          <p class="small mb-0 stat-label-sa">Categorías</p>
+          <div class="stat-footer-sa">
+            <small><i class="bi bi-calendar-check"></i> <%= totales.reportesHoy || 0 %> hoy</small>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-md-2 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
-        <div class="card-body p-3 text-center stat-card-sa-actividad">
-          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div class="stat-icon-sa-sm">
+    <div class="col-lg-3 col-md-6">
+      <div class="card border-0 rounded-4 shadow-sm stat-card-sa stat-card-sa-voluntarios h-100">
+        <div class="card-body p-3">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <span class="stat-label-sa">Voluntarios</span>
+              <h2 class="fw-bold mb-0 stat-number-sa mt-2"><%= totales.voluntarios || 0 %></h2>
+            </div>
+            <div class="stat-icon-sa">
+              <i class="bi bi-person-badge-fill fs-4 text-white"></i>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between mt-2">
+            <small class="text-success"><i class="bi bi-check-circle"></i> Aprob: <%= totales.voluntariosAprobados || 0 %></small>
+            <small class="text-warning"><i class="bi bi-clock"></i> Pend: <%= totales.voluntariosPendientes || 0 %></small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+      <div class="card border-0 rounded-4 shadow-sm stat-card-sa stat-card-sa-actividad h-100">
+        <div class="card-body p-3">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <span class="stat-label-sa">Actividad Hoy</span>
+              <h2 class="fw-bold mb-0 stat-number-sa mt-2"><%= totales.usuariosActivosHoy || 0 %></h2>
+            </div>
+            <div class="stat-icon-sa">
               <i class="bi bi-activity fs-4 text-white"></i>
             </div>
           </div>
-          <h5 class="fw-bold mb-0 fs-4 stat-number-sa"><%= totales.reportesHoy || 0 %></h5>
-          <p class="small mb-0 stat-label-sa">Reportes hoy</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-2 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
-        <div class="card-body p-3 text-center stat-card-sa-aprobados">
-          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div class="stat-icon-sa-sm">
-              <i class="bi bi-check-circle-fill fs-4 text-white"></i>
-            </div>
+          <div class="stat-footer-sa">
+            <small><i class="bi bi-people"></i> usuarios activos</small>
           </div>
-          <h2 class="fw-bold mb-0 fs-4 stat-number-sa-aprobados"><%= totales.voluntariosAprobados || 0 %></h2>
-          <p class="small mb-0 stat-label-sa-aprobados">Aprobados</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-2 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-sa">
-        <div class="card-body p-3 text-center stat-card-sa-pendientes">
-          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div class="stat-icon-sa-sm">
-              <i class="bi bi-clock-history fs-4 text-white"></i>
-            </div>
-          </div>
-          <h2 class="fw-bold mb-0 fs-4 stat-number-sa-pendientes"><%= totales.voluntariosPendientes || 0 %></h2>
-          <p class="small mb-0 stat-label-sa-pendientes">Pendientes</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ========== FILA 3: GRÁFICOS ========== -->
+  <!-- ========== FILA 2: TARJETAS SECUNDARIAS (geográficas) ========== -->
   <div class="row g-4 mb-5">
-    <div class="col-md-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100 chart-card-sa">
-        <div class="px-4 py-3 chart-card-header-sa">
-          <h5 class="mb-0 fw-semibold"><i class="bi bi-pie-chart me-2"></i> Reportes por Estado</h5>
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 rounded-4 shadow-sm stat-card-sa-sm">
+        <div class="card-body p-3 text-center">
+          <i class="bi bi-geo-alt-fill fs-2" style="color: #17a2b8;"></i>
+          <h3 class="fw-bold mb-0 mt-2"><%= totales.calles || 0 %></h3>
+          <small class="text-muted">Calles</small>
         </div>
-        <div class="card-body p-4 chart-card-body-sa">
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 rounded-4 shadow-sm stat-card-sa-sm">
+        <div class="card-body p-3 text-center">
+          <i class="bi bi-building fs-2" style="color: #28a745;"></i>
+          <h3 class="fw-bold mb-0 mt-2"><%= totales.comunidades || 0 %></h3>
+          <small class="text-muted">Comunidades</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 rounded-4 shadow-sm stat-card-sa-sm">
+        <div class="card-body p-3 text-center">
+          <i class="bi bi-building fs-2" style="color: #fd7e14;"></i>
+          <h3 class="fw-bold mb-0 mt-2"><%= totales.empresas || 0 %></h3>
+          <small class="text-muted">Empresas</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 rounded-4 shadow-sm stat-card-sa-sm">
+        <div class="card-body p-3 text-center">
+          <i class="bi bi-tags-fill fs-2" style="color: #6f42c1;"></i>
+          <h3 class="fw-bold mb-0 mt-2"><%= totales.categorias || 0 %></h3>
+          <small class="text-muted">Categorías</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FILA 3: REPORTES POR ESTADO + MONITOREO ========== -->
+  <div class="row g-4 mb-5">
+    <div class="col-lg-6">
+      <div class="card border-0 rounded-4 shadow-sm chart-card-sa h-100">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="mb-0 fw-semibold">
+            <i class="bi bi-pie-chart-fill me-2" style="color: #ffc107;"></i> 
+            Reportes por Estado
+          </h5>
+        </div>
+        <div class="card-body p-4 pt-0">
           <canvas id="chartEstado" style="max-height: 280px; width: 100%;"></canvas>
         </div>
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100 chart-card-sa">
-        <div class="px-4 py-3 chart-card-header-sa">
-          <h5 class="mb-0 fw-semibold"><i class="bi bi-bar-chart me-2"></i> Voluntarios por Habilidad</h5>
+    <div class="col-lg-6">
+      <div class="card border-0 rounded-4 shadow-sm monitoreo-card-sa h-100">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="mb-0 fw-semibold">
+            <i class="bi bi-bar-chart-steps me-2" style="color: #28a745;"></i> 
+            Monitoreo del Sistema
+          </h5>
         </div>
-        <div class="card-body p-4 chart-card-body-sa">
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="monitoreo-item-sa p-3 rounded-3 text-center">
+                <i class="bi bi-database fs-2" style="color: #17a2b8;"></i>
+                <h6 class="mt-2 mb-0 fw-bold">Base de Datos</h6>
+                <small class="text-muted">MySQL Local</small>
+                <div><span class="badge bg-success mt-2">✅ Conectada</span></div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="monitoreo-item-sa p-3 rounded-3 text-center">
+                <i class="bi bi-people fs-2" style="color: #ffc107;"></i>
+                <h6 class="mt-2 mb-0 fw-bold">Usuarios Hoy</h6>
+                <h3 class="mb-0 fw-bold mt-1"><%= totales.usuariosActivosHoy || 0 %></h3>
+                <small class="text-muted">activos</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="monitoreo-item-sa p-3 rounded-3 text-center">
+                <i class="bi bi-file-text fs-2" style="color: #fd7e14;"></i>
+                <h6 class="mt-2 mb-0 fw-bold">Reportes Hoy</h6>
+                <h3 class="mb-0 fw-bold mt-1"><%= totales.reportesHoy || 0 %></h3>
+                <small class="text-muted">nuevos</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="monitoreo-item-sa p-3 rounded-3 text-center">
+                <i class="bi bi-hdd-stack fs-2" style="color: #6f42c1;"></i>
+                <h6 class="mt-2 mb-0 fw-bold">Almacenamiento</h6>
+                <small class="text-muted">Base de datos</small>
+                <div><span class="badge bg-primary mt-2">~ 50 MB</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FILA 4: VOLUNTARIOS PENDIENTES + VOLUNTARIOS POR HABILIDAD ========== -->
+  <div class="row g-4 mb-5">
+    <div class="col-lg-6">
+      <div class="card border-0 rounded-4 shadow-sm table-card-sa h-100">
+        <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <h5 class="mb-0 fw-semibold">
+            <i class="bi bi-person-badge me-2" style="color: #28a745;"></i> 
+            Voluntarios Pendientes
+          </h5>
+          <span class="badge bg-warning rounded-pill px-3 py-2">
+            <i class="bi bi-clock me-1"></i> <%= totales.voluntariosPendientes || 0 %> pendientes
+          </span>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0 tabla-sa">
+              <thead>
+                <tr>
+                  <th><i class="bi bi-person"></i> Nombre</th>
+                  <th><i class="bi bi-tools"></i> Habilidad</th>
+                  <th><i class="bi bi-calendar3"></i> Fecha</th>
+                  <th class="text-center"><i class="bi bi-gear"></i> Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (ultimosVoluntarios && ultimosVoluntarios.filter(v => v.estado === 'pendiente').length > 0) { %>
+                  <% ultimosVoluntarios.filter(v => v.estado === 'pendiente').slice(0, 5).forEach(v => { %>
+                    <tr>
+                      <td><strong><%= v.nombre %></strong></td>
+                      <td><%= v.habilidad || '—' %></td>
+                      <td><small><%= new Date(v.fecha_solicitud).toLocaleDateString() %></small></td>
+                      <td class="text-center">
+                        <a href="/voluntarios/gestionar" class="btn btn-sm btn-success px-3">
+                          <i class="bi bi-check-lg me-1"></i> Revisar
+                        </a>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="4" class="text-center py-4">
+                      <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+                      <p class="mt-2 text-muted mb-0">No hay voluntarios pendientes</p>
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer bg-transparent border-0 text-center pt-3 pb-4">
+          <a href="/voluntarios/gestionar" class="btn btn-outline-primary rounded-3 px-4">
+            Ver todos los voluntarios <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card border-0 rounded-4 shadow-sm chart-card-sa h-100">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="mb-0 fw-semibold">
+            <i class="bi bi-bar-chart-steps me-2" style="color: #fd7e14;"></i> 
+            Voluntarios por Habilidad
+          </h5>
+        </div>
+        <div class="card-body p-4 pt-0">
           <canvas id="chartHabilidades" style="max-height: 280px; width: 100%;"></canvas>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ========== FILA 4: VOLUNTARIOS ========== -->
+  <!-- ========== FILA 5: AUDITORÍA + ÚLTIMOS USUARIOS ========== -->
   <div class="row g-4 mb-5">
-    <div class="col-md-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden table-card-sa">
-        <div class="px-4 py-3 table-card-header-sa">
-          <h5 class="mb-0 fw-semibold"><i class="bi bi-person-badge me-2"></i> Voluntarios Pendientes de Aprobación</h5>
+    <div class="col-lg-6">
+      <div class="card border-0 rounded-4 shadow-sm table-card-sa h-100">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="mb-0 fw-semibold">
+            <i class="bi bi-shield-check me-2" style="color: #fd7e14;"></i> 
+            Últimas Acciones de Auditoría
+          </h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover mb-0 tabla-sa">
               <thead>
-                <tr class="text-center">
-                  <th><i class="bi bi-person"></i> Nombre</th>
-                  <th><i class="bi bi-tools"></i> Habilidad</th>
-                  <th><i class="bi bi-calendar3"></i> Fecha</th>
-                  <th><i class="bi bi-gear"></i> Acción</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% if (ultimosVoluntarios && ultimosVoluntarios.length > 0) { %>
-                  <% ultimosVoluntarios.forEach(v => { %>
-                    <tr class="text-center">
-                      <td class="text-start"><strong><%= v.nombre %></strong></td>
-                      <td><%= v.habilidad || '—' %></td>
-                      <td><small><%= new Date(v.fecha_solicitud).toLocaleDateString() %></small></td>
-                      <td>
-                        <% if (v.estado === 'pendiente') { %>
-                          <a href="/voluntarios/gestionar" class="btn btn-sm btn-success px-2 py-1 rounded-3 btn-revisar">
-                            <i class="bi bi-check-lg"></i> Revisar
-                          </a>
-                        <% } else { %>
-                          <span class="badge bg-success rounded-pill px-2 py-1"><%= v.estado %></span>
-                        <% } %>
-                      </td>
-                    </tr>
-                  <% }) %>
-                <% } else { %>
-                  <tr>
-                    <td colspan="4" class="text-center py-3 text-muted">No hay voluntarios registrados</td>
-                  </tr>
-                <% } %>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card-footer bg-transparent text-center table-footer-sa">
-          <a href="/voluntarios/gestionar" class="btn btn-sm btn-outline-primary rounded-3">Ver todos los voluntarios</a>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden table-card-sa">
-        <div class="px-4 py-3 table-card-header-sa">
-          <h5 class="mb-0 fw-semibold"><i class="bi bi-clock-history me-2"></i> Últimos Usuarios Registrados</h5>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0 tabla-sa">
-              <thead>
-                <tr class="text-center">
-                  <th><i class="bi bi-person"></i> Nombre</th>
-                  <th><i class="bi bi-envelope"></i> Email</th>
-                  <th><i class="bi bi-tag"></i> Rol</th>
-                  <th><i class="bi bi-calendar3"></i> Registro</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% if (ultimosUsuarios && ultimosUsuarios.length > 0) { %>
-                  <% ultimosUsuarios.forEach(u => { %>
-                    <tr class="text-center">
-                      <td class="text-start"><strong><%= u.nombre %></strong></td>
-                      <td><small><%= u.email %></small></td>
-                      <td><span class="badge rounded-pill px-2 py-1 rol-badge-sa"><%= u.rol %></span></td>
-                      <td><small><%= new Date(u.fecha_registro).toLocaleDateString() %></small></td>
-                    </tr>
-                  <% }) %>
-                <% } else { %>
-                  <tr>
-                    <td colspan="4" class="text-center py-3 text-muted">No hay usuarios registrados</td>
-                  </tr>
-                <% } %>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card-footer bg-transparent text-center table-footer-sa">
-          <a href="/usuarios" class="btn btn-sm btn-outline-primary rounded-3">Ver todos los usuarios</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========== FILA 5: AUDITORÍA Y ACCIONES RÁPIDAS ========== -->
-  <div class="row g-4 mb-5">
-    <div class="col-md-7">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden table-card-sa">
-        <div class="px-4 py-3 table-card-header-sa">
-          <h5 class="mb-0 fw-semibold"><i class="bi bi-shield-check me-2"></i> Últimas Acciones de Auditoría</h5>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0 tabla-sa">
-              <thead>
-                <tr class="text-center">
+                <tr>
                   <th><i class="bi bi-person"></i> Usuario</th>
                   <th><i class="bi bi-lightning-charge"></i> Acción</th>
                   <th><i class="bi bi-table"></i> Tabla</th>
@@ -314,15 +368,14 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
               </thead>
               <tbody>
                 <% if (ultimasAuditorias && ultimasAuditorias.length > 0) { %>
-                  <% ultimasAuditorias.forEach(a => { %>
-                    <tr class="text-center">
+                  <% ultimasAuditorias.slice(0, 5).forEach(a => { %>
+                    <tr>
                       <td><%= a.usuario_nombre || 'Sistema' %></td>
                       <td>
                         <span class="badge rounded-pill px-2 py-1 
                           <%= a.accion === 'CREAR' ? 'bg-success' : 
                               a.accion === 'EDITAR' ? 'bg-warning' : 
-                              a.accion === 'ELIMINAR' ? 'bg-danger' : 'bg-info' %>" 
-                          style="<%= a.accion === 'EDITAR' ? 'color: #333;' : 'color: white;' %>">
+                              a.accion === 'ELIMINAR' ? 'bg-danger' : 'bg-info' %>">
                           <%= a.accion %>
                         </span>
                       </td>
@@ -332,91 +385,80 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
                   <% }) %>
                 <% } else { %>
                   <tr>
-                    <td colspan="4" class="text-center py-3 text-muted">No hay registros de auditoría</td>
+                    <td colspan="4" class="text-center py-4">
+                      <i class="bi bi-info-circle fs-3 text-muted"></i>
+                      <p class="mt-2 text-muted mb-0">No hay registros de auditoría</p>
+                    </td>
                   </tr>
                 <% } %>
               </tbody>
             </table>
           </div>
         </div>
-        <div class="card-footer bg-transparent text-center table-footer-sa">
-          <a href="/auditoria" class="btn btn-sm btn-outline-primary rounded-3">Ver auditoría completa</a>
+        <div class="card-footer bg-transparent border-0 text-center pt-3 pb-4">
+          <a href="/auditoria" class="btn btn-outline-primary rounded-3 px-4">
+            Ver auditoría completa <i class="bi bi-arrow-right ms-1"></i>
+          </a>
         </div>
       </div>
     </div>
-    <div class="col-md-5">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden acciones-card-sa">
-        <div class="px-4 py-3 acciones-card-header-sa">
-          <h5 class="mb-0 fw-semibold"><i class="bi bi-lightning-charge me-2"></i> Acciones Rápidas</h5>
+    <div class="col-lg-6">
+      <div class="card border-0 rounded-4 shadow-sm table-card-sa h-100">
+        <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <h5 class="mb-0 fw-semibold">
+            <i class="bi bi-person-plus me-2" style="color: #17a2b8;"></i> 
+            Últimos Usuarios Registrados
+          </h5>
+          <span class="badge bg-info rounded-pill px-3 py-2">
+            <i class="bi bi-people me-1"></i> últimos 5
+          </span>
         </div>
-        <div class="card-body p-4 acciones-card-body-sa">
-          <div class="d-grid gap-2">
-            <a href="/usuarios" class="btn btn-outline-primary rounded-3 py-2 btn-accion-sa">👥 Gestionar usuarios</a>
-            <a href="/reportes" class="btn btn-outline-primary rounded-3 py-2 btn-accion-sa">📋 Ver todos los reportes</a>
-            <a href="/auditoria" class="btn btn-outline-primary rounded-3 py-2 btn-accion-sa">📜 Auditoría completa</a>
-            <a href="/voluntarios/gestionar" class="btn btn-outline-primary rounded-3 py-2 btn-accion-sa">🤝 Gestionar voluntarios</a>
-            <a href="/calles" class="btn btn-outline-primary rounded-3 py-2 btn-accion-sa">📍 Gestionar calles</a>
-            <a href="/comunidades" class="btn btn-outline-primary rounded-3 py-2 btn-accion-sa">🏘️ Gestionar comunidades</a>
-            <hr class="separador-sa">
-            <button class="btn btn-warning rounded-3 py-2 btn-backup-sa" data-bs-toggle="modal" data-bs-target="#modalBackup">
-              💾 Respaldo de base de datos
-            </button>
-            <a href="/dashboard/admin" class="btn btn-secondary rounded-3 py-2 btn-ubch-sa">📊 Ir a panel UBCH</a>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0 tabla-sa">
+              <thead>
+                <tr>
+                  <th><i class="bi bi-person"></i> Nombre</th>
+                  <th><i class="bi bi-envelope"></i> Email</th>
+                  <th><i class="bi bi-tag"></i> Rol</th>
+                  <th><i class="bi bi-calendar3"></i> Registro</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (ultimosUsuarios && ultimosUsuarios.length > 0) { %>
+                  <% ultimosUsuarios.slice(0, 5).forEach(u => { %>
+                    <tr>
+                      <td><strong><%= u.nombre %></strong></td>
+                      <td><small><%= u.email %></small></td>
+                      <td><span class="badge rounded-pill rol-badge-sa"><%= u.rol %></span></td>
+                      <td><small><%= new Date(u.fecha_registro).toLocaleDateString() %></small></td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="4" class="text-center py-4">
+                      <i class="bi bi-person-x fs-3 text-muted"></i>
+                      <p class="mt-2 text-muted mb-0">No hay usuarios registrados</p>
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========== MONITOREO DEL SISTEMA ========== -->
-  <div class="row g-4 mb-5">
-    <div class="col-md-12">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden monitoreo-card-sa">
-        <div class="px-4 py-3 monitoreo-card-header-sa">
-          <h5 class="mb-0 fw-semibold"><i class="bi bi-bar-chart-steps me-2"></i> Monitoreo del Sistema</h5>
-        </div>
-        <div class="card-body p-4 monitoreo-card-body-sa">
-          <div class="row text-center">
-            <div class="col-md-3">
-              <div class="p-3 rounded-3 monitoreo-item-sa">
-                <i class="bi bi-database fs-2"></i>
-                <h6 class="mt-2 mb-0">Base de Datos</h6>
-                <small class="text-muted">MySQL Local</small>
-                <div><span class="badge bg-success mt-2">✅ Conectada</span></div>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="p-3 rounded-3 monitoreo-item-sa">
-                <i class="bi bi-hdd-stack fs-2"></i>
-                <h6 class="mt-2 mb-0">Almacenamiento</h6>
-                <small class="text-muted">Base de datos</small>
-                <div><span class="badge bg-primary mt-2">~ 50 MB</span></div>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="p-3 rounded-3 monitoreo-item-sa">
-                <i class="bi bi-people fs-2"></i>
-                <h6 class="mt-2 mb-0">Usuarios activos hoy</h6>
-                <h3 class="mb-0 fw-bold"><%= totales.usuariosActivosHoy || 0 %></h3>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="p-3 rounded-3 monitoreo-item-sa">
-                <i class="bi bi-file-text fs-2"></i>
-                <h6 class="mt-2 mb-0">Reportes hoy</h6>
-                <h3 class="mb-0 fw-bold"><%= totales.reportesHoy || 0 %></h3>
-              </div>
-            </div>
-          </div>
+        <div class="card-footer bg-transparent border-0 text-center pt-3 pb-4">
+          <a href="/usuarios" class="btn btn-outline-primary rounded-3 px-4">
+            Ver todos los usuarios <i class="bi bi-arrow-right ms-1"></i>
+          </a>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ========== BADGE INFORMATIVO ========== -->
-  <div class="text-center mt-2">
+  <div class="text-center mt-3">
     <small class="text-muted badge-info-sa">
-      <i class="bi bi-shield-lock-fill me-1"></i> 
+      <i class="bi bi-shield-lock-fill me-1" style="color: #ffc107;"></i> 
       Panel exclusivo para SuperAdministradores - Acceso total al sistema
     </small>
   </div>
@@ -426,25 +468,32 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
 <div class="modal fade" id="modalBackup" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 rounded-4 shadow-lg modal-backup-sa">
-      <div class="modal-header modal-backup-header-sa">
+      <div class="modal-header modal-backup-header-sa border-0">
         <h5 class="modal-title text-white">
           <i class="bi bi-database me-2"></i> Respaldo de Base de Datos
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4 modal-backup-body-sa">
-        <p class="mb-3">Seleccione el tipo de respaldo que desea generar:</p>
-        <div class="d-grid gap-2">
-          <a href="/superadmin/backup/completo" class="btn btn-primary rounded-3 py-2">📚 Respaldo completo (SQL)</a>
-          <a href="/superadmin/backup/estructura" class="btn btn-outline-secondary rounded-3 py-2">🏗️ Solo estructura</a>
-          <a href="/superadmin/backup/datos" class="btn btn-outline-secondary rounded-3 py-2">📊 Solo datos</a>
+        <p class="mb-4">Seleccione el tipo de respaldo que desea generar:</p>
+        <div class="d-grid gap-3">
+          <a href="/superadmin/backup/completo" class="btn btn-primary rounded-3 py-2">
+            <i class="bi bi-database-fill me-2"></i> Respaldo completo (SQL)
+          </a>
+          <a href="/superadmin/backup/estructura" class="btn btn-outline-secondary rounded-3 py-2">
+            <i class="bi bi-diagram-3 me-2"></i> Solo estructura
+          </a>
+          <a href="/superadmin/backup/datos" class="btn btn-outline-secondary rounded-3 py-2">
+            <i class="bi bi-table me-2"></i> Solo datos
+          </a>
         </div>
-        <hr>
-        <p class="small text-muted mb-0 mt-3">
-          <i class="bi bi-info-circle me-1"></i> Los respaldos se generan en formato SQL y se descargan automáticamente.
-        </p>
+        <hr class="my-4">
+        <div class="alert alert-info small mb-0">
+          <i class="bi bi-info-circle me-2"></i>
+          Los respaldos se generan en formato SQL y se descargan automáticamente.
+        </div>
       </div>
-      <div class="modal-footer bg-light modal-backup-footer-sa">
+      <div class="modal-footer modal-backup-footer-sa border-0">
         <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
@@ -466,14 +515,33 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
         datasets: [{
           data: estadosDatos,
           backgroundColor: ['#ffc107', '#17a2b8', '#28a745'],
-          borderWidth: 0
+          borderWidth: 0,
+          hoverOffset: 10
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: true,
+        cutout: '60%',
         plugins: {
-          legend: { position: 'bottom', labels: { font: { size: 11 } } }
+          legend: { 
+            position: 'bottom', 
+            labels: { 
+              font: { size: 11 },
+              padding: 15
+            } 
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.raw || 0;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = ((value / total) * 100).toFixed(1);
+                return `${label}: ${value} (${percentage}%)`;
+              }
+            }
+          }
         }
       }
     });
@@ -491,20 +559,37 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
         datasets: [{
           label: 'Cantidad de voluntarios',
           data: habilidadesDatos,
-          backgroundColor: '#fd6704bd',
+          backgroundColor: 'rgba(253, 103, 4, 0.7)',
           borderRadius: 8,
-          barPercentage: 0.7
+          barPercentage: 0.7,
+          hoverBackgroundColor: 'rgba(253, 103, 4, 0.9)'
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: true,
         scales: {
-          y: { beginAtZero: true, stepSize: 1, grid: { color: '#e0e0e0' } },
-          x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+          y: { 
+            beginAtZero: true, 
+            stepSize: 1, 
+            grid: { color: '#e0e0e0' },
+            title: { display: true, text: 'Cantidad', font: { size: 12 } }
+          },
+          x: { 
+            ticks: { font: { size: 11 } }, 
+            grid: { display: false },
+            title: { display: true, text: 'Habilidades', font: { size: 12 } }
+          }
         },
         plugins: {
-          legend: { display: false }
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `Voluntarios: ${context.raw}`;
+              }
+            }
+          }
         }
       }
     });
@@ -512,23 +597,17 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
 </script>
 
 <script>
-  // ========== MODO NOCTURNO GLOBAL (Controlado por SuperAdmin) ==========
+  // ========== MODO NOCTURNO GLOBAL ==========
   
   async function toggleDarkModeGlobal() {
-    console.log('🖱️ Botón clickeado');
     const btn = document.getElementById('btnDarkModeGlobal');
-    if (!btn) {
-      console.error('❌ Botón no encontrado');
-      return;
-    }
+    if (!btn) return;
     
     const span = document.getElementById('darkModeText');
     const icon = btn.querySelector('i');
     
     const isDark = icon.classList.contains('bi-sun-fill');
     const newMode = !isDark;
-    
-    console.log('Cambiando a modo:', newMode ? 'oscuro' : 'claro');
     
     try {
       const response = await fetch('/superadmin/config/dark-mode', {
@@ -538,7 +617,6 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
       });
       
       const data = await response.json();
-      console.log('Respuesta:', data);
       
       if (data.success) {
         window.location.reload();
@@ -563,13 +641,13 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
       const icon = btn.querySelector('i');
       
       if (data.darkMode) {
-        icon.className = 'bi bi-sun-fill me-1';
+        icon.className = 'bi bi-sun-fill me-2';
         span.textContent = 'Modo Claro';
-        btn.style.background = '#fd6704bd';
+        btn.style.background = 'linear-gradient(135deg, #fd6704 0%, #f7931e 100%)';
       } else {
-        icon.className = 'bi bi-moon-stars-fill me-1';
+        icon.className = 'bi bi-moon-stars-fill me-2';
         span.textContent = 'Modo Nocturno';
-        btn.style.background = '#6c757d';
+        btn.style.background = 'linear-gradient(135deg, #6c757d 0%, #5a6268 100%)';
       }
     } catch (error) {
       console.error('Error al cargar estado:', error);
@@ -587,318 +665,418 @@ if (voluntariosPorHabilidad && voluntariosPorHabilidad.length > 0) {
 </script>
 
 <style>
-  /* ========== ESTILOS BASE (MODO CLARO) ========== */
+  /* ========== ESTILOS BASE ========== */
   
-  /* Títulos */
-  .superadmin-title {
+  /* Acciones rápidas destacadas */
+  .acciones-rapidas-card {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+    border: none;
+  }
+  
+  .btn-rapido {
+    background: white;
+    border: none;
+    border-radius: 12px;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    color: #333;
+  }
+  
+  .btn-backup-rapido {
+    background: #ffc107;
+    border: none;
+    border-radius: 12px;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    color: #333;
+  }
+  
+  .btn-rapido:hover,
+  .btn-backup-rapido:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+  }
+  
+  /* Tarjetas de estadísticas principales */
+  .stat-card-sa {
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .stat-card-sa:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  }
+  
+  .stat-icon-sa {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .stat-label-sa {
+    font-size: 13px;
+    font-weight: 500;
+    color: #8B6B5A;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .stat-number-sa {
+    font-size: 32px;
     color: #5D4037;
   }
-  .superadmin-title i {
-    color: #ffc107;
-  }
-  .superadmin-subtitle {
-    color: #8B6B5A;
+  
+  .stat-footer-sa {
+    border-top: 1px solid rgba(0,0,0,0.05);
+    padding-top: 10px;
+    margin-top: 10px;
   }
   
-  /* Botones */
+  /* Tarjetas de estadísticas pequeñas */
+  .stat-card-sa-sm {
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .stat-card-sa-sm:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+  
+  /* Tarjetas de gráficos */
+  .chart-card-sa {
+    transition: all 0.2s ease;
+  }
+  
+  /* Tarjetas de tablas */
+  .table-card-sa {
+    transition: all 0.2s ease;
+  }
+  
+  .tabla-sa {
+    font-size: 14px;
+  }
+  
+  .tabla-sa thead th {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+    color: #5D4037;
+    font-weight: 600;
+    padding: 12px;
+    border-bottom: 2px solid #fd6704bd;
+  }
+  
+  .tabla-sa tbody td {
+    padding: 10px 12px;
+    vertical-align: middle;
+  }
+  
+  .tabla-sa tbody tr:hover {
+    background-color: #fff8f0 !important;
+  }
+  
+  .rol-badge-sa {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+  
+  /* Monitoreo */
+  .monitoreo-item-sa {
+    background: #f8f9fa;
+    transition: all 0.2s ease;
+  }
+  
+  .monitoreo-item-sa:hover {
+    transform: scale(1.02);
+  }
+  
+  /* Botones principales */
   .btn-actualizar-sa {
     background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
     color: white;
     border: none;
     transition: all 0.2s ease;
   }
+  
   .btn-actualizar-sa:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
   }
+  
   .btn-auditoria-sa {
-    background: #17a2b8;
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
     color: white;
     border: none;
     transition: all 0.2s ease;
   }
+  
   .btn-auditoria-sa:hover {
     transform: translateY(-2px);
-    background: #138496;
-  }
-  
-  /* Tarjetas de estadísticas */
-  .stat-card-sa {
-    transition: all 0.2s ease;
-  }
-  .stat-card-sa:hover {
-    transform: translateY(-4px);
-  }
-  .stat-icon-sa {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .stat-icon-sa-sm {
-    width: 45px;
-    height: 45px;
-    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .stat-number-sa {
-    color: #5D4037;
-  }
-  .stat-label-sa {
-    color: #8B6B5A;
-  }
-  
-  /* Tarjetas específicas */
-  .stat-card-sa-usuarios { background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%); }
-  .stat-card-sa-reportes { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); }
-  .stat-card-sa-calles { background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%); }
-  .stat-card-sa-voluntarios { background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); }
-  .stat-card-sa-comunidades { background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%); }
-  .stat-card-sa-empresas { background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%); }
-  .stat-card-sa-categorias { background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%); }
-  .stat-card-sa-actividad { background: linear-gradient(135deg, #cfe2ff 0%, #b6d4fe 100%); }
-  .stat-card-sa-aprobados { background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); }
-  .stat-card-sa-pendientes { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); }
-  
-  .stat-number-sa-aprobados { color: #155724; }
-  .stat-label-sa-aprobados { color: #155724; }
-  .stat-number-sa-pendientes { color: #856404; }
-  .stat-label-sa-pendientes { color: #856404; }
-  
-  /* Gráficos */
-  .chart-card-header-sa {
-    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
-    color: #5D4037;
-  }
-  .chart-card-body-sa {
-    background: white;
-  }
-  
-  /* Tablas */
-  .table-card-header-sa {
-    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
-    color: #5D4037;
-  }
-  .tabla-sa {
-    background: white;
-  }
-  .tabla-sa thead th {
-    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
-    color: #5D4037;
-    border-bottom: 2px solid #fd6704bd;
-  }
-  .tabla-sa tbody tr:hover {
-    background-color: #fff8f0 !important;
-  }
-  .table-footer-sa {
-    border-top: 1px solid #f0d5c0;
-  }
-  .rol-badge-sa {
-    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
-    color: white;
-  }
-  
-  /* Acciones rápidas */
-  .acciones-card-header-sa {
-    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
-    color: #5D4037;
-  }
-  .btn-accion-sa {
-    transition: all 0.2s ease;
-  }
-  .btn-accion-sa:hover {
-    transform: translateY(-2px);
-  }
-  .separador-sa {
-    border-color: #f0d5c0;
-  }
-  .btn-backup-sa {
-    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
-    color: #333;
-    border: none;
-    transition: all 0.2s ease;
-  }
-  .btn-backup-sa:hover {
-    transform: translateY(-2px);
-    background: linear-gradient(135deg, #e0a800 0%, #c69500 100%);
-  }
-  .btn-ubch-sa {
-    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-    color: white;
-    border: none;
-    transition: all 0.2s ease;
-  }
-  .btn-ubch-sa:hover {
-    transform: translateY(-2px);
-  }
-  
-  /* Monitoreo */
-  .monitoreo-card-header-sa {
-    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
-    color: #5D4037;
-  }
-  .monitoreo-item-sa {
-    background: #f8f9fa;
+    box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
   }
   
   /* Modal */
   .modal-backup-header-sa {
     background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
   }
-  .modal-backup-body-sa {
-    background: #fefaf7;
-  }
-  .modal-backup-footer-sa {
-    background: #f8f9fa;
-  }
   
-  /* Badge informativo */
-  .badge-info-sa {
-    color: #6c757d;
-  }
-  .badge-info-sa i {
-    color: #ffc107;
-  }
-  
-  /* ========== MODO NOCTURNO ========== */
+  /* ========== MODO NOCTURNO COMPLETO ========== */
   body.dark-mode .superadmin-title {
-    color: #e4e4e7;
-  }
-  body.dark-mode .superadmin-subtitle {
-    color: #a1a1aa;
+    color: #e4e4e7 !important;
   }
   
-  body.dark-mode .stat-card-sa-usuarios,
-  body.dark-mode .stat-card-sa-comunidades,
-  body.dark-mode .stat-card-sa-empresas,
-  body.dark-mode .stat-card-sa-categorias {
-    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+  body.dark-mode .superadmin-subtitle {
+    color: #a1a1aa !important;
   }
-  body.dark-mode .stat-card-sa-reportes,
-  body.dark-mode .stat-card-sa-pendientes {
-    background: linear-gradient(135deg, #3d2e1a 0%, #2d1f0a 100%);
+  
+  /* Acciones rápidas */
+  body.dark-mode .acciones-rapidas-card {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%) !important;
   }
-  body.dark-mode .stat-card-sa-calles {
-    background: linear-gradient(135deg, #1a3d3d 0%, #0f2a2a 100%);
+  
+  body.dark-mode .btn-rapido {
+    background: #27272a !important;
+    color: #e4e4e7 !important;
+    border: 1px solid #3f3f46 !important;
   }
-  body.dark-mode .stat-card-sa-voluntarios,
-  body.dark-mode .stat-card-sa-aprobados {
-    background: linear-gradient(135deg, #0d3b1f 0%, #0a2a16 100%);
+  
+  body.dark-mode .btn-backup-rapido {
+    background: #fd7e14 !important;
+    color: #e4e4e7 !important;
+    border: 1px solid #fd7e14 !important;
   }
-  body.dark-mode .stat-card-sa-actividad {
-    background: linear-gradient(135deg, #1a2a4d 0%, #0f1f3a 100%);
+  
+  body.dark-mode .btn-rapido:hover,
+  body.dark-mode .btn-backup-rapido:hover {
+    background: linear-gradient(135deg, #fd6704 0%, #f7931e 100%) !important;
+    color: white !important;
+    border-color: transparent !important;
+  }
+  
+  /* Tarjetas de estadísticas */
+  body.dark-mode .stat-card-sa {
+    background: #1a1a2e !important;
+    border: 1px solid #3f3f46 !important;
+  }
+  
+  body.dark-mode .stat-card-sa-sm {
+    background: #1a1a2e !important;
+    border: 1px solid #3f3f46 !important;
   }
   
   body.dark-mode .stat-number-sa {
-    color: #e4e4e7;
+    color: #e4e4e7 !important;
   }
+  
   body.dark-mode .stat-label-sa {
-    color: #a1a1aa;
-  }
-  body.dark-mode .stat-number-sa-aprobados {
-    color: #a3e4b7;
-  }
-  body.dark-mode .stat-label-sa-aprobados {
-    color: #a3e4b7;
-  }
-  body.dark-mode .stat-number-sa-pendientes {
-    color: #f5dba3;
-  }
-  body.dark-mode .stat-label-sa-pendientes {
-    color: #f5dba3;
+    color: #a1a1aa !important;
   }
   
-  body.dark-mode .chart-card-header-sa {
-    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
-    color: #e4e4e7;
-  }
-  body.dark-mode .chart-card-body-sa {
-    background: #27272a;
+  body.dark-mode .stat-footer-sa {
+    border-top-color: #3f3f46 !important;
   }
   
-  body.dark-mode .table-card-header-sa {
-    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
-    color: #e4e4e7;
+  body.dark-mode .stat-card-sa-sm .text-muted {
+    color: #a1a1aa !important;
   }
+  
+  /* Tarjetas de gráficos */
+  body.dark-mode .chart-card-sa {
+    background: #1a1a2e !important;
+    border: 1px solid #3f3f46 !important;
+  }
+  
+  body.dark-mode .chart-card-sa .card-header {
+    background: #1a1a2e !important;
+  }
+  
+  body.dark-mode .chart-card-sa .card-header h5 {
+    color: #e4e4e7 !important;
+  }
+  
+  /* Tarjetas de tablas */
+  body.dark-mode .table-card-sa {
+    background: #1a1a2e !important;
+    border: 1px solid #3f3f46 !important;
+  }
+  
+  body.dark-mode .table-card-sa .card-header {
+    background: #1a1a2e !important;
+    border-bottom: 1px solid #3f3f46 !important;
+  }
+  
+  body.dark-mode .table-card-sa .card-header h5 {
+    color: #e4e4e7 !important;
+  }
+  
+  body.dark-mode .table-card-sa .badge {
+    background: #3f3f46 !important;
+    color: #e4e4e7 !important;
+  }
+  
+  /* Tabla */
   body.dark-mode .tabla-sa {
-    background: #27272a;
-  }
-  body.dark-mode .tabla-sa thead th {
-    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
-    color: #e4e4e7;
-  }
-  body.dark-mode .tabla-sa tbody tr {
-    border-bottom-color: #3f3f46;
-  }
-  body.dark-mode .tabla-sa tbody tr:hover {
-    background-color: #3d3d5c !important;
-  }
-  body.dark-mode .tabla-sa td,
-  body.dark-mode .tabla-sa th {
-    color: #e4e4e7;
-  }
-  body.dark-mode .table-footer-sa {
-    border-top-color: #3f3f46;
-    background: #27272a;
+    background-color: #1a1a2e !important;
   }
   
-  body.dark-mode .acciones-card-header-sa {
-    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
-    color: #e4e4e7;
+  body.dark-mode .tabla-sa thead th {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%) !important;
+    color: #e4e4e7 !important;
+    border-bottom: 2px solid #dc3545 !important;
   }
-  body.dark-mode .acciones-card-body-sa {
-    background: #27272a;
+  
+  body.dark-mode .tabla-sa tbody tr {
+    background-color: #1a1a2e !important;
+    border-bottom: 1px solid #3f3f46 !important;
   }
-  body.dark-mode .separador-sa {
-    border-color: #3f3f46;
+  
+  body.dark-mode .tabla-sa tbody tr:hover {
+    background-color: #2d2d44 !important;
   }
-  body.dark-mode .monitoreo-card-header-sa {
-    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
-    color: #e4e4e7;
+  
+  body.dark-mode .tabla-sa td {
+    color: #e4e4e7 !important;
+    background-color: transparent !important;
   }
-  body.dark-mode .monitoreo-card-body-sa {
-    background: #27272a;
+  
+  body.dark-mode .tabla-sa .text-muted,
+  body.dark-mode .tabla-sa small {
+    color: #a1a1aa !important;
   }
+  
+  /* Badge de rol */
+  body.dark-mode .rol-badge-sa {
+    background: linear-gradient(135deg, #fd6704 0%, #f7931e 100%) !important;
+    color: white !important;
+  }
+  
+  /* Badges de acciones en auditoría */
+  body.dark-mode .badge.bg-success {
+    background-color: #0d3b1f !important;
+    color: #a3e4b7 !important;
+  }
+  
+  body.dark-mode .badge.bg-warning {
+    background-color: #3d2e1a !important;
+    color: #f5dba3 !important;
+  }
+  
+  body.dark-mode .badge.bg-danger {
+    background-color: #3d1a1f !important;
+    color: #f5a3a3 !important;
+  }
+  
+  body.dark-mode .badge.bg-info {
+    background-color: #1a3d4d !important;
+    color: #a3e4f5 !important;
+  }
+  
+  /* Card footer */
+  body.dark-mode .table-card-sa .card-footer {
+    background: #1a1a2e !important;
+    border-top: 1px solid #3f3f46 !important;
+  }
+  
+  /* Monitoreo */
+  body.dark-mode .monitoreo-card-sa {
+    background: #1a1a2e !important;
+    border: 1px solid #3f3f46 !important;
+  }
+  
+  body.dark-mode .monitoreo-card-sa .card-header {
+    background: #1a1a2e !important;
+    border-bottom: 1px solid #3f3f46 !important;
+  }
+  
+  body.dark-mode .monitoreo-card-sa .card-header h5 {
+    color: #e4e4e7 !important;
+  }
+  
   body.dark-mode .monitoreo-item-sa {
-    background: #1f1f2e;
+    background: #27272a !important;
+    border: 1px solid #3f3f46 !important;
   }
+  
+  body.dark-mode .monitoreo-item-sa h6 {
+    color: #e4e4e7 !important;
+  }
+  
   body.dark-mode .monitoreo-item-sa .text-muted {
     color: #a1a1aa !important;
   }
   
-  body.dark-mode .modal-backup-body-sa {
-    background: #27272a;
-    color: #e4e4e7;
-  }
-  body.dark-mode .modal-backup-footer-sa {
-    background: #1f1f2e;
-  }
-  
-  body.dark-mode .badge-info-sa {
-    color: #a1a1aa;
-  }
-  
+  /* Botones */
   body.dark-mode .btn-outline-primary {
-    border-color: #f7931e;
-    color: #f7931e;
+    border-color: #f7931e !important;
+    color: #f7931e !important;
   }
+  
   body.dark-mode .btn-outline-primary:hover {
-    background: linear-gradient(135deg, #fd6704 0%, #f7931e 100%);
-    color: white;
+    background: linear-gradient(135deg, #fd6704 0%, #f7931e 100%) !important;
+    color: white !important;
+    border-color: transparent !important;
   }
   
   body.dark-mode .btn-secondary {
-    background: #3f3f46;
-    border-color: #3f3f46;
+    background: #3f3f46 !important;
+    border-color: #3f3f46 !important;
+    color: #e4e4e7 !important;
   }
   
+  body.dark-mode .btn-secondary:hover {
+    background: #52525b !important;
+  }
+  
+  /* Modal */
+  body.dark-mode .modal-backup-sa .modal-content {
+    background: #1a1a2e !important;
+    border: 1px solid #3f3f46 !important;
+  }
+  
+  body.dark-mode .modal-backup-body-sa {
+    background: #1a1a2e !important;
+    color: #e4e4e7 !important;
+  }
+  
+  body.dark-mode .modal-backup-footer-sa {
+    background: #1a1a2e !important;
+    border-top: 1px solid #3f3f46 !important;
+  }
+  
+  /* Alertas en modal */
+  body.dark-mode .alert-info {
+    background: #1a3d4d !important;
+    color: #a3e4f5 !important;
+    border-color: #1a5d6d !important;
+  }
+  
+  /* Gráficos en modo oscuro */
   body.dark-mode canvas {
     filter: brightness(0.9);
+  }
+  
+  /* Badge informativo */
+  body.dark-mode .badge-info-sa {
+    color: #a1a1aa !important;
+  }
+  
+  /* Texto general */
+  body.dark-mode .text-muted {
+    color: #a1a1aa !important;
   }
 </style>

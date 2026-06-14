@@ -3,17 +3,16 @@
   <!-- Encabezado -->
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-      <h2 class="fw-bold mb-1" style="color: #5D4037;">
-        <i class="bi bi-person-x-fill me-2" style="color: #dc3545;"></i> Usuarios Inactivos
+      <h2 class="fw-bold mb-1 categorias-inactivos-title">
+        <i class="bi bi-eye-slash me-2" style="color: #dc3545;"></i> Categorías Inactivas
       </h2>
-      <p class="text-muted small mb-0" style="color: #8B6B5A;">Usuarios desactivados del sistema</p>
+      <p class="text-muted small mb-0 categorias-inactivos-subtitle">Categorías desactivadas del sistema</p>
     </div>
     <div class="d-flex gap-2">
-      <a href="/usuarios" class="btn btn-sm btn-outline-secondary px-3 py-2 rounded-3">
-        <i class="bi bi-arrow-left me-1"></i> Volver a usuarios activos
+      <a href="/categorias" class="btn btn-sm btn-outline-secondary px-3 py-2 rounded-3">
+        <i class="bi bi-arrow-left me-1"></i> Volver a categorías activas
       </a>
-      <button onclick="window.location.reload()" class="btn btn-sm px-3 py-2 rounded-3"
-              style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+      <button onclick="window.location.reload()" class="btn btn-sm px-3 py-2 rounded-3 btn-actualizar">
         <i class="bi bi-arrow-repeat me-1"></i> Actualizar
       </button>
     </div>
@@ -38,55 +37,56 @@
     <% session.error = null; %>
   <% } %>
 
-  <!-- Tabla de usuarios inactivos -->
-  <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-    <div class="card-header bg-white py-3 border-0">
+  <!-- Tabla de categorías inactivas -->
+  <div class="card border-0 rounded-4 shadow-sm overflow-hidden categorias-inactivos-card">
+    <div class="card-header py-3 border-0">
       <div class="d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 fw-bold" style="color: #5D4037;">
-          <i class="bi bi-person-x me-2" style="color: #dc3545;"></i> Lista de Usuarios Inactivos
+        <h5 class="mb-0 fw-bold">
+          <i class="bi bi-eye-slash me-2" style="color: #dc3545;"></i> Lista de Categorías Inactivas
         </h5>
         <span class="badge bg-danger rounded-pill px-3 py-2">
-          <i class="bi bi-people me-1"></i> Total: <%= usuarios ? usuarios.length : 0 %>
+          <i class="bi bi-tags me-1"></i> Total: <%= categorias ? categorias.length : 0 %>
         </span>
       </div>
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
         <table class="table table-hover mb-0">
-          <thead class="table-light">
+          <thead>
             <tr class="text-center">
-              <th style="width: 25%"><i class="bi bi-person"></i> Nombre</th>
-              <th style="width: 30%"><i class="bi bi-envelope"></i> Email</th>
-              <th style="width: 15%"><i class="bi bi-tag"></i> Rol</th>
-              <th style="width: 20%"><i class="bi bi-calendar3"></i> Registro</th>
-              <th style="width: 10%"><i class="bi bi-gear"></i> Acciones</th>
+              <th style="width: 10%"><i class="bi bi-emoji-smile"></i> Icono</th>
+              <th style="width: 25%"><i class="bi bi-card-heading"></i> Nombre</th>
+              <th style="width: 35%"><i class="bi bi-file-text"></i> Descripción</th>
+              <th style="width: 30%"><i class="bi bi-gear"></i> Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <% if (usuarios && usuarios.length > 0) { %>
-              <% usuarios.forEach(u => { %>
+            <% if (categorias && categorias.length > 0) { %>
+              <% categorias.forEach(c => { 
+                const colorMap = {
+                  'primary': '#0d6efd',
+                  'secondary': '#6c757d',
+                  'success': '#28a745',
+                  'danger': '#dc3545',
+                  'warning': '#ffc107',
+                  'info': '#17a2b8',
+                  'dark': '#212529',
+                  'light': '#f8f9fa'
+                };
+                const colorValue = colorMap[c.color] || c.color || '#6c757d';
+              %>
                 <tr class="text-center align-middle">
-                  <td class="text-start">
-                    <strong><%= u.nombre %></strong>
-                    <% if (u.cedula) { %>
-                      <br><small class="text-muted">C.I: <%= u.cedula %></small>
-                    <% } %>
-                  </td>
-                  <td><small><%= u.email %></small></td>
-                  <td>
-                    <span class="badge bg-secondary rounded-pill px-2 py-1">
-                      <%= u.rol_nombre || u.rol_id %>
-                    </span>
-                  </td>
-                  <td><small><%= new Date(u.fecha_registro).toLocaleDateString() %></small></td>
+                  <td class="categoria-icono" style="font-size: 1.5rem;"><%= c.icono || '📌' %></td>
+                  <td class="text-start"><strong><%= c.nombre %></strong></td>
+                  <td class="text-start"><%= c.descripcion || '—' %></td>
                   <td>
                     <div class="d-flex gap-1 justify-content-center flex-wrap">
                       
                       <!-- Botón ACTIVAR -->
-                      <form action="/usuarios/<%= u.id %>/activar" method="POST" class="d-inline">
+                      <form action="/categorias/<%= c.id %>/activar" method="POST" class="d-inline">
                         <input type="hidden" name="motivo" value="Reactivado por <%= session.usuario.nombre %>">
                         <button type="submit" class="btn btn-sm btn-success px-3 py-1 rounded-3" 
-                                title="Activar usuario" onclick="return confirm('¿Activar este usuario?')">
+                                title="Activar categoría" onclick="return confirm('¿Activar esta categoría?')">
                           <i class="bi bi-check-circle me-1"></i> Activar
                         </button>
                       </form>
@@ -95,7 +95,7 @@
                       <% if (session.usuario && session.usuario.rol_id === 5) { %>
                         <button type="button" class="btn btn-sm btn-danger px-3 py-1 rounded-3" 
                                 title="Eliminar permanentemente"
-                                onclick="abrirModalEliminar('<%= u.id %>', '<%= u.nombre.replace(/'/g, "\\'") %>', '<%= u.email %>')">
+                                onclick="abrirModalEliminar('<%= c.id %>', '<%= c.nombre.replace(/'/g, "\\'") %>')">
                           <i class="bi bi-trash3 me-1"></i> Eliminar
                         </button>
                       <% } %>
@@ -106,10 +106,10 @@
               <% }) %>
             <% } else { %>
               <tr>
-                <td colspan="5" class="text-center py-5">
+                <td colspan="4" class="text-center py-5">
                   <i class="bi bi-check-circle-fill fs-1 text-success d-block mb-3"></i>
-                  <h5 class="text-muted">No hay usuarios inactivos</h5>
-                  <p class="text-muted small mb-0">Todos los usuarios están activos en el sistema</p>
+                  <h5 class="text-muted">No hay categorías inactivas</h5>
+                  <p class="text-muted small mb-0">Todas las categorías están activas en el sistema</p>
                 </td>
               </tr>
             <% } %>
@@ -120,7 +120,7 @@
     <div class="card-footer bg-transparent text-center py-3">
       <small class="text-muted">
         <i class="bi bi-info-circle me-1"></i> 
-        Los usuarios inactivos no pueden iniciar sesión. Los SuperAdministradores pueden eliminar usuarios permanentemente (requiere motivo).
+        Las categorías inactivas no pueden ser seleccionadas en nuevos reportes.
       </small>
     </div>
   </div>
@@ -142,16 +142,14 @@
             <i class="bi bi-info-circle me-1"></i>
             <strong>¡Cuidado!</strong> Esta acción NO se puede deshacer.
           </div>
-          <p class="mb-2">Estás a punto de eliminar permanentemente a:</p>
-          <div class="bg-light p-2 rounded-3 mb-3 text-center" id="usuarioAEliminarInfo">
-            <!-- Se llena con JavaScript -->
-          </div>
+          <p class="mb-2">Estás a punto de eliminar permanentemente la categoría:</p>
+          <div class="bg-light p-2 rounded-3 mb-3 text-center" id="categoriaAEliminarInfo"></div>
           <div class="mb-3">
             <label class="form-label fw-bold">
               <i class="bi bi-chat-text me-1"></i> Motivo de eliminación:
             </label>
             <textarea name="motivo" id="motivoEliminacion" class="form-control rounded-3" rows="3" 
-                      placeholder="Ej: Usuario duplicado, solicitud del usuario, información falsa..."
+                      placeholder="Ej: Categoría duplicada, ya no se usa, etc."
                       required></textarea>
             <small class="text-muted">Este motivo quedará registrado en la auditoría.</small>
           </div>
@@ -168,10 +166,9 @@
 </div>
 
 <script>
-  function abrirModalEliminar(usuarioId, usuarioNombre, usuarioEmail) {
-    document.getElementById('formEliminarGlobal').action = '/usuarios/' + usuarioId + '/destruir';
-    document.getElementById('usuarioAEliminarInfo').innerHTML = 
-      '<strong>' + usuarioNombre.replace(/\\'/g, "'") + '</strong><br><small class="text-muted">' + usuarioEmail + '</small>';
+  function abrirModalEliminar(categoriaId, categoriaNombre) {
+    document.getElementById('formEliminarGlobal').action = '/categorias/' + categoriaId + '/destruir';
+    document.getElementById('categoriaAEliminarInfo').innerHTML = '<strong>' + categoriaNombre + '</strong>';
     document.getElementById('motivoEliminacion').value = '';
     var modal = new bootstrap.Modal(document.getElementById('modalEliminarGlobal'));
     modal.show();
@@ -186,6 +183,14 @@
     transition: all 0.2s ease;
   }
   .btn-sm:hover {
+    transform: translateY(-2px);
+  }
+  .btn-actualizar {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+    border: none;
+  }
+  .btn-actualizar:hover {
     transform: translateY(-2px);
   }
   
@@ -204,71 +209,95 @@
     transition: none !important;
   }
 
-  /* ========== MODO NOCTURNO - CORRECCIÓN COMPLETA ========== */
-  body.dark-mode .card {
+  /* ========== MODO NOCTURNO COMPLETO ========== */
+  body.dark-mode .categorias-inactivos-title {
+    color: #e4e4e7 !important;
+  }
+  
+  body.dark-mode .categorias-inactivos-subtitle {
+    color: #a1a1aa !important;
+  }
+  
+  /* Fondo oscuro para toda la tarjeta */
+  body.dark-mode .categorias-inactivos-card {
     background: #1a1a2e !important;
   }
   
+  /* Header oscuro */
   body.dark-mode .card-header {
     background: #1a1a2e !important;
-    border-bottom-color: #3f3f46 !important;
+    border-bottom: 1px solid #3f3f46 !important;
   }
   
   body.dark-mode .card-header h5 {
     color: #e4e4e7 !important;
   }
   
+  /* Card body oscuro */
+  body.dark-mode .card-body {
+    background: #1a1a2e !important;
+  }
+  
+  /* Tabla completamente oscura */
   body.dark-mode .table {
     background-color: #1a1a2e !important;
   }
   
+  /* Cabecera de la tabla oscura */
   body.dark-mode .table thead {
     background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%) !important;
   }
   
   body.dark-mode .table thead th {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%) !important;
     color: #e4e4e7 !important;
-    border-bottom-color: #dc3545 !important;
-    background: transparent !important;
+    border-bottom: 1px solid #dc3545 !important;
   }
   
+  /* Filas de la tabla oscuras */
   body.dark-mode .table tbody tr {
     background-color: #1a1a2e !important;
-    border-bottom-color: #3f3f46 !important;
+    border-bottom: 1px solid #3f3f46 !important;
   }
   
   body.dark-mode .table tbody tr:hover {
     background-color: #2d2d44 !important;
   }
   
+  /* Celdas de la tabla */
   body.dark-mode .table td {
     color: #e4e4e7 !important;
     background-color: transparent !important;
   }
   
+  /* Texto secundario en modo oscuro */
   body.dark-mode .table .text-muted,
   body.dark-mode .table small {
     color: #a1a1aa !important;
   }
   
+  /* Badges en modo oscuro */
   body.dark-mode .badge.bg-secondary {
     background: #3f3f46 !important;
     color: #e4e4e7 !important;
   }
   
+  /* Footer oscuro */
   body.dark-mode .card-footer {
     background: #1a1a2e !important;
-    border-top-color: #3f3f46 !important;
+    border-top: 1px solid #3f3f46 !important;
   }
   
   body.dark-mode .card-footer small {
     color: #a1a1aa !important;
   }
   
+  /* Texto muted general */
   body.dark-mode .text-muted {
     color: #a1a1aa !important;
   }
   
+  /* Alertas en modo oscuro */
   body.dark-mode .alert-success {
     background: #0d3b1f !important;
     color: #a3e4b7 !important;
@@ -279,6 +308,7 @@
     color: #f5a3a3 !important;
   }
   
+  /* Modal en modo oscuro */
   body.dark-mode .modal-content {
     background: #1a1a2e !important;
   }
@@ -295,6 +325,7 @@
     background: #27272a !important;
   }
   
+  /* Formularios en modo oscuro */
   body.dark-mode .form-control {
     background: #3f3f46 !important;
     border-color: #3f3f46 !important;
@@ -309,11 +340,13 @@
     color: #e4e4e7 !important;
   }
   
+  /* Alertas */
   body.dark-mode .alert-warning {
     background: #3d2e1a !important;
     color: #f5dba3 !important;
   }
   
+  /* Botones outline */
   body.dark-mode .btn-outline-secondary {
     border-color: #3f3f46 !important;
     color: #e4e4e7 !important;
@@ -321,5 +354,10 @@
   
   body.dark-mode .btn-outline-secondary:hover {
     background: #3f3f46 !important;
+  }
+  
+  /* Icono de categoría en modo oscuro */
+  body.dark-mode .categoria-icono {
+    color: #e4e4e7 !important;
   }
 </style>

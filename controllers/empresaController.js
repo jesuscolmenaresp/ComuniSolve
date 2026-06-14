@@ -1,6 +1,9 @@
 const db = require('../models/db');
+const { registrarAuditoria } = require('../middleware/auditoriaMiddleware');
 
-// 📌 Listar empresas
+// ==========================
+// 📌 LISTAR EMPRESAS ACTIVAS
+// ==========================
 exports.listar = async (req, res) => {
     try {
         const [empresas] = await db.query(`
@@ -9,6 +12,7 @@ exports.listar = async (req, res) => {
             FROM empresas e
             LEFT JOIN empresa_categorias ec ON e.id = ec.empresa_id
             LEFT JOIN categorias c ON ec.categoria_id = c.id
+            WHERE e.activo = 1
             GROUP BY e.id
             ORDER BY e.nombre
         `);
@@ -24,10 +28,46 @@ exports.listar = async (req, res) => {
     }
 };
 
-// 📌 Mostrar formulario de nueva empresa
+// ==========================
+// 📌 LISTAR EMPRESAS INACTIVAS
+// ==========================
+exports.listarInactivas = async (req, res) => {
+    try {
+        // Verificar que sea UBCH o SuperAdmin
+        if (!req.session.usuario || (req.session.usuario.rol_id !== 1 && req.session.usuario.rol_id !== 5)) {
+            req.session.error = 'No autorizado';
+            return res.redirect('/dashboard');
+        }
+
+        const [empresas] = await db.query(`
+            SELECT e.*, 
+                   GROUP_CONCAT(c.nombre) as categorias_nombres
+            FROM empresas e
+            LEFT JOIN empresa_categorias ec ON e.id = ec.empresa_id
+            LEFT JOIN categorias c ON ec.categoria_id = c.id
+            WHERE e.activo = 0
+            GROUP BY e.id
+            ORDER BY e.nombre
+        `);
+        
+        res.render('empresas/inactivos', { 
+            empresas,
+            usuario: req.session.usuario,
+            session: req.session
+        });
+    } catch (err) {
+        console.error(err);
+        req.session.error = 'Error al listar empresas inactivas';
+        res.redirect('/empresas');
+    }
+};
+
+// ==========================
+// 📌 MOSTRAR FORMULARIO DE NUEVA EMPRESA
+// ==========================
 exports.formCrear = async (req, res) => {
     try {
-        const [categorias] = await db.query("SELECT * FROM categorias ORDER BY nombre");
+        const [categorias] = await db.query("SELECT * FROM categorias WHERE activo = 1 ORDER BY nombre");
         
         res.render('empresas/crear', { 
             categorias,
@@ -40,7 +80,9 @@ exports.formCrear = async (req, res) => {
     }
 };
 
-// 📌 Guardar nueva empresa
+// ==========================
+// 📌 GUARDAR NUEVA EMPRESA
+// ==========================
 exports.crear = async (req, res) => {
     const { nombre, rif, contacto, telefono, email, direccion, tipo, categorias } = req.body;
     
@@ -50,8 +92,8 @@ exports.crear = async (req, res) => {
         
         const [result] = await connection.query(
             `INSERT INTO empresas 
-             (nombre, rif, contacto, telefono, email, direccion, tipo) 
-             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+             (nombre, rif, contacto, telefono, email, direccion, tipo, activo) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
             [nombre, rif || null, contacto || null, telefono || null, 
              email || null, direccion || null, tipo || 'pública']
         );
@@ -72,6 +114,15 @@ exports.crear = async (req, res) => {
         await connection.commit();
         connection.release();
         
+        await registrarAuditoria(
+            req.session.usuario,
+            'CREAR',
+            'empresas',
+            empresaId,
+            null,
+            { nombre, rif, contacto, telefono, email, direccion, tipo }
+        );
+        
         req.session.mensaje = 'Empresa creada exitosamente';
         res.redirect('/empresas');
     } catch (err) {
@@ -81,12 +132,14 @@ exports.crear = async (req, res) => {
     }
 };
 
-// 📌 Mostrar formulario de edición
+// ==========================
+// 📌 MOSTRAR FORMULARIO DE EDICIÓN
+// ==========================
 exports.formEditar = async (req, res) => {
     const { id } = req.params;
     
     try {
-        const [empresa] = await db.query('SELECT * FROM empresas WHERE id = ?', [id]);
+        const [empresa] = await db.query('SELECT * FROM empresas WHERE id = ? AND activo = 1', [id]);
         if (empresa.length === 0) {
             return res.status(404).send('Empresa no encontrada');
         }
@@ -99,7 +152,7 @@ exports.formEditar = async (req, res) => {
         const categoriasSeleccionadas = categoriasDb.map(c => c.categoria_id);
         
         // Categorías disponibles
-        const [categorias] = await db.query("SELECT * FROM categorias ORDER BY nombre");
+        const [categorias] = await db.query("SELECT * FROM categorias WHERE activo = 1 ORDER BY nombre");
         
         res.render('empresas/editar', { 
             empresa: empresa[0],
@@ -114,7 +167,9 @@ exports.formEditar = async (req, res) => {
     }
 };
 
-// 📌 Actualizar empresa
+// ==========================
+// 📌 ACTUALIZAR EMPRESA
+// ==========================
 exports.actualizar = async (req, res) => {
     const { id } = req.params;
     const { nombre, rif, contacto, telefono, email, direccion, tipo, categorias } = req.body;
@@ -122,6 +177,9 @@ exports.actualizar = async (req, res) => {
     try {
         const connection = await db.getConnection();
         await connection.beginTransaction();
+        
+        // Obtener datos anteriores para auditoría
+        const [empresaAnterior] = await connection.query('SELECT * FROM empresas WHERE id = ?', [id]);
         
         // Actualizar empresa
         await connection.query(
@@ -150,6 +208,15 @@ exports.actualizar = async (req, res) => {
         await connection.commit();
         connection.release();
         
+        await registrarAuditoria(
+            req.session.usuario,
+            'EDITAR',
+            'empresas',
+            id,
+            empresaAnterior[0],
+            { nombre, rif, contacto, telefono, email, direccion, tipo, categorias }
+        );
+        
         req.session.mensaje = 'Empresa actualizada exitosamente';
         res.redirect('/empresas');
     } catch (err) {
@@ -159,22 +226,164 @@ exports.actualizar = async (req, res) => {
     }
 };
 
-// 📌 Eliminar empresa
-exports.eliminar = async (req, res) => {
+// ==========================
+// 📌 DESACTIVAR EMPRESA (SOFT DELETE)
+// ==========================
+exports.desactivar = async (req, res) => {
     const { id } = req.params;
-    
+    const { motivo } = req.body;
+
     try {
-        await db.query('DELETE FROM empresas WHERE id = ?', [id]);
-        req.session.mensaje = 'Empresa eliminada exitosamente';
+        const [empresaADesactivar] = await db.query(
+            'SELECT nombre FROM empresas WHERE id = ? AND activo = 1',
+            [id]
+        );
+
+        if (empresaADesactivar.length === 0) {
+            req.session.error = 'Empresa no encontrada o ya está inactiva';
+            return res.redirect('/empresas');
+        }
+
+        // Verificar si tiene reportes asociados
+        const [reportesAsociados] = await db.query(
+            'SELECT COUNT(*) as total FROM reportes WHERE empresa_id = ? AND activo = 1',
+            [id]
+        );
+
+        if (reportesAsociados[0].total > 0) {
+            req.session.error = `No se puede desactivar la empresa porque tiene ${reportesAsociados[0].total} reportes asociados.`;
+            return res.redirect('/empresas');
+        }
+
+        await db.query('UPDATE empresas SET activo = 0 WHERE id = ?', [id]);
+
+        await registrarAuditoria(
+            req.session.usuario,
+            'DESACTIVAR',
+            'empresas',
+            id,
+            empresaADesactivar[0],
+            { motivo: motivo || 'Desactivado por administrador', activo: false }
+        );
+
+        req.session.mensaje = `Empresa "${empresaADesactivar[0].nombre}" desactivada correctamente`;
         res.redirect('/empresas');
     } catch (err) {
         console.error(err);
-        req.session.error = 'Error al eliminar empresa';
+        req.session.error = 'Error al desactivar empresa';
         res.redirect('/empresas');
     }
 };
 
-// 📌 Obtener empresas por categoría (para API)
+// ==========================
+// 📌 ACTIVAR EMPRESA (REACTIVAR)
+// ==========================
+exports.activar = async (req, res) => {
+    const { id } = req.params;
+    const { motivo } = req.body;
+
+    try {
+        const [empresaAActivar] = await db.query(
+            'SELECT nombre FROM empresas WHERE id = ? AND activo = 0',
+            [id]
+        );
+
+        if (empresaAActivar.length === 0) {
+            req.session.error = 'Empresa no encontrada o ya está activa';
+            return res.redirect('/empresas/inactivos');
+        }
+
+        await db.query('UPDATE empresas SET activo = 1 WHERE id = ?', [id]);
+
+        await registrarAuditoria(
+            req.session.usuario,
+            'ACTIVAR',
+            'empresas',
+            id,
+            { activo: false },
+            { motivo: motivo || 'Reactivado por administrador', activo: true }
+        );
+
+        req.session.mensaje = `Empresa "${empresaAActivar[0].nombre}" activada correctamente`;
+        res.redirect('/empresas/inactivos');
+    } catch (err) {
+        console.error(err);
+        req.session.error = 'Error al activar empresa';
+        res.redirect('/empresas/inactivos');
+    }
+};
+
+// ==========================
+// 📌 ELIMINAR FÍSICAMENTE (SOLO SUPERADMIN CON MOTIVO)
+// ==========================
+exports.destruir = async (req, res) => {
+    const { id } = req.params;
+    const { motivo } = req.body;
+
+    try {
+        if (!req.session.usuario || req.session.usuario.rol_id !== 5) {
+            req.session.error = 'No autorizado';
+            return res.redirect('/empresas/inactivos');
+        }
+
+        if (!motivo || motivo.trim() === '') {
+            req.session.error = 'Debe especificar un motivo para eliminar permanentemente la empresa';
+            return res.redirect('/empresas/inactivos');
+        }
+
+        const [empresaAEliminar] = await db.query(
+            'SELECT nombre, id FROM empresas WHERE id = ?',
+            [id]
+        );
+
+        if (empresaAEliminar.length === 0) {
+            req.session.error = 'Empresa no encontrada';
+            return res.redirect('/empresas/inactivos');
+        }
+
+        // Verificar si tiene reportes asociados (incluso inactivos)
+        const [reportesAsociados] = await db.query(
+            'SELECT COUNT(*) as total FROM reportes WHERE empresa_id = ?',
+            [id]
+        );
+
+        if (reportesAsociados[0].total > 0) {
+            req.session.error = `No se puede eliminar la empresa porque tiene ${reportesAsociados[0].total} reportes asociados.`;
+            return res.redirect('/empresas/inactivos');
+        }
+
+        const datosEmpresa = empresaAEliminar[0];
+        const datosConMotivo = {
+            ...datosEmpresa,
+            motivo_eliminacion: motivo.trim(),
+            eliminado_por: req.session.usuario.nombre,
+            fecha_eliminacion: new Date().toLocaleString()
+        };
+
+        await db.query('DELETE FROM empresas WHERE id = ?', [id]);
+
+        await registrarAuditoria(
+            req.session.usuario,
+            'ELIMINAR_PERMANENTEMENTE',
+            'empresas',
+            id,
+            datosConMotivo,
+            { motivo: motivo.trim(), eliminado_por: req.session.usuario.nombre },
+            req
+        );
+
+        req.session.mensaje = `Empresa "${datosEmpresa.nombre}" eliminada permanentemente. Motivo: ${motivo}`;
+        res.redirect('/empresas/inactivos');
+    } catch (err) {
+        console.error('Error en destruir:', err);
+        req.session.error = 'Error al eliminar empresa permanentemente';
+        res.redirect('/empresas/inactivos');
+    }
+};
+
+// ==========================
+// 📌 OBTENER EMPRESAS POR CATEGORÍA (API)
+// ==========================
 exports.porCategoria = async (req, res) => {
     const { categoriaId } = req.params;
     
@@ -183,7 +392,7 @@ exports.porCategoria = async (req, res) => {
             SELECT e.* 
             FROM empresas e
             INNER JOIN empresa_categorias ec ON e.id = ec.empresa_id
-            WHERE ec.categoria_id = ?
+            WHERE ec.categoria_id = ? AND e.activo = 1
             ORDER BY e.nombre
         `, [categoriaId]);
         

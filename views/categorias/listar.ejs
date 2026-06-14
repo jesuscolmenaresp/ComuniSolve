@@ -8,9 +8,14 @@
       </h2>
       <p class="text-muted small mb-0 categorias-subtitle">Administra las categorías de reportes de la comunidad</p>
     </div>
-    <a href="/categorias/nueva" class="btn btn-sm px-4 py-2 fw-semibold rounded-3 btn-nueva-categoria">
-      <i class="bi bi-plus-circle me-1"></i> Nueva Categoría
-    </a>
+    <div class="d-flex gap-2">
+      <a href="/categorias/inactivos" class="btn btn-sm btn-outline-danger px-3 py-2 fw-semibold rounded-3">
+        <i class="bi bi-eye-slash me-1"></i> Ver inactivas
+      </a>
+      <a href="/categorias/nueva" class="btn btn-sm px-4 py-2 fw-semibold rounded-3 btn-nueva-categoria">
+        <i class="bi bi-plus-circle me-1"></i> Nueva Categoría
+      </a>
+    </div>
   </div>
 
   <!-- Mensajes flash -->
@@ -82,11 +87,11 @@
                       <a href="/categorias/<%= c.id %>/editar" class="btn btn-sm px-3 py-1 rounded-3 btn-editar-categoria">
                         <i class="bi bi-pencil me-1"></i> Editar
                       </a>
-                      <form action="/categorias/<%= c.id %>/eliminar" method="POST" class="d-inline"
-                            onsubmit="return confirm('¿Eliminar esta categoría?')">
-                        <button type="submit" class="btn btn-sm px-3 py-1 rounded-3 btn-eliminar-categoria"
+                      <form action="/categorias/<%= c.id %>/desactivar" method="POST" class="d-inline"
+                            onsubmit="return confirm('¿Desactivar esta categoría? Podrá ser reactivada después.')">
+                        <button type="submit" class="btn btn-sm px-3 py-1 rounded-3 btn-desactivar-categoria"
                                 <%= c.total_reportes > 0 ? 'disabled' : '' %>>
-                          <i class="bi bi-trash me-1"></i> Eliminar
+                          <i class="bi bi-person-x me-1"></i> Desactivar
                         </button>
                       </form>
                     </div>
@@ -119,7 +124,7 @@
   <div class="text-center mt-4">
     <small class="text-muted categorias-info">
       <i class="bi bi-info-circle me-1"></i> 
-      Las categorías con reportes asociados no pueden ser eliminadas
+      Las categorías con reportes asociados no pueden ser desactivadas
     </small>
   </div>
 </div>
@@ -138,7 +143,7 @@
     color: #8B6B5A;
   }
   
-  /* Botón nueva categoría */
+  /* Botones */
   .btn-nueva-categoria {
     background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
     color: white;
@@ -210,16 +215,16 @@
     transform: translateY(-2px);
   }
   
-  .btn-eliminar-categoria {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  .btn-desactivar-categoria {
+    background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
     color: white;
     border: none;
     transition: all 0.2s ease;
   }
-  .btn-eliminar-categoria:hover:not(:disabled) {
+  .btn-desactivar-categoria:hover:not(:disabled) {
     transform: translateY(-2px);
   }
-  .btn-eliminar-categoria:disabled {
+  .btn-desactivar-categoria:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
@@ -258,7 +263,6 @@
     color: #a1a1aa;
   }
   
-  /* Corrección de la tabla en modo nocturno */
   body.dark-mode .categorias-card {
     background: #1a1a2e !important;
   }
@@ -307,8 +311,9 @@
     color: #333;
   }
   
-  body.dark-mode .btn-eliminar-categoria {
-    background: linear-gradient(135deg, #c82333 0%, #a71d2a 100%);
+  body.dark-mode .btn-desactivar-categoria {
+    background: linear-gradient(135deg, #e8590c 0%, #c94a0a 100%);
+    color: white;
   }
   
   body.dark-mode .empty-state-categorias i {
@@ -322,7 +327,6 @@
     color: #a1a1aa;
   }
   
-  /* Transiciones */
   .btn-sm, .btn {
     transition: all 0.2s ease;
   }

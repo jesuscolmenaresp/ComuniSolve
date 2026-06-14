@@ -112,11 +112,12 @@
               </li>
             <% } %>
 
-            <!-- ========== SUPERADMIN (rol 5) ========== -->
+            <!-- ========== SUPERADMIN (rol 5) - MEJORADO ========== -->
             <% if (usuario && usuario.rol_id === 5) { %>
+              <!-- Dropdown: Gestión General -->
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                  <i class="bi bi-shield-lock-fill" style="color: #ffc107;"></i> SuperAdmin
+                  <i class="bi bi-gear-fill"></i> Gestión
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li><a class="dropdown-item" href="/usuarios">
@@ -128,7 +129,15 @@
                   <li><a class="dropdown-item" href="/auditoria">
                     <i class="bi bi-clock-history"></i> Auditoría completa
                   </a></li>
-                  <li><hr class="dropdown-divider"></li>
+                </ul>
+              </li>
+              
+              <!-- Dropdown: Gestionar Entidades -->
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-building"></i> Entidades
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
                   <li><a class="dropdown-item" href="/calles">
                     <i class="bi bi-geo-alt-fill"></i> Gestionar calles
                   </a></li>
@@ -141,6 +150,7 @@
                   <li><a class="dropdown-item" href="/empresas">
                     <i class="bi bi-building"></i> Gestionar empresas
                   </a></li>
+                  <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="/superadmin/backups">
                     <i class="bi bi-database"></i> Respaldos
                   </a></li>

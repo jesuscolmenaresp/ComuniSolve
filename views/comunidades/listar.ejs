@@ -8,9 +8,14 @@
       </h2>
       <p class="text-muted small mb-0 comunidades-subtitle">Administra las comunidades y sectores de la comuna</p>
     </div>
-    <a href="/comunidades/nueva" class="btn btn-sm px-4 py-2 fw-semibold rounded-3 btn-nueva-comunidad">
-      <i class="bi bi-plus-circle me-1"></i> Nueva Comunidad
-    </a>
+    <div class="d-flex gap-2">
+      <a href="/comunidades/inactivos" class="btn btn-sm btn-outline-danger px-3 py-2 fw-semibold rounded-3">
+        <i class="bi bi-eye-slash me-1"></i> Ver inactivas
+      </a>
+      <a href="/comunidades/nueva" class="btn btn-sm px-4 py-2 fw-semibold rounded-3 btn-nueva-comunidad">
+        <i class="bi bi-plus-circle me-1"></i> Nueva Comunidad
+      </a>
+    </div>
   </div>
 
   <!-- Mensajes flash -->
@@ -61,10 +66,10 @@
                       <a href="/comunidades/<%= c.id %>/editar" class="btn btn-sm px-3 py-1 rounded-3 btn-editar-comunidad">
                         <i class="bi bi-pencil me-1"></i> Editar
                       </a>
-                      <form action="/comunidades/<%= c.id %>/eliminar" method="POST" class="d-inline"
-                            onsubmit="return confirm('¿Eliminar esta comunidad? Se eliminarán también sus relaciones.')">
-                        <button type="submit" class="btn btn-sm px-3 py-1 rounded-3 btn-eliminar-comunidad">
-                          <i class="bi bi-trash me-1"></i> Eliminar
+                      <form action="/comunidades/<%= c.id %>/desactivar" method="POST" class="d-inline"
+                            onsubmit="return confirm('¿Desactivar esta comunidad? Podrá ser reactivada después.')">
+                        <button type="submit" class="btn btn-sm px-3 py-1 rounded-3 btn-desactivar-comunidad">
+                          <i class="bi bi-person-x me-1"></i> Desactivar
                         </button>
                       </form>
                     </div>
@@ -92,7 +97,7 @@
   <div class="text-center mt-4">
     <small class="text-muted comunidades-info">
       <i class="bi bi-info-circle me-1"></i> 
-      Las comunidades agrupan las calles del territorio
+      Las comunidades con calles activas no pueden ser desactivadas
     </small>
   </div>
 </div>
@@ -111,7 +116,7 @@
     color: #8B6B5A;
   }
   
-  /* Botón nueva comunidad */
+  /* Botones */
   .btn-nueva-comunidad {
     background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
     color: white;
@@ -175,13 +180,13 @@
     transform: translateY(-2px);
   }
   
-  .btn-eliminar-comunidad {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  .btn-desactivar-comunidad {
+    background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
     color: white;
     border: none;
     transition: all 0.2s ease;
   }
-  .btn-eliminar-comunidad:hover {
+  .btn-desactivar-comunidad:hover {
     transform: translateY(-2px);
   }
   
@@ -219,7 +224,6 @@
     color: #a1a1aa;
   }
   
-  /* Corrección de la tabla en modo nocturno */
   body.dark-mode .comunidades-card {
     background: #1a1a2e !important;
   }
@@ -268,8 +272,9 @@
     color: #333;
   }
   
-  body.dark-mode .btn-eliminar-comunidad {
-    background: linear-gradient(135deg, #c82333 0%, #a71d2a 100%);
+  body.dark-mode .btn-desactivar-comunidad {
+    background: linear-gradient(135deg, #e8590c 0%, #c94a0a 100%);
+    color: white;
   }
   
   body.dark-mode .empty-state-comunidades i {
@@ -283,7 +288,6 @@
     color: #a1a1aa;
   }
   
-  /* Transiciones */
   .btn-sm, .btn {
     transition: all 0.2s ease;
   }

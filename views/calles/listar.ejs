@@ -8,9 +8,14 @@
       </h2>
       <p class="text-muted small mb-0 calles-subtitle">Administra las calles y su asignación a líderes y jefes</p>
     </div>
-    <a href="/calles/nueva" class="btn btn-sm px-4 py-2 fw-semibold rounded-3 btn-nueva-calle">
-      <i class="bi bi-plus-circle me-1"></i> Nueva Calle
-    </a>
+    <div class="d-flex gap-2">
+      <a href="/calles/inactivos" class="btn btn-sm btn-outline-danger px-3 py-2 fw-semibold rounded-3">
+        <i class="bi bi-eye-slash me-1"></i> Ver inactivas
+      </a>
+      <a href="/calles/nueva" class="btn btn-sm px-4 py-2 fw-semibold rounded-3 btn-nueva-calle">
+        <i class="bi bi-plus-circle me-1"></i> Nueva Calle
+      </a>
+    </div>
   </div>
 
   <!-- Mensajes flash -->
@@ -83,16 +88,16 @@
                       <a href="/calles/<%= c.id %>/editar" class="btn btn-sm px-3 py-1 rounded-3 btn-editar-calle">
                         <i class="bi bi-pencil me-1"></i> Editar
                       </a>
-                      <form action="/calles/<%= c.id %>/eliminar" method="POST" class="d-inline"
-                            onsubmit="return confirm('¿Eliminar esta calle? Esto afectará los reportes asociados.')">
-                        <button type="submit" class="btn btn-sm px-3 py-1 rounded-3 btn-eliminar-calle">
-                          <i class="bi bi-trash me-1"></i> Eliminar
+                      <form action="/calles/<%= c.id %>/desactivar" method="POST" class="d-inline"
+                            onsubmit="return confirm('¿Desactivar esta calle? Puede afectar algun reporte asociado.')">
+                        <button type="submit" class="btn btn-sm px-3 py-1 rounded-3 btn-desactivar-calle">
+                          <i class="bi bi-person-x me-1"></i> Desactivar
                         </button>
                       </form>
                     </div>
                   </td>
                 </tr>
-              <% }) %>
+              <% }); %>
             <% } else { %>
               <tr>
                 <td colspan="5" class="text-center py-5 empty-state-calles">
@@ -102,7 +107,7 @@
                     <i class="bi bi-plus-circle me-1"></i> Crear primera calle
                   </a>
                 </td>
-              </table>
+              </tr>
             <% } %>
           </tbody>
         </table>
@@ -120,9 +125,6 @@
 </div>
 
 <style>
-  /* ========== ESTILOS BASE (MODO CLARO) ========== */
-  
-  /* Títulos */
   .calles-title {
     color: #5D4037;
   }
@@ -133,7 +135,6 @@
     color: #8B6B5A;
   }
   
-  /* Botón nueva calle */
   .btn-nueva-calle {
     background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
     color: white;
@@ -144,12 +145,10 @@
     box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
   }
   
-  /* Tarjeta de tabla */
   .calles-card {
     background: white;
   }
   
-  /* Tabla */
   .calles-tabla {
     background: white;
   }
@@ -176,7 +175,6 @@
     color: #5D4037;
   }
   
-  /* Badges */
   .badge-comunidad {
     background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
     color: white;
@@ -192,7 +190,6 @@
     color: white;
   }
   
-  /* Botones de acción */
   .btn-editar-calle {
     background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
     color: #333;
@@ -203,17 +200,16 @@
     transform: translateY(-2px);
   }
   
-  .btn-eliminar-calle {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  .btn-desactivar-calle {
+    background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
     color: white;
     border: none;
     transition: all 0.2s ease;
   }
-  .btn-eliminar-calle:hover {
+  .btn-desactivar-calle:hover {
     transform: translateY(-2px);
   }
   
-  /* Estado vacío */
   .empty-state-calles i {
     color: #6c757d;
     opacity: 0.5;
@@ -231,7 +227,6 @@
     transform: translateY(-2px);
   }
   
-  /* Información */
   .calles-info {
     color: #8B6B5A;
   }
@@ -239,7 +234,6 @@
     color: #fd6704bd;
   }
   
-  /* ========== MODO NOCTURNO ========== */
   body.dark-mode .calles-title {
     color: #e4e4e7;
   }
@@ -247,7 +241,6 @@
     color: #a1a1aa;
   }
   
-  /* Corrección de la tabla en modo nocturno */
   body.dark-mode .calles-card {
     background: #1a1a2e !important;
   }
@@ -315,11 +308,11 @@
     color: #333;
   }
   
-  body.dark-mode .btn-eliminar-calle {
-    background: linear-gradient(135deg, #c82333 0%, #a71d2a 100%);
+  body.dark-mode .btn-desactivar-calle {
+    background: linear-gradient(135deg, #e8590c 0%, #c94a0a 100%);
+    color: white;
   }
   
-  /* Transiciones */
   .btn-sm, .btn {
     transition: all 0.2s ease;
   }
