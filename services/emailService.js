@@ -24,20 +24,17 @@ const FROM_NAME = 'ComuniSolve - Gestión Comunitaria';
 // 📌 FUNCIÓN PRINCIPAL DE ENVÍO
 // ========================================
 async function sendEmail(to, subject, htmlContent) {
-    // Determinar si estamos en producción (Render) o local
     const isProduction = process.env.NODE_ENV === 'production';
     
     if (isProduction) {
-        // 🚀 PRODUCCIÓN: Usar Mailjet
         return sendWithMailjet(to, subject, htmlContent);
     } else {
-        // 💻 LOCAL: Usar Nodemailer
         return sendWithNodemailer(to, subject, htmlContent);
     }
 }
 
 // ========================================
-// 📌 ENVÍO CON MAILJET (Producción)
+// 📌 ENVÍO CON MAILJET (Producción) - CORREGIDO
 // ========================================
 async function sendWithMailjet(to, subject, htmlContent) {
     if (!process.env.MAILJET_API_KEY || !process.env.MAILJET_SECRET_KEY) {
@@ -54,16 +51,14 @@ async function sendWithMailjet(to, subject, htmlContent) {
 
         const request = mailjet.post('send', { version: 'v3.1' }).request({
             Messages: [{
-                From: { Email: FROM_EMAIL, Name: FROM_NAME },
+                From: {
+                    Email: FROM_EMAIL,
+                    Name: FROM_NAME
+                },
                 To: [{ Email: to }],
                 Subject: subject,
                 HTMLPart: htmlContent,
                 TextPart: textContent || 'Para ver este correo correctamente, abre la versión HTML.',
-                Headers: {
-                    'X-Entity-Ref-ID': 'comunisolve-notification',
-                    'X-Mailjet-TrackOpen': '1',
-                    'X-Mailjet-TrackClick': '1'
-                },
                 CustomCampaign: 'ComuniSolve-Notifications'
             }]
         });
@@ -73,6 +68,9 @@ async function sendWithMailjet(to, subject, htmlContent) {
         return { success: true, result, provider: 'Mailjet' };
     } catch (error) {
         console.error('❌ [Mailjet] Error:', error.message);
+        if (error.statusCode) {
+            console.error('📌 Código de estado:', error.statusCode);
+        }
         return { success: false, error: error.message, provider: 'Mailjet' };
     }
 }
@@ -87,7 +85,6 @@ async function sendWithNodemailer(to, subject, htmlContent) {
     }
 
     try {
-        // Versión de texto plano
         const textContent = htmlContent
             .replace(/<[^>]*>/g, '')
             .replace(/\s+/g, ' ')
@@ -110,10 +107,8 @@ async function sendWithNodemailer(to, subject, htmlContent) {
 }
 
 // ========================================
-// 📌 FUNCIONES DE NOTIFICACIÓN
-// ========================================
-
 // 1. RECUPERACIÓN DE CONTRASEÑA
+// ========================================
 async function enviarCorreoRecuperacion(usuario, token) {
     const resetLink = `${process.env.APP_URL}/reset-password/${token}`;
     
@@ -177,7 +172,9 @@ async function enviarCorreoRecuperacion(usuario, token) {
     return sendEmail(usuario.email, "🔐 Recuperación de Contraseña - ComuniSolve", html);
 }
 
+// ========================================
 // 2. NUEVO REPORTE
+// ========================================
 async function enviarNotificacionNuevoReporte(reporte, destinatario, tipoDestinatario) {
     const estadoMap = {
         'Pendiente': '⏳ Pendiente',
@@ -234,7 +231,9 @@ async function enviarNotificacionNuevoReporte(reporte, destinatario, tipoDestina
     return sendEmail(destinatario.email, `📢 Nuevo reporte: ${reporte.titulo}`, html);
 }
 
+// ========================================
 // 3. CAMBIO DE ESTADO
+// ========================================
 async function enviarNotificacionCambioEstado(reporte, destinatario, estadoAnterior, estadoNuevo) {
     const estadoMap = {
         'Pendiente': '⏳ Pendiente',
@@ -291,7 +290,9 @@ async function enviarNotificacionCambioEstado(reporte, destinatario, estadoAnter
     return sendEmail(destinatario.email, `📢 Estado actualizado: ${reporte.titulo}`, html);
 }
 
+// ========================================
 // 4. EMPRESA ASIGNADA
+// ========================================
 async function enviarNotificacionEmpresaAsignada(reporte, destinatario, empresa) {
     const html = `
     <!DOCTYPE html>
@@ -342,7 +343,9 @@ async function enviarNotificacionEmpresaAsignada(reporte, destinatario, empresa)
     return sendEmail(destinatario.email, `🏢 Empresa asignada: ${reporte.titulo}`, html);
 }
 
+// ========================================
 // 5. VOLUNTARIO APROBADO/RECHAZADO
+// ========================================
 async function enviarNotificacionVoluntario(voluntario, estado, motivo = '') {
     const subject = estado === 'aprobado' ? '✅ ¡Bienvenido como voluntario!' : '📋 Actualización de tu solicitud';
     
@@ -401,7 +404,9 @@ async function enviarNotificacionVoluntario(voluntario, estado, motivo = '') {
     return sendEmail(voluntario.email, subject, html);
 }
 
+// ========================================
 // 6. ASIGNACIÓN A VOLUNTARIO
+// ========================================
 async function enviarNotificacionAsignacionVoluntario(voluntario, reporte) {
     const html = `
     <!DOCTYPE html>
@@ -450,7 +455,9 @@ async function enviarNotificacionAsignacionVoluntario(voluntario, reporte) {
     return sendEmail(voluntario.email, `👥 Nueva asignación: ${reporte.titulo}`, html);
 }
 
+// ========================================
 // 7. NUEVO VOLUNTARIO (para admins)
+// ========================================
 async function enviarNotificacionNuevoVoluntario(administrador, voluntario) {
     const html = `
     <!DOCTYPE html>
@@ -500,7 +507,9 @@ async function enviarNotificacionNuevoVoluntario(administrador, voluntario) {
     return sendEmail(administrador.email, "🆕 Nuevo voluntario pendiente de aprobación", html);
 }
 
+// ========================================
 // 8. NUEVO USUARIO (para admins)
+// ========================================
 async function enviarNotificacionNuevoUsuario(administrador, nuevoUsuario) {
     const html = `
     <!DOCTYPE html>
@@ -550,7 +559,9 @@ async function enviarNotificacionNuevoUsuario(administrador, nuevoUsuario) {
     return sendEmail(administrador.email, "🆕 Nuevo ciudadano pendiente de aprobación", html);
 }
 
+// ========================================
 // 9. ESTADO DE USUARIO (aprobado/rechazado)
+// ========================================
 async function enviarNotificacionEstadoUsuario(usuario, estado, motivo = '') {
     const subject = estado === 'aprobado' ? '✅ ¡Tu cuenta ha sido aprobada!' : '📋 Actualización de tu cuenta';
     
