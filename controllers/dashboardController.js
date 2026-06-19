@@ -432,7 +432,7 @@ exports.superAdmin = async (req, res) => {
   console.log("👑 Dashboard SuperAdmin iniciado para usuario:", usuario?.id);
   
   try {
-   // ========== ESTADÍSTICAS GLOBALES ==========
+    // ========== ESTADÍSTICAS GLOBALES ==========
     let totalUsuarios = 0;
     let totalReportes = 0;
     let totalCalles = 0;
@@ -442,7 +442,17 @@ exports.superAdmin = async (req, res) => {
     let totalCategorias = 0;
     let voluntariosPendientes = 0;
     let voluntariosAprobados = 0;
-    let voluntariosRechazados = 0;  // NUEVO
+    let voluntariosRechazados = 0;
+
+    // ========== OBTENER CONFIGURACIÓN DE MOSTRAR BOTÓN ==========
+    let mostrarBoton = true; // Valor por defecto
+    try {
+      const [configRows] = await db.query('SELECT mostrar_boton FROM configuracion WHERE id = 1');
+      mostrarBoton = configRows[0]?.mostrar_boton === 1;
+      console.log("✅ Configuración mostrarBoton:", mostrarBoton);
+    } catch (err) {
+      console.error("❌ Error al obtener mostrar_boton:", err.message);
+    }
 
     try {
       const [usuariosRow] = await db.query('SELECT COUNT(*) as total FROM usuarios');
@@ -582,6 +592,7 @@ exports.superAdmin = async (req, res) => {
     res.render('dashboards/superadmin', { 
       usuario,
       session: req.session,
+      mostrarBoton: mostrarBoton,  // 👈 IMPORTANTE: pasar la variable
       totales: {
         usuarios: totalUsuarios,
         reportes: totalReportes,
@@ -590,7 +601,7 @@ exports.superAdmin = async (req, res) => {
         voluntarios: totalVoluntarios,
         voluntariosPendientes: voluntariosPendientes,
         voluntariosAprobados: voluntariosAprobados,
-        voluntariosRechazados: voluntariosRechazados,  // NUEVO
+        voluntariosRechazados: voluntariosRechazados,
         empresas: totalEmpresas,
         categorias: totalCategorias,
         reportesHoy: reportesHoy,

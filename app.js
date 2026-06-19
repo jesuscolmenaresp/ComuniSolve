@@ -131,6 +131,8 @@ const perfilRoutes = require('./routes/perfil');
 
 const superadminRoutes = require('./routes/superadmin');
 
+const configRoutes = require('./routes/config');
+
 app.use('/', indexRouter);
 app.use(authRoutes);
 app.use(reporteRoutes);
@@ -155,6 +157,9 @@ app.use(auditoriaRoutes);
 app.use(perfilRoutes);
 
 app.use('/superadmin', superadminRoutes);
+
+app.use('/config', configRoutes);
+
 
 // ================================================
 // INICIAR SERVIDOR

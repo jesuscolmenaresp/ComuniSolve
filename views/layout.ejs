@@ -4,24 +4,279 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ComuniSolve - <%- typeof title !== 'undefined' ? title : 'Gestión Comunitaria' %></title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* Estilos para el botón de modo nocturno - más elegante */
+    .btn-darkmode-toggle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid rgba(253, 103, 4, 0.2);
+      background: transparent;
+      color: #5D4037;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0;
+      margin-left: 8px;
+    }
+    
+    .btn-darkmode-toggle:hover {
+      transform: scale(1.1);
+      border-color: rgba(253, 103, 4, 0.5);
+      background: rgba(253, 103, 4, 0.08);
+    }
+    
+    .btn-darkmode-toggle:active {
+      transform: scale(0.95);
+    }
+    
+    .btn-darkmode-toggle .bi {
+      transition: transform 0.5s ease;
+    }
+    
+    .btn-darkmode-toggle:hover .bi {
+      transform: rotate(20deg);
+    }
+    
+    /* Modo oscuro - botón más elegante */
+    body.dark-mode .btn-darkmode-toggle {
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #f5e6d3;
+    }
+    
+    body.dark-mode .btn-darkmode-toggle:hover {
+      border-color: rgba(253, 103, 4, 0.6);
+      background: rgba(253, 103, 4, 0.15);
+    }
+    
+    /* Contenedor del logo + botón */
+    .navbar-brand-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0px;
+    }
+    
+    .navbar-brand-wrapper .navbar-brand {
+      padding: 0;
+      margin: 0;
+    }
+    
+    /* ========== NAVBAR CON SEPARACIONES REDUCIDAS ========== */
+    .navbar .nav-link {
+      padding: 0.4rem 0.7rem !important;
+      font-size: 0.9rem;
+    }
+    
+    /* Reducir separación entre elementos del navbar */
+    .navbar-nav .nav-item {
+      margin-right: 0px;
+    }
+    
+    .navbar-nav .nav-item:last-child {
+      margin-right: 0;
+    }
+    
+    /* Botones en el navbar más compactos */
+    .navbar .btn {
+      font-size: 0.85rem;
+      padding: 0.35rem 0.8rem;
+    }
+    
+    .navbar-text {
+      font-size: 0.9rem;
+      margin-right: 0.3rem !important;
+    }
+    
+    /* ========== TOGGLER (hamburguesa) ========== */
+    
+    /* Estilo base del toggler - siempre visible */
+    .navbar-toggler {
+      border: 2px solid #5D4037 !important;
+      padding: 0.4rem 0.6rem;
+    }
+    
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(93, 64, 55, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+    }
+    
+    /* Modo nocturno - toggler blanco */
+    body.dark-mode .navbar-toggler {
+      border-color: #e4e4e7 !important;
+      background: transparent;
+    }
+    
+    body.dark-mode .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(228, 228, 231, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+    }
+    
+    /* Modo nocturno - navbar */
+    body.dark-mode header.navbar {
+      background: rgba(24, 24, 27, 0.95) !important;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #3f3f46;
+    }
+    
+    body.dark-mode .navbar .nav-link {
+      color: #e4e4e7 !important;
+    }
+    
+    body.dark-mode .navbar .nav-link:hover {
+      color: #f7931e !important;
+    }
+    
+    body.dark-mode .navbar-text {
+      color: #e4e4e7 !important;
+    }
+    
+    body.dark-mode .navbar-text strong {
+      color: #f7931e !important;
+    }
+    
+    body.dark-mode .navbar .btn-outline-danger {
+      border-color: #3f3f46;
+      color: #e4e4e7;
+    }
+    
+    body.dark-mode .navbar .btn-outline-danger:hover {
+      background: #3f3f46;
+    }
+    
+    body.dark-mode .dropdown-menu {
+      background: #27272a !important;
+      border-color: #3f3f46 !important;
+    }
+    
+    body.dark-mode .dropdown-item {
+      color: #e4e4e7 !important;
+    }
+    
+    body.dark-mode .dropdown-item:hover {
+      background: #3d3d5c !important;
+      color: #f7931e !important;
+    }
+    
+    .dropdown-divider {
+      border-color: #f0d5c0;
+    }
+    
+    body.dark-mode .dropdown-divider {
+      border-color: #3f3f46;
+    }
+    
+    /* ========== RESPONSIVE ========== */
+    
+    /* Cuando el navbar se colapsa en móvil */
+    @media (max-width: 992px) {
+      .navbar-collapse {
+        background: rgba(255, 255, 255, 0.98);
+        padding: 1rem;
+        border-radius: 12px;
+        margin-top: 0.5rem;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      }
+      
+      body.dark-mode .navbar-collapse {
+        background: rgba(24, 24, 27, 0.98) !important;
+        border: 1px solid #3f3f46;
+      }
+      
+      .navbar .nav-link {
+        font-size: 1rem;
+        padding: 0.6rem 0.8rem !important;
+      }
+      
+      .navbar .btn {
+        font-size: 0.9rem;
+        padding: 0.4rem 1rem;
+        width: 100%;
+        margin: 2px 0;
+      }
+      
+      .navbar-text {
+        font-size: 0.95rem;
+      }
+      
+      .navbar-nav .nav-item {
+        margin-right: 0;
+      }
+      
+      .navbar-nav .dropdown-menu {
+        border: none;
+        background: transparent !important;
+        padding-left: 1rem;
+        box-shadow: none !important;
+      }
+      
+      body.dark-mode .navbar-nav .dropdown-menu {
+        background: transparent !important;
+      }
+      
+      .navbar-nav .dropdown-item {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+      }
+      
+      .btn-darkmode-toggle {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .navbar-brand-wrapper .navbar-brand img {
+        height: 50px !important;
+      }
+      
+      .navbar .nav-link {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.6rem !important;
+      }
+      
+      .btn-darkmode-toggle {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+        margin-left: 4px;
+      }
+      
+      .navbar .btn {
+        font-size: 0.85rem;
+        padding: 0.3rem 0.6rem;
+      }
+    }
+  </style>
 </head>
 <body class="<%= darkMode ? 'dark-mode' : '' %>">
   <!-- 🔹 Header -->
   <header>
     <nav class="navbar navbar-expand-lg navbar-light px-4 shadow-sm">
       <div class="container-fluid">
-        <a class="navbar-brand" href="/">
-          <img src="/images/isotipo.png" alt="ComuniSolve" style="height: 60px;">
-        </a>
+        <!-- Logo + Botón modo nocturno juntos -->
+        <div class="navbar-brand-wrapper">
+          <a class="navbar-brand" href="/">
+            <img src="/images/isotipo.png" alt="ComuniSolve" style="height: 60px;">
+          </a>
+          <!-- BOTÓN MODO NOCTURNO (visible para todos si está activo) - al lado del logo -->
+          <% if (mostrarBoton) { %>
+            <button id="btnDarkModeGlobal" class="btn-darkmode-toggle" title="Cambiar modo">
+              <i class="bi <%= darkMode ? 'bi-sun-fill' : 'bi-moon-stars-fill' %>"></i>
+            </button>
+          <% } %>
+        </div>
+        
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
+          <ul class="navbar-nav ms-auto align-items-center">
             
             <!-- ========== INICIO SEGÚN ROL ========== -->
             <% if (usuario) { %>
@@ -62,10 +317,13 @@
             <% if (usuario && usuario.rol_id === 4) { %>
               <li class="nav-item"><a class="nav-link" href="/reportes"><i class="bi bi-file-text"></i> Mis Reportes</a></li>
               <li class="nav-item"><a class="nav-link" href="/reportes/mi-calle"><i class="bi bi-house-heart"></i> Reportes de mi calle</a></li>
-              <% if (esVoluntario) { %>
-                <li class="nav-item"><a class="nav-link" href="/voluntarios/mi-perfil"><i class="bi bi-person-badge"></i> Mi Perfil Voluntario</a></li>
-              <% } else { %>
-                <li class="nav-item"><a class="nav-link" href="/voluntarios"><i class="bi bi-person-plus"></i> Ser Voluntario</a></li>
+              <!-- Ser Voluntario (solo si NO es voluntario) -->
+              <% if (!esVoluntario) { %>
+                <li class="nav-item">
+                  <a class="nav-link" href="/voluntarios">
+                    <i class="bi bi-person-plus"></i> Ser Voluntario
+                  </a>
+                </li>
               <% } %>
             <% } %>
             
@@ -97,6 +355,8 @@
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="/voluntarios/gestionar"><i class="bi bi-person-check"></i> Gestionar Voluntarios</a></li>
                   <li><a class="dropdown-item" href="/auditoria"><i class="bi bi-clock-history"></i> Auditoría</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="/reportes/inactivos"><i class="bi bi-eye-slash"></i> Reportes inactivos</a></li>
                 </ul>
               </li>
               
@@ -129,6 +389,10 @@
                   <li><a class="dropdown-item" href="/auditoria">
                     <i class="bi bi-clock-history"></i> Auditoría completa
                   </a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="/reportes/inactivos">
+                    <i class="bi bi-eye-slash"></i> Reportes inactivos
+                  </a></li>
                 </ul>
               </li>
               
@@ -158,12 +422,23 @@
               </li>
             <% } %>
 
-            <!-- ========== MI PERFIL (todos los usuarios logueados) ========== -->
+            <!-- ========== PERFIL - DROPDOWN UNIFICADO ========== -->
             <% if (usuario) { %>
-              <li class="nav-item">
-                <a class="nav-link" href="/perfil">
-                  <i class="bi bi-person-circle"></i> Mi Perfil
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-person-circle"></i> Perfil
                 </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="/perfil">
+                    <i class="bi bi-person-fill"></i> Mi Perfil
+                  </a></li>
+                  <% if (usuario.rol_id === 4 && esVoluntario) { %>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/voluntarios/mi-perfil">
+                      <i class="bi bi-person-badge"></i> Perfil Voluntario
+                    </a></li>
+                  <% } %>
+                </ul>
               </li>
             <% } %>
             
@@ -194,20 +469,36 @@
     <%- body %>
   </main>
 
-  <!-- 🔹 Footer con soporte para modo nocturno -->
-  <footer class="mt-5 py-4 text-center">
+  <!-- 🔹 Footer mejorado con imagen de la iglesia -->
+  <footer class="footer-iglesia mt-5 py-5">
     <div class="container">
-      <div class="row">
-        <div class="col-md-4 mb-3">
-          <img src="/images/logotipo.png" alt="ComuniSolve" style="height: 80px;" class="footer-logo">
+      <div class="row g-4 align-items-center">
+        <!-- Columna 1: Logo y nombre -->
+        <div class="col-md-4 text-center text-md-start">
+          <img src="/images/logotipo.png" alt="ComuniSolve" style="height: 70px;" class="footer-logo mb-2">
+          <p class="small text-muted">Gestión Comunitaria Inteligente</p>
         </div>
-        <div class="col-md-4 mb-3">
-          <p class="mb-0">© <%= new Date().getFullYear() %> ComuniSolve</p>
-          <p class="small">Todos los derechos reservados</p>
+
+        <!-- Columna 2: Información de la comunidad (con la iglesia de fondo) -->
+        <div class="col-md-4 text-center">
+          <div class="footer-iglesia-content p-3 rounded-4">
+            <i class="bi bi-buildings fs-2" style="color: #51c8fb;"></i>
+            <h6 class="fw-bold mt-2 mb-1" style="color: #5D4037;">Comuna Socialista</h6>
+            <p class="small text-muted mb-0">Nuestra Señora de las Mercedes</p>
+            <p class="small text-muted mb-0">Villa de Cura, Estado Aragua</p>
+          </div>
         </div>
-        <div class="col-md-4 mb-3">
-          <p class="small mb-0">Villa de Cura, Estado Aragua</p>
-          <p class="small">Comuna Socialista Nuestra Señora de las Mercedes</p>
+
+        <!-- Columna 3: Copyright y derechos -->
+        <div class="col-md-4 text-center text-md-end">
+          <p class="mb-0 small">
+            <i class="bi bi-c-circle me-1"></i> <%= new Date().getFullYear() %> ComuniSolve
+          </p>
+          <p class="small text-muted">Todos los derechos reservados</p>
+          <p class="small text-muted mt-2" style="font-style: italic;">
+            "Construyendo comunidad <br>
+            transformando realidades"
+          </p>
         </div>
       </div>
     </div>
@@ -215,5 +506,53 @@
 
   <!-- Scripts comunes -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- ========== SCRIPT PARA EL MODO NOCTURNO (para todos los usuarios) ========== -->
+  <script>
+    (function() {
+      const btn = document.getElementById('btnDarkModeGlobal');
+      if (!btn) return;
+
+      async function toggleDarkMode() {
+        const icon = btn.querySelector('i');
+        
+        const isDark = icon.classList.contains('bi-sun-fill');
+        const newMode = !isDark;
+        
+        // Deshabilitar el botón mientras se procesa
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+        
+        try {
+          const response = await fetch('/config/dark-mode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ darkMode: newMode })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            window.location.reload();
+          } else {
+            alert('Error al cambiar el modo: ' + (data.error || 'Error desconocido'));
+            // Restaurar el botón
+            btn.disabled = false;
+            const isDarkNow = icon.classList.contains('bi-sun-fill');
+            btn.innerHTML = `<i class="bi ${isDarkNow ? 'bi-sun-fill' : 'bi-moon-stars-fill'}"></i>`;
+          }
+        } catch (error) {
+          console.error('Error en la petición:', error);
+          alert('Error al cambiar el modo. Por favor, intenta de nuevo.');
+          // Restaurar el botón
+          btn.disabled = false;
+          const isDarkNow = icon.classList.contains('bi-sun-fill');
+          btn.innerHTML = `<i class="bi ${isDarkNow ? 'bi-sun-fill' : 'bi-moon-stars-fill'}"></i>`;
+        }
+      }
+
+      btn.addEventListener('click', toggleDarkMode);
+    })();
+  </script>
 </body>
 </html>

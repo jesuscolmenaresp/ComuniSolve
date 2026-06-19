@@ -1,9 +1,17 @@
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <h2 class="fw-bold" style="color: #5D4037;"><i class="bi bi-list-ul me-2" style="color: #fd6704bd;"></i> Lista de Reportes</h2>
-    <a href="/reportar" class="btn px-4 py-2 fw-semibold rounded-3" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
-      <i class="bi bi-plus-circle me-2"></i> Crear nuevo reporte
-    </a>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="/reportar" class="btn px-4 py-2 fw-semibold rounded-3" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+        <i class="bi bi-plus-circle me-2"></i> Crear nuevo reporte
+      </a>
+      <!-- Botón Reportes Inactivos (solo UBCH y SuperAdmin) -->
+      <% if (usuario && (usuario.rol_id === 1 || usuario.rol_id === 5)) { %>
+        <a href="/reportes/inactivos" class="btn px-4 py-2 fw-semibold rounded-3" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white; border: none;">
+          <i class="bi bi-eye-slash me-2"></i> Reportes inactivos
+        </a>
+      <% } %>
+    </div>
   </div>
 
   <% if (session && session.mensaje) { %>
@@ -101,7 +109,7 @@
               <i class="bi bi-x-circle me-1"></i> Limpiar
             </button>
             
-            <% if (usuario && [1,2,3].includes(usuario.rol_id)) { %>
+            <% if (usuario && ([1,2,3,5].includes(usuario.rol_id))) { %>
               <div class="btn-group">
                 <button type="button" class="btn btn-sm btn-success dropdown-toggle px-4 py-2 fw-semibold rounded-3" 
                         style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none;"
@@ -194,6 +202,14 @@
   </div>
 </div>
 
+<!-- ========== MENSAJE INFORMATIVO FUERA DE LA TABLA ========== -->
+<div class="text-center mt-3">
+  <span class="badge bg-light text-muted px-3 py-2 rounded-pill" style="font-weight: normal; font-size: 0.75rem; border: 1px solid #e0e0e0;">
+    <i class="bi bi-hand-index-thumb me-1"></i> 
+    Doble clic en cualquier fila para ver detalles
+  </span>
+</div>
+
 <!-- MODAL DE DETALLES MEJORADO - CON TEXTO LEGIBLE -->
 <div class="modal fade" id="modalReporteDetalle" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -212,7 +228,7 @@
       </div>
       <div class="modal-footer bg-light d-flex flex-wrap gap-3 justify-content-between">
         
-        <!-- APARTADO UNIFICADO: RESPONSABLES ASIGNADOS - CORREGIDO -->
+        <!-- APARTADO UNIFICADO: RESPONSABLES ASIGNADOS -->
         <div class="w-100 mb-2" id="responsablesContainer">
           <div class="card border-0 shadow-sm rounded-3">
             <div class="card-header" style="background: linear-gradient(135deg, #5D4037 0%, #6B4C3B 100%);">
@@ -227,9 +243,16 @@
         </div>
 
         <!-- SOLO PARA UBCH (1) y LÍDERES (2) - Mostrar secciones de asignación -->
-        <% if (usuario && (usuario.rol_id === 1 || usuario.rol_id === 2)) { %>
+        <% if (usuario && (usuario.rol_id === 1 || usuario.rol_id === 2 || usuario.rol_id === 5)) { %>
           <div id="asignarEmpresaSection" style="display: none;" class="flex-grow-1"></div>
           <div id="asignarVoluntarioSection" style="display: none;" class="flex-grow-1"></div>
+        <% } %>
+        
+        <!-- Botón Desactivar (solo UBCH y SuperAdmin) -->
+        <% if (usuario && (usuario.rol_id === 1 || usuario.rol_id === 5)) { %>
+          <button type="button" class="btn btn-warning rounded-3 px-4" id="btnDesactivarReporte">
+            <i class="bi bi-eye-slash me-1"></i> Desactivar
+          </button>
         <% } %>
         
         <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">
@@ -255,6 +278,47 @@
   </div>
 </div>
 
+<!-- ========== MODAL DESACTIVAR REPORTE ========== -->
+<div class="modal fade" id="modalDesactivarReporte" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <div class="modal-header" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);">
+        <h5 class="modal-title text-dark">
+          <i class="bi bi-eye-slash me-2"></i> Desactivar Reporte
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="formDesactivarReporte" method="POST">
+        <div class="modal-body p-4">
+          <div class="alert alert-warning mb-3">
+            <i class="bi bi-info-circle me-1"></i>
+            <strong>¿Por qué desactivar este reporte?</strong>
+          </div>
+          <p class="mb-2">Estás a punto de desactivar el reporte:</p>
+          <div class="bg-light p-2 rounded-3 mb-3 text-center" id="reporteADesactivarInfo">
+            <!-- Se llena con JavaScript -->
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">
+              <i class="bi bi-chat-text me-1"></i> Motivo de desactivación:
+            </label>
+            <textarea name="motivo" id="motivoDesactivacion" class="form-control rounded-3" rows="3" 
+                      placeholder="Ej: Reporte duplicado, información incorrecta, etc."
+                      required></textarea>
+            <small class="text-muted">Este motivo quedará registrado en la auditoría.</small>
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-warning rounded-3 px-4">
+            <i class="bi bi-eye-slash me-1"></i> Desactivar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script>
   // ========================
   // VARIABLES GLOBALES
@@ -262,7 +326,7 @@
   let currentReporteId = null;
   let currentReporteData = null;
   const usuarioRol = <%- usuario ? usuario.rol_id : 0 %>;
-  const esAdmin = (usuarioRol === 1 || usuarioRol === 2);
+  const esAdmin = (usuarioRol === 1 || usuarioRol === 2 || usuarioRol === 5);
 
   // ========================
   // FUNCIONES AUXILIARES
@@ -556,7 +620,6 @@
     window.location.href = '/reportes';
   });
   
-  // Función para actualizar enlaces de exportación con los filtros actuales
   function actualizarEnlacesExportacion() {
     const params = new URLSearchParams();
     const estado = document.getElementById('estadoSelect')?.value;
@@ -585,12 +648,10 @@
     }
   }
   
-  // Inicializar enlaces al cargar la página
   document.addEventListener('DOMContentLoaded', function() {
     actualizarEnlacesExportacion();
   });
   
-  // Escuchar cambios en los filtros
   const filtrosExport = ['estadoSelect', 'categoriaSelect', 'calleSelect', 'searchInput', 'fechaDesde', 'fechaHasta'];
   filtrosExport.forEach(id => {
     const element = document.getElementById(id);
@@ -690,6 +751,17 @@
           }
         } else if (asignarVoluntarioSection && !esAdmin) {
           asignarVoluntarioSection.style.display = 'none';
+        }
+        
+        // Configurar botón desactivar
+        const btnDesactivar = document.getElementById('btnDesactivarReporte');
+        if (btnDesactivar) {
+          btnDesactivar.onclick = function() {
+            document.getElementById('reporteADesactivarInfo').innerHTML = '<strong>' + escapeHtml(reporte.titulo) + '</strong>';
+            document.getElementById('motivoDesactivacion').value = '';
+            document.getElementById('formDesactivarReporte').action = '/reportes/' + id + '/desactivar';
+            new bootstrap.Modal(document.getElementById('modalDesactivarReporte')).show();
+          };
         }
         
         let imagenHtml = '';
@@ -954,5 +1026,10 @@
   body.dark-mode .alert-danger {
     background: #3d1a1f !important;
     color: #f5a3a3 !important;
+  }
+
+  body.dark-mode .alert-warning {
+    background: #3d2e1a !important;
+    color: #f5dba3 !important;
   }
 </style>

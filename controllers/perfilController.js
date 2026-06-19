@@ -1,6 +1,11 @@
 const db = require('../models/db');
 const bcrypt = require('bcryptjs');
 const { registrarAuditoria } = require('../middleware/auditoriaMiddleware');
+const { procesarFotoPerfil } = require('../middleware/imageProcessor');
+const fs = require('fs');
+const path = require('path');
+
+console.log('✅ perfilController cargado correctamente');
 
 // ==========================
 // 📌 MOSTRAR PERFIL DE USUARIO
@@ -97,13 +102,9 @@ exports.editarPerfil = async (req, res) => {
             return res.status(404).send('Usuario no encontrado');
         }
         
-        // Obtener calles para el selector (solo para ciudadanos y jefes)
-        const [calles] = await db.query('SELECT id, nombre FROM calles ORDER BY nombre');
-        
         res.render('perfil/editar', {
             usuario: req.session.usuario,
             user: userData[0],
-            calles,
             session: req.session
         });
         
@@ -114,16 +115,17 @@ exports.editarPerfil = async (req, res) => {
 };
 
 // ==========================
-// 📌 ACTUALIZAR PERFIL (con auditoría COMPLETA)
+// 📌 ACTUALIZAR PERFIL CON FOTO
 // ==========================
 exports.actualizarPerfil = async (req, res) => {
     const usuario = req.session.usuario;
-    const { nombre, telefono, cedula, calle_id } = req.body;
+    const { nombre, telefono, cedula } = req.body;
+    let fotoPerfil = null;
     
     try {
         // Obtener datos ANTERIORES del usuario
         const [datosAnteriores] = await db.query(`
-            SELECT nombre, telefono, cedula, calle_id 
+            SELECT nombre, telefono, cedula, foto_perfil
             FROM usuarios 
             WHERE id = ?
         `, [usuario.id]);
@@ -147,52 +149,55 @@ exports.actualizarPerfil = async (req, res) => {
             }
         }
         
-        // Actualizar datos básicos (NO actualizamos calle_id, solo nombre, telefono, cedula)
-        await db.query(
-            `UPDATE usuarios 
-             SET nombre = ?, telefono = ?, cedula = ?
-             WHERE id = ?`,
-            [nombre, telefono || null, cedula || null, usuario.id]
+        // Procesar foto de perfil si se subió
+        if (req.file) {
+            fotoPerfil = '/uploads/perfiles/' + req.file.filename;
+            
+            // Eliminar foto anterior si existe
+            if (anterior.foto_perfil) {
+                const oldPath = path.join(__dirname, '../public', anterior.foto_perfil);
+                if (fs.existsSync(oldPath)) {
+                    fs.unlinkSync(oldPath);
+                }
+            }
+            
+            // Procesar la imagen con sharp (cuadrado, 200x200)
+            try {
+                await procesarFotoPerfil(req.file.path);
+            } catch (err) {
+                console.error('Error al procesar imagen:', err);
+            }
+        }
+        
+        // Construir query de actualización
+        let query = 'UPDATE usuarios SET nombre = ?, telefono = ?, cedula = ?';
+        let params = [nombre, telefono || null, cedula || null];
+        
+        if (fotoPerfil) {
+            query += ', foto_perfil = ?';
+            params.push(fotoPerfil);
+        }
+        
+        query += ' WHERE id = ?';
+        params.push(usuario.id);
+        
+        await db.query(query, params);
+        
+        // Registrar en auditoría
+        await registrarAuditoria(
+            usuario,
+            'EDITAR',
+            'usuarios',
+            usuario.id,
+            { nombre: anterior.nombre, telefono: anterior.telefono, cedula: anterior.cedula },
+            { nombre, telefono: telefono || null, cedula: cedula || null, foto: fotoPerfil || 'sin cambios' }
         );
-        
-        // Preparar datos nuevos para auditoría
-        const datosNuevos = {
-            nombre,
-            telefono: telefono || null,
-            cedula: cedula || null
-        };
-        
-        // Registrar en auditoría SOLO si hubo cambios
-        let huboCambios = false;
-        const cambios = {};
-        
-        if (anterior.nombre !== nombre) {
-            huboCambios = true;
-            cambios.nombre = { anterior: anterior.nombre, nuevo: nombre };
-        }
-        if (anterior.telefono !== telefono) {
-            huboCambios = true;
-            cambios.telefono = { anterior: anterior.telefono || 'null', nuevo: telefono || 'null' };
-        }
-        if (anterior.cedula !== cedula) {
-            huboCambios = true;
-            cambios.cedula = { anterior: anterior.cedula || 'null', nuevo: cedula || 'null' };
-        }
-        
-        if (huboCambios) {
-            const { registrarAuditoria } = require('../middleware/auditoriaMiddleware');
-            await registrarAuditoria(
-                usuario,
-                'EDITAR',
-                'usuarios',
-                usuario.id,
-                { nombre: anterior.nombre, telefono: anterior.telefono, cedula: anterior.cedula },
-                { nombre, telefono, cedula }
-            );
-        }
         
         // Actualizar sesión
         req.session.usuario.nombre = nombre;
+        if (fotoPerfil) {
+            req.session.usuario.foto_perfil = fotoPerfil;
+        }
         
         req.session.mensaje = 'Perfil actualizado exitosamente';
         res.redirect('/perfil');
@@ -203,8 +208,9 @@ exports.actualizarPerfil = async (req, res) => {
         res.redirect('/perfil/editar');
     }
 };
+
 // ==========================
-// 📌 CAMBIAR CONTRASEÑA (mostrar formulario)
+// 📌 CAMBIAR CONTRASEÑA (formulario)
 // ==========================
 exports.cambiarPasswordForm = (req, res) => {
     res.render('perfil/cambiar-password', {
@@ -221,42 +227,35 @@ exports.cambiarPassword = async (req, res) => {
     const { password_actual, password_nueva, password_confirm } = req.body;
     
     try {
-        // Verificar que las contraseñas nuevas coincidan
         if (password_nueva !== password_confirm) {
             req.session.error = 'Las contraseñas nuevas no coinciden';
             return res.redirect('/perfil/cambiar-password');
         }
         
-        // Verificar longitud mínima
         if (password_nueva.length < 6) {
             req.session.error = 'La nueva contraseña debe tener al menos 6 caracteres';
             return res.redirect('/perfil/cambiar-password');
         }
         
-        // Obtener contraseña actual del usuario
         const [userData] = await db.query(
             'SELECT password FROM usuarios WHERE id = ?',
             [usuario.id]
         );
         
-        // Verificar contraseña actual
         const passwordValida = await bcrypt.compare(password_actual, userData[0].password);
         if (!passwordValida) {
             req.session.error = 'La contraseña actual es incorrecta';
             return res.redirect('/perfil/cambiar-password');
         }
         
-        // Encriptar nueva contraseña
         const salt = await bcrypt.genSalt(10);
         const nuevaPasswordHash = await bcrypt.hash(password_nueva, salt);
         
-        // Actualizar contraseña
         await db.query(
             'UPDATE usuarios SET password = ? WHERE id = ?',
             [nuevaPasswordHash, usuario.id]
         );
         
-        // Registrar en auditoría
         await registrarAuditoria(
             usuario,
             'EDITAR',
@@ -266,12 +265,60 @@ exports.cambiarPassword = async (req, res) => {
             { password: '***Cambiada***' }
         );
         
-        req.session.mensaje = 'Contraseña cambiada exitosamente';
+        // ✅ Guardar mensaje de éxito en la sesión
+        req.session.mensaje = '🔐 Contraseña cambiada exitosamente';
         res.redirect('/perfil');
         
     } catch (err) {
         console.error(err);
         req.session.error = 'Error al cambiar la contraseña';
         res.redirect('/perfil/cambiar-password');
+    }
+};
+
+// ==========================
+// 📌 ELIMINAR FOTO DE PERFIL
+// ==========================
+exports.eliminarFoto = async (req, res) => {
+    const usuario = req.session.usuario;
+    
+    try {
+        const [userData] = await db.query(
+            'SELECT foto_perfil FROM usuarios WHERE id = ?',
+            [usuario.id]
+        );
+        
+        if (userData.length > 0 && userData[0].foto_perfil) {
+            const oldPath = path.join(__dirname, '../public', userData[0].foto_perfil);
+            if (fs.existsSync(oldPath)) {
+                fs.unlinkSync(oldPath);
+            }
+            
+            await db.query(
+                'UPDATE usuarios SET foto_perfil = NULL WHERE id = ?',
+                [usuario.id]
+            );
+            
+            delete req.session.usuario.foto_perfil;
+            
+            await registrarAuditoria(
+                usuario,
+                'EDITAR',
+                'usuarios',
+                usuario.id,
+                { foto_perfil: userData[0].foto_perfil },
+                { foto_perfil: null }
+            );
+            
+            req.session.mensaje = 'Foto de perfil eliminada';
+        } else {
+            req.session.mensaje = 'No tenías foto de perfil';
+        }
+        
+        res.redirect('/perfil');
+    } catch (err) {
+        console.error(err);
+        req.session.error = 'Error al eliminar la foto';
+        res.redirect('/perfil');
     }
 };

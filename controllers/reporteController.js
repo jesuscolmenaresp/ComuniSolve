@@ -11,7 +11,6 @@ const {
   - Todas las notificaciones en segundo plano con setImmediate()
   - Sin bloqueos en asignaciones y cambios de estado
 */
-
 // ==========================
 // 📌 LISTAR REPORTES (VERSIÓN RÁPIDA)
 // ==========================
@@ -42,23 +41,48 @@ exports.listarReportesRapido = async (req, res) => {
       return res.redirect('/login');
     }
 
-    if (usuario.rol_id === 3) {
-      query += " AND r.calle_id = ?";
-      params.push(usuario.calle_id);
+    // ========================================
+    // 📌 FILTRO POR ROL (CORREGIDO)
+    // ========================================
+    
+    if (usuario.rol_id === 4) {
+      // ✅ CIUDADANO (rol 4): SOLO sus propios reportes
+      query += " AND r.usuario_id = ?";
+      params.push(usuario.id);
+    } 
+    else if (usuario.rol_id === 3) {
+      // ✅ JEFE DE CALLE (rol 3): TODOS los reportes de SU calle
+      if (usuario.calle_id) {
+        query += " AND r.calle_id = ?";
+        params.push(usuario.calle_id);
+      } else {
+        // Si no tiene calle asignada, no ve nada
+        query += " AND 1=0";
+      }
     } 
     else if (usuario.rol_id === 2) {
+      // ✅ LÍDER (rol 2): TODOS los reportes de las calles QUE LIDERA
       query += " AND r.calle_id IN (SELECT id FROM calles WHERE lider_id = ?)";
       params.push(usuario.id);
     } 
-    else if (usuario.rol_id === 4 && usuario.calle_id) {
-      query += " AND r.calle_id = ?";
-      params.push(usuario.calle_id);
-    }
-    else if (usuario.rol_id === 4) {
-      query += " AND r.usuario_id = ?";
+    else if (usuario.rol_id === 1) {
+      // ✅ UBCH (rol 1): TODOS los reportes de las calles de SU COMUNIDAD
+      // Un UBCH puede tener varias comunidades asignadas (tabla ubch_comunidades)
+      query += ` AND r.calle_id IN (
+        SELECT c.id 
+        FROM calles c 
+        INNER JOIN comunidades com ON c.comunidad_id = com.id
+        INNER JOIN ubch_comunidades uc ON uc.comunidad_id = com.id
+        WHERE uc.ubch_id = ?
+      )`;
       params.push(usuario.id);
     }
+    // SUPERADMIN (rol 5): ve TODOS los reportes (sin filtro adicional)
 
+    // ========================================
+    // 📌 FILTROS ADICIONALES (búsqueda, estado, etc.)
+    // ========================================
+    
     if (search && search.trim() !== '') {
       query += " AND (r.titulo LIKE ? OR r.descripcion LIKE ?)";
       params.push(`%${search}%`, `%${search}%`);
@@ -100,7 +124,47 @@ exports.listarReportesRapido = async (req, res) => {
     }
     
     const [categorias] = await db.query('SELECT id, nombre FROM categorias ORDER BY nombre');
-    const [calles] = await db.query('SELECT id, nombre FROM calles ORDER BY nombre');
+    
+    // ========================================
+    // 📌 FILTRAR CALLES SEGÚN ROL (para el select de filtro)
+    // ========================================
+    let callesQuery = 'SELECT id, nombre FROM calles WHERE activo = 1';
+    let callesParams = [];
+    
+    if (usuario.rol_id === 4) {
+      // Ciudadano: ve su calle (para reportar)
+      if (usuario.calle_id) {
+        callesQuery += ' AND id = ?';
+        callesParams.push(usuario.calle_id);
+      } else {
+        callesQuery += ' AND 1=0'; // No ve ninguna si no tiene calle
+      }
+    } 
+    else if (usuario.rol_id === 3) {
+      // Jefe: ve su calle
+      if (usuario.calle_id) {
+        callesQuery += ' AND id = ?';
+        callesParams.push(usuario.calle_id);
+      } else {
+        callesQuery += ' AND 1=0';
+      }
+    } 
+    else if (usuario.rol_id === 2) {
+      // Líder: ve las calles que lidera
+      callesQuery += ' AND lider_id = ?';
+      callesParams.push(usuario.id);
+    } 
+    else if (usuario.rol_id === 1) {
+      // UBCH: ve las calles de sus comunidades
+      callesQuery += ` AND comunidad_id IN (
+        SELECT comunidad_id FROM ubch_comunidades WHERE ubch_id = ?
+      )`;
+      callesParams.push(usuario.id);
+    }
+    // SuperAdmin (5): ve TODAS las calles (sin filtro adicional)
+    
+    const [calles] = await db.query(callesQuery, callesParams);
+    
     const [empresas] = await db.query('SELECT id, nombre FROM empresas ORDER BY nombre LIMIT 20');
     
     res.render('reportes', { 
@@ -391,7 +455,7 @@ exports.cambiarEstado = async (req, res) => {
 };
 
 // ==========================
-// 📌 ASIGNAR EMPRESA A REPORTE (OPTIMIZADO - SIN BLOQUEO)
+// 📌 ASIGNAR EMPRESA A REPORTE (UBCH, Líder y SuperAdmin)
 // ==========================
 exports.asignarEmpresa = async (req, res) => {
   const { id } = req.params;
@@ -399,7 +463,7 @@ exports.asignarEmpresa = async (req, res) => {
   const usuario = req.session.usuario;
 
   try {
-    if (!usuario || ![1,2].includes(usuario.rol_id)) {
+    if (!usuario || ![1,2,5].includes(usuario.rol_id)) {
       req.session.error = "No autorizado para asignar empresas";
       return res.redirect('/reportes');
     }
@@ -589,5 +653,178 @@ exports.eliminarVoluntario = async (req, res) => {
     console.error(err);
     req.session.error = 'Error al eliminar voluntario';
     res.redirect('/reportes');
+  }
+};
+// ==========================
+// 📌 LISTAR REPORTES INACTIVOS
+// ==========================
+exports.listarInactivos = async (req, res) => {
+  try {
+    const usuario = req.session.usuario;
+    
+    // Solo UBCH y SuperAdmin pueden ver inactivos
+    if (!usuario || ![1, 5].includes(usuario.rol_id)) {
+      return res.status(403).send('No autorizado');
+    }
+    
+    const [reportes] = await db.query(`
+      SELECT r.id, r.titulo, r.descripcion, r.fecha, r.estado,
+             r.motivo_inactivo,
+             c.nombre AS nombre_calle,
+             cat.nombre AS categoria_nombre,
+             cat.icono AS categoria_icono,
+             u.nombre AS nombre_usuario,
+             r.activo
+      FROM reportes r
+      INNER JOIN calles c ON r.calle_id = c.id
+      INNER JOIN categorias cat ON r.categoria_id = cat.id
+      LEFT JOIN usuarios u ON r.usuario_id = u.id
+      WHERE r.activo = 0
+      ORDER BY r.fecha DESC
+    `);
+    
+    res.render('reportes/inactivos', {
+      reportes,
+      usuario,
+      session: req.session
+    });
+  } catch (err) {
+    console.error('Error en listarInactivos:', err);
+    res.status(500).send('Error al cargar reportes inactivos');
+  }
+};
+
+// ==========================
+// 📌 DESACTIVAR REPORTE (UBCH y SuperAdmin)
+// ==========================
+exports.desactivarReporte = async (req, res) => {
+  const { id } = req.params;
+  const { motivo } = req.body;
+  const usuario = req.session.usuario;
+
+  try {
+    if (!usuario || ![1, 5].includes(usuario.rol_id)) {
+      req.session.error = 'No autorizado';
+      return res.redirect('/reportes');
+    }
+
+    // Verificar que el reporte existe y está activo
+    const [reporte] = await db.query('SELECT id, titulo FROM reportes WHERE id = ? AND activo = 1', [id]);
+    if (reporte.length === 0) {
+      req.session.error = 'Reporte no encontrado o ya está inactivo';
+      return res.redirect('/reportes');
+    }
+
+    // Verificar si el motivo está presente
+    if (!motivo || motivo.trim() === '') {
+      req.session.error = 'Debe especificar un motivo para desactivar el reporte';
+      return res.redirect('/reportes');
+    }
+
+    await db.query(
+      'UPDATE reportes SET activo = 0, motivo_inactivo = ? WHERE id = ?',
+      [motivo.trim(), id]
+    );
+
+    await registrarAuditoria(
+      usuario,
+      'DESACTIVAR',
+      'reportes',
+      id,
+      { accion: 'desactivar_reporte', titulo: reporte[0].titulo },
+      { motivo: motivo.trim() }
+    );
+
+    req.session.mensaje = `Reporte "${reporte[0].titulo}" desactivado correctamente`;
+    res.redirect('/reportes');
+  } catch (err) {
+    console.error('Error al desactivar reporte:', err);
+    req.session.error = 'Error al desactivar el reporte';
+    res.redirect('/reportes');
+  }
+};
+
+// ==========================
+// 📌 ACTIVAR REPORTE (UBCH o SuperAdmin)
+// ==========================
+exports.activarReporte = async (req, res) => {
+  const { id } = req.params;
+  const { motivo } = req.body;
+  const usuario = req.session.usuario;
+
+  try {
+    if (!usuario || ![1, 5].includes(usuario.rol_id)) {
+      req.session.error = 'No autorizado';
+      return res.redirect('/reportes/inactivos');
+    }
+
+    await db.query(
+      'UPDATE reportes SET activo = 1, motivo_inactivo = NULL WHERE id = ?',
+      [id]
+    );
+
+    await registrarAuditoria(
+      usuario,
+      'ACTIVAR',
+      'reportes',
+      id,
+      { accion: 'reactivar_reporte' },
+      { motivo: motivo || 'Reactivado por administración' }
+    );
+
+    req.session.mensaje = 'Reporte reactivado correctamente';
+    res.redirect('/reportes/inactivos');
+  } catch (err) {
+    console.error('Error al activar reporte:', err);
+    req.session.error = 'Error al activar el reporte';
+    res.redirect('/reportes/inactivos');
+  }
+};
+
+// ==========================
+// 📌 ELIMINAR PERMANENTEMENTE (SOLO SuperAdmin)
+// ==========================
+exports.destruirReporte = async (req, res) => {
+  const { id } = req.params;
+  const { motivo } = req.body;
+  const usuario = req.session.usuario;
+
+  try {
+    if (!usuario || usuario.rol_id !== 5) {
+      req.session.error = 'No autorizado';
+      return res.redirect('/reportes/inactivos');
+    }
+
+    // Obtener datos antes de eliminar
+    const [reporte] = await db.query('SELECT titulo FROM reportes WHERE id = ?', [id]);
+    if (reporte.length === 0) {
+      req.session.error = 'Reporte no encontrado';
+      return res.redirect('/reportes/inactivos');
+    }
+
+    // Eliminar votos asociados
+    await db.query('DELETE FROM votos WHERE reporte_id = ?', [id]);
+    
+    // Eliminar asignaciones de voluntarios
+    await db.query('DELETE FROM voluntarios_reportes WHERE reporte_id = ?', [id]);
+    
+    // Eliminar el reporte
+    await db.query('DELETE FROM reportes WHERE id = ?', [id]);
+
+    await registrarAuditoria(
+      usuario,
+      'ELIMINAR_PERMANENTEMENTE',
+      'reportes',
+      id,
+      { titulo: reporte[0].titulo },
+      { motivo: motivo || 'Eliminado permanentemente' }
+    );
+
+    req.session.mensaje = 'Reporte eliminado permanentemente';
+    res.redirect('/reportes/inactivos');
+  } catch (err) {
+    console.error('Error al destruir reporte:', err);
+    req.session.error = 'Error al eliminar el reporte';
+    res.redirect('/reportes/inactivos');
   }
 };

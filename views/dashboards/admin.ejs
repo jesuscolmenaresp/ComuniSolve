@@ -18,177 +18,233 @@ const calles = {
 
 <div class="container py-4">
   
-  <!-- Encabezado -->
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <div>
-      <h2 class="fw-bold mb-1 admin-title">
-        <i class="bi bi-graph-up me-2"></i> Panel de Administración
-      </h2>
-      <p class="text-muted small mb-0 admin-subtitle">Estadísticas y métricas de la comunidad</p>
-    </div>
-    <div class="d-flex gap-2">
-      <button onclick="window.location.reload()" class="btn btn-sm px-3 py-2 rounded-3 btn-actualizar">
-        <i class="bi bi-arrow-repeat me-1"></i> Actualizar
-      </button>
+  <!-- ========== ENCABEZADO MEJORADO ========== -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <h2 class="fw-bold mb-1 admin-title">
+            <i class="bi bi-graph-up-arrow me-2" style="color: #fd6704;"></i> 
+            Panel de Administración
+          </h2>
+          <p class="text-muted small mb-0 admin-subtitle">
+            <i class="bi bi-bar-chart me-1"></i> Estadísticas y métricas de la comunidad
+          </p>
+        </div>
+        <div class="d-flex gap-2">
+          <button onclick="window.location.reload()" class="btn btn-actualizar-admin px-4 py-2 rounded-3">
+            <i class="bi bi-arrow-repeat me-2"></i> Actualizar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Tarjetas de resumen -->
+  <!-- ========== TARJETAS DE RESUMEN (4) ========== -->
   <div class="row g-4 mb-5">
     <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card">
-        <div class="card-body p-3 text-center stat-card-total">
-          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div class="stat-icon-wrapper">
-              <i class="bi bi-file-text fs-3 text-white"></i>
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-admin stat-card-total">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span class="stat-label-admin">Total Reportes</span>
+              <h2 class="fw-bold mb-0 stat-number-admin mt-1"><%= totales.total_reportes || 0 %></h2>
+            </div>
+            <div class="stat-icon-admin">
+              <i class="bi bi-file-text-fill fs-3 text-white"></i>
             </div>
           </div>
-          <h2 class="fw-bold mb-0 stat-number"><%= totales.total_reportes || 0 %></h2>
-          <p class="small mb-0 stat-label">Total Reportes</p>
+          <div class="stat-footer-admin mt-3">
+            <small><i class="bi bi-arrow-up-short"></i> General</small>
+          </div>
         </div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card">
-        <div class="card-body p-3 text-center stat-card-pendiente">
-          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div class="stat-icon-wrapper">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-admin stat-card-pendiente">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span class="stat-label-admin">Pendientes</span>
+              <h2 class="fw-bold mb-0 stat-number-admin mt-1"><%= totales.pendientes || 0 %></h2>
+            </div>
+            <div class="stat-icon-admin">
               <i class="bi bi-clock-history fs-3 text-white"></i>
             </div>
           </div>
-          <h2 class="fw-bold mb-0 stat-number"><%= totales.pendientes || 0 %></h2>
-          <p class="small mb-0 stat-label">Pendientes</p>
+          <div class="stat-footer-admin mt-3">
+            <small><i class="bi bi-hourglass-split"></i> Por atender</small>
+          </div>
         </div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card">
-        <div class="card-body p-3 text-center stat-card-progreso">
-          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div class="stat-icon-wrapper">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-admin stat-card-progreso">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span class="stat-label-admin">En Progreso</span>
+              <h2 class="fw-bold mb-0 stat-number-admin mt-1"><%= totales.en_progreso || 0 %></h2>
+            </div>
+            <div class="stat-icon-admin">
               <i class="bi bi-arrow-repeat fs-3 text-white"></i>
             </div>
           </div>
-          <h2 class="fw-bold mb-0 stat-number"><%= totales.en_progreso || 0 %></h2>
-          <p class="small mb-0 stat-label">En Progreso</p>
+          <div class="stat-footer-admin mt-3">
+            <small><i class="bi bi-arrow-right"></i> En proceso</small>
+          </div>
         </div>
       </div>
     </div>
     <div class="col-md-3 col-sm-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card">
-        <div class="card-body p-3 text-center stat-card-resuelto">
-          <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
-            <div class="stat-icon-wrapper">
-              <i class="bi bi-check-circle fs-3 text-white"></i>
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-admin stat-card-resuelto">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span class="stat-label-admin">Resueltos</span>
+              <h2 class="fw-bold mb-0 stat-number-admin mt-1"><%= totales.resueltos || 0 %></h2>
+            </div>
+            <div class="stat-icon-admin">
+              <i class="bi bi-check-circle-fill fs-3 text-white"></i>
             </div>
           </div>
-          <h2 class="fw-bold mb-0 stat-number"><%= totales.resueltos || 0 %></h2>
-          <p class="small mb-0 stat-label">Resueltos</p>
+          <div class="stat-footer-admin mt-3">
+            <small><i class="bi bi-check2-all"></i> Completados</small>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Gráficas -->
+  <!-- ========== GRÁFICOS (2 columnas) ========== -->
   <div class="row g-4 mb-5">
-    <div class="col-md-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100 chart-card">
-        <div class="px-4 py-3 chart-card-header">
-          <h5 class="mb-0 fw-semibold"><i class="bi bi-pie-chart me-2"></i> Reportes por Categoría</h5>
+    <div class="col-lg-6">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden chart-card-admin h-100">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="mb-0 fw-semibold">
+            <i class="bi bi-pie-chart-fill me-2" style="color: #fd7e14;"></i> 
+            Reportes por Categoría
+          </h5>
         </div>
-        <div class="card-body p-4 chart-card-body">
-          <canvas id="chartCategoria" style="max-height: 300px; width: 100%;"></canvas>
+        <div class="card-body p-4 pt-0 chart-body-admin">
+          <canvas id="chartCategoria" style="max-height: 280px; width: 100%;"></canvas>
         </div>
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100 chart-card">
-        <div class="px-4 py-3 chart-card-header">
-          <h5 class="mb-0 fw-semibold"><i class="bi bi-donut me-2"></i> Reportes por Estado</h5>
+    <div class="col-lg-6">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden chart-card-admin h-100">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="mb-0 fw-semibold">
+            <i class="bi bi-donut-fill me-2" style="color: #28a745;"></i> 
+            Reportes por Estado
+          </h5>
         </div>
-        <div class="card-body p-4 chart-card-body">
-          <canvas id="chartEstado" style="max-height: 300px; width: 100%;"></canvas>
+        <div class="card-body p-4 pt-0 chart-body-admin">
+          <canvas id="chartEstado" style="max-height: 280px; width: 100%;"></canvas>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Top calles y más votados -->
-  <div class="row g-4 mb-5">
-    <div class="col-md-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100 chart-card">
-        <div class="px-4 py-3 chart-card-header">
-          <h5 class="mb-0 fw-semibold"><i class="bi bi-bar-chart me-2"></i> Top 5 Calles con más Reportes</h5>
-        </div>
-        <div class="card-body p-4 chart-card-body">
-          <canvas id="chartCalles" style="max-height: 300px; width: 100%;"></canvas>
-        </div>
+ <!-- ========== TOP CALLES + MÁS VOTADOS ========== -->
+<div class="row g-4 mb-5">
+  <div class="col-lg-6">
+    <div class="card border-0 rounded-4 shadow-sm overflow-hidden chart-card-admin h-100">
+      <div class="card-header bg-transparent border-0 pt-4 px-4">
+        <h5 class="mb-0 fw-semibold">
+          <i class="bi bi-bar-chart-steps me-2" style="color: #17a2b8;"></i> 
+          Top 5 Calles con más Reportes
+        </h5>
+      </div>
+      <div class="card-body p-4 pt-0 chart-body-admin">
+        <canvas id="chartCalles" style="max-height: 280px; width: 100%;"></canvas>
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100 chart-card">
-        <div class="px-4 py-3 chart-card-header">
-          <h5 class="mb-0 fw-semibold"><i class="bi bi-star-fill me-2"></i> Reportes más Votados</h5>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0 votos-table">
-              <thead>
-                <tr class="text-center">
-                  <th><i class="bi bi-card-heading"></i> Título</th>
-                  <th><i class="bi bi-tag"></i> Categoría</th>
-                  <th><i class="bi bi-geo-alt"></i> Calle</th>
-                  <th><i class="bi bi-hand-thumbs-up"></i> Votos</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% if (masVotados && masVotados.length > 0) { %>
-                  <% masVotados.forEach(r => { %>
-                    <tr class="text-center">
-                      <td class="text-start"><strong><%= r.titulo %></strong></td>
-                      <td><span class="badge px-2 py-1 rounded-pill categoria-badge-voto"><%= r.categoria %></span></td>
-                      <td><i class="bi bi-pin-map-fill me-1 location-icon"></i> <%= r.calle %></td>
-                      <td class="text-center"><span class="badge bg-warning rounded-pill px-3 py-1 votos-badge">👍 <%= r.votos || 0 %></span></td>
-                    </tr>
-                  <% }) %>
-                <% } else { %>
+  </div>
+  <div class="col-lg-6">
+    <div class="card border-0 rounded-4 shadow-sm overflow-hidden table-card-admin h-100">
+      <div class="card-header bg-transparent border-0 pt-4 px-4">
+        <h5 class="mb-0 fw-semibold">
+          <i class="bi bi-star-fill me-2" style="color: #ffc107;"></i> 
+          Reportes más Votados
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0 tabla-admin tabla-votos">
+            <thead>
+              <tr>
+                <th><i class="bi bi-card-heading me-1"></i> Título</th>
+                <th><i class="bi bi-tag me-1"></i> Categoría</th>
+                <th><i class="bi bi-geo-alt me-1"></i> Calle</th>
+                <th class="text-center"><i class="bi bi-hand-thumbs-up me-1"></i> Votos</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (masVotados && masVotados.length > 0) { %>
+                <% masVotados.forEach(r => { %>
                   <tr>
-                    <td colspan="4" class="text-center py-5 empty-state-votos">
-                      <i class="bi bi-hand-thumbs-up fs-1 d-block mb-2"></i>
-                      <p class="mb-0">Sin votos registrados</p>
-                    </td>
+                    <td><strong><%= r.titulo %></strong></td>
+                    <td><span class="badge rounded-pill px-2 py-1 categoria-badge-voto"><%= r.categoria %></span></td>
+                    <td><i class="bi bi-pin-map-fill me-1 location-icon"></i> <%= r.calle %></td>
+                    <td class="text-center"><span class="badge rounded-pill px-3 py-1 votos-badge">👍 <%= r.votos || 0 %></span></td>
                   </tr>
-                <% } %>
-              </tbody>
-            </table>
-          </div>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="4" class="text-center py-5 empty-state-admin">
+                    <i class="bi bi-hand-thumbs-up fs-1 d-block mb-2"></i>
+                    <p class="mb-0">Sin votos registrados</p>
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
         </div>
+      </div>
+      <div class="card-footer bg-transparent border-0 text-center pt-3 pb-4">
+        <small class="text-muted">
+          <i class="bi bi-info-circle me-1"></i> 
+          Los reportes más votados por la comunidad
+        </small>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Participación ciudadana -->
+  <!-- ========== PARTICIPACIÓN CIUDADANA ========== -->
   <div class="row g-4">
-    <div class="col-md-6 mx-auto">
-      <div class="card border-0 rounded-4 shadow-sm overflow-hidden participation-card">
-        <div class="px-4 py-3 participation-card-header">
-          <h5 class="mb-0 fw-semibold"><i class="bi bi-people-fill me-2"></i> Participación Ciudadana</h5>
+    <div class="col-md-8 mx-auto">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden participation-card-admin">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="mb-0 fw-semibold">
+            <i class="bi bi-people-fill me-2" style="color: #fd7e14;"></i> 
+            Participación Ciudadana
+          </h5>
         </div>
-        <div class="card-body p-0">
-          <div class="list-group list-group-flush">
-            <div class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 participation-item">
-              <div>
-                <i class="bi bi-person-fill me-2 participation-icon"></i>
-                <strong>Ciudadanos registrados</strong>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="participation-item-admin p-3 rounded-3 text-center">
+                <div class="d-flex align-items-center justify-content-center gap-3">
+                  <i class="bi bi-person-fill fs-2 participation-icon-admin"></i>
+                  <div>
+                    <h5 class="mb-0 fw-bold"><%= totales.total_ciudadanos || 0 %></h5>
+                    <small class="text-muted">Ciudadanos registrados</small>
+                  </div>
+                </div>
               </div>
-              <span class="badge rounded-pill px-3 py-2 ciudadanos-badge"><%= totales.total_ciudadanos || 0 %></span>
             </div>
-            <div class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 participation-item">
-              <div>
-                <i class="bi bi-person-badge me-2 participation-icon"></i>
-                <strong>Voluntarios</strong>
+            <div class="col-md-6">
+              <div class="participation-item-admin p-3 rounded-3 text-center">
+                <div class="d-flex align-items-center justify-content-center gap-3">
+                  <i class="bi bi-person-badge fs-2 participation-icon-admin-vol"></i>
+                  <div>
+                    <h5 class="mb-0 fw-bold"><%= totales.total_voluntarios || 0 %></h5>
+                    <small class="text-muted">Voluntarios activos</small>
+                  </div>
+                </div>
               </div>
-              <span class="badge rounded-pill px-3 py-2 voluntarios-badge"><%= totales.total_voluntarios || 0 %></span>
             </div>
           </div>
         </div>
@@ -198,7 +254,7 @@ const calles = {
   
 </div>
 
-<!-- Chart.js -->
+<!-- ========== CHART.JS ========== -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
@@ -218,7 +274,8 @@ const calles = {
           '#17a2b8',   // Extra - CELESTE
           '#fd7e14'    // Extra - NARANJA
         ],
-        borderWidth: 0
+        borderWidth: 0,
+        hoverOffset: 10
       }]
     },
     options: {
@@ -227,7 +284,23 @@ const calles = {
       plugins: {
         legend: {
           position: 'bottom',
-          labels: { font: { size: 11 } }
+          labels: { 
+            font: { size: 11 },
+            padding: 15,
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const label = context.label || '';
+              const value = context.raw || 0;
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${label}: ${value} (${percentage}%)`;
+            }
+          }
         }
       }
     }
@@ -241,16 +314,34 @@ const calles = {
       datasets: [{
         data: JSON.parse('<%- JSON.stringify(estados.datos) %>'),
         backgroundColor: ['#ffc107', '#17a2b8', '#28a745'],
-        borderWidth: 0
+        borderWidth: 0,
+        hoverOffset: 10
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: true,
+      cutout: '60%',
       plugins: {
         legend: {
           position: 'bottom',
-          labels: { font: { size: 11 } }
+          labels: { 
+            font: { size: 11 },
+            padding: 15,
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const label = context.label || '';
+              const value = context.raw || 0;
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${label}: ${value} (${percentage}%)`;
+            }
+          }
         }
       }
     }
@@ -265,14 +356,21 @@ const calles = {
         label: 'Reportes',
         data: JSON.parse('<%- JSON.stringify(calles.datos) %>'),
         backgroundColor: [
-          '#fd6704bd',  // Naranja
-          '#0d6efd',    // Azul
-          '#28a745',    // Verde
-          '#ffc107',    // Amarillo
-          '#17a2b8'     // Celeste
+          'rgba(253, 103, 4, 0.8)',
+          'rgba(13, 110, 253, 0.8)',
+          'rgba(40, 167, 69, 0.8)',
+          'rgba(255, 193, 7, 0.8)',
+          'rgba(23, 162, 184, 0.8)'
         ],
         borderRadius: 8,
-        barPercentage: 0.7
+        barPercentage: 0.7,
+        hoverBackgroundColor: [
+          'rgba(253, 103, 4, 1)',
+          'rgba(13, 110, 253, 1)',
+          'rgba(40, 167, 69, 1)',
+          'rgba(255, 193, 7, 1)',
+          'rgba(23, 162, 184, 1)'
+        ]
       }]
     },
     options: {
@@ -282,7 +380,8 @@ const calles = {
         y: {
           beginAtZero: true,
           stepSize: 1,
-          grid: { color: '#f0d5c0', lineWidth: 1 }
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: { font: { size: 11 } }
         },
         x: {
           ticks: { font: { size: 11, weight: 'bold' } },
@@ -292,9 +391,11 @@ const calles = {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#fd6704bd',
+          backgroundColor: 'rgba(0,0,0,0.8)',
           titleColor: 'white',
-          bodyColor: 'white'
+          bodyColor: 'white',
+          cornerRadius: 8,
+          padding: 10
         }
       }
     }
@@ -309,34 +410,31 @@ const calles = {
     color: #5D4037;
   }
   
-  .admin-title i {
-    color: #fd6704bd;
-  }
-  
   .admin-subtitle {
     color: #8B6B5A;
   }
   
   /* Botón actualizar */
-  .btn-actualizar {
+  .btn-actualizar-admin {
     background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
     color: white;
     border: none;
     transition: all 0.2s ease;
   }
   
-  .btn-actualizar:hover {
+  .btn-actualizar-admin:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
   }
   
   /* Tarjetas de estadísticas */
-  .stat-card {
+  .stat-card-admin {
     transition: all 0.2s ease;
   }
   
-  .stat-card:hover {
+  .stat-card-admin:hover {
     transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
   }
   
   .stat-card-total {
@@ -355,88 +453,121 @@ const calles = {
     background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
   }
   
-  .stat-icon-wrapper {
-    width: 50px;
-    height: 50px;
+  .stat-icon-admin {
+    width: 48px;
+    height: 48px;
     background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
   }
   
-  .stat-number {
+  .stat-number-admin {
+    font-size: 28px;
     color: #5D4037;
   }
   
-  .stat-label {
+  .stat-label-admin {
+    font-size: 13px;
+    font-weight: 500;
+    color: #8B6B5A;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  
+  .stat-footer-admin {
+    border-top: 1px solid rgba(0,0,0,0.05);
+    padding-top: 8px;
+    font-size: 12px;
     color: #8B6B5A;
   }
   
-  .stat-card-pendiente .stat-number {
+  .stat-card-pendiente .stat-number-admin {
     color: #856404;
   }
   
-  .stat-card-progreso .stat-number {
+  .stat-card-progreso .stat-number-admin {
     color: #0c5460;
   }
   
-  .stat-card-resuelto .stat-number {
+  .stat-card-resuelto .stat-number-admin {
     color: #155724;
   }
   
-  .stat-card-pendiente .stat-label {
+  .stat-card-pendiente .stat-label-admin {
     color: #856404;
   }
   
-  .stat-card-progreso .stat-label {
+  .stat-card-progreso .stat-label-admin {
     color: #0c5460;
   }
   
-  .stat-card-resuelto .stat-label {
+  .stat-card-resuelto .stat-label-admin {
+    color: #155724;
+  }
+  
+  .stat-card-pendiente .stat-footer-admin {
+    color: #856404;
+  }
+  
+  .stat-card-progreso .stat-footer-admin {
+    color: #0c5460;
+  }
+  
+  .stat-card-resuelto .stat-footer-admin {
     color: #155724;
   }
   
   /* Tarjetas de gráficos */
-  .chart-card-header {
-    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+  .chart-card-admin {
+    transition: all 0.2s ease;
   }
   
-  .chart-card-header h5 {
+  .chart-card-admin .card-header h5 {
     color: #5D4037;
   }
   
-  .chart-card-header i {
-    color: #fd6704bd;
-  }
-  
-  .chart-card-body {
+  .chart-body-admin {
     background: white;
   }
   
-  /* Tabla de votos */
-  .votos-table {
-    background: white;
+  /* Tarjetas de tablas */
+  .table-card-admin {
+    transition: all 0.2s ease;
   }
   
-  .votos-table thead th {
+  .tabla-admin {
+    font-size: 14px;
+  }
+  
+  .tabla-admin thead th {
     background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
     color: #5D4037;
     font-weight: 600;
+    padding: 12px;
     border-bottom: 2px solid #fd6704bd;
   }
   
-  .votos-table tbody tr {
-    border-bottom-color: #f0d5c0;
+  .tabla-admin tbody td {
+    padding: 10px 12px;
+    vertical-align: middle;
   }
   
-  .votos-table tbody tr:hover {
+  .tabla-admin tbody tr {
+    border-bottom: 1px solid #f0d5c0;
+  }
+  
+  .tabla-admin tbody tr:hover {
     background-color: #fff8f0 !important;
   }
   
   .categoria-badge-voto {
     background: #fce5d4;
     color: #fd6704bd;
+    font-size: 11px;
+    padding: 4px 10px;
   }
   
   .location-icon {
@@ -446,47 +577,40 @@ const calles = {
   .votos-badge {
     background: #ffc107;
     color: #333;
+    font-size: 13px;
   }
   
-  .empty-state-votos i {
+  .empty-state-admin i {
     color: #6c757d;
     opacity: 0.5;
   }
   
-  .empty-state-votos p {
+  .empty-state-admin p {
     color: #6c757d;
   }
   
-  /* Tarjeta de participación */
-  .participation-card-header {
-    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+  /* Participación ciudadana */
+  .participation-card-admin {
+    transition: all 0.2s ease;
   }
   
-  .participation-card-header h5 {
-    color: #5D4037;
+  .participation-item-admin {
+    background: #f8f9fa;
+    border: 1px solid #f0d5c0;
+    transition: all 0.2s ease;
   }
   
-  .participation-card-header i {
+  .participation-item-admin:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  
+  .participation-icon-admin {
     color: #fd6704bd;
   }
   
-  .participation-item {
-    background: white;
-    border-color: #f0d5c0;
-  }
-  
-  .participation-icon {
-    color: #fd6704bd;
-  }
-  
-  .ciudadanos-badge {
-    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
-    color: white;
-  }
-  
-  .voluntarios-badge {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
+  .participation-icon-admin-vol {
+    color: #28a745;
   }
   
   /* ========== MODO NOCTURNO ========== */
@@ -498,6 +622,7 @@ const calles = {
     color: #a1a1aa;
   }
   
+  /* Tarjetas de estadísticas en modo nocturno */
   body.dark-mode .stat-card-total {
     background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
   }
@@ -514,62 +639,102 @@ const calles = {
     background: linear-gradient(135deg, #0d3b1f 0%, #0a2a16 100%);
   }
   
-  body.dark-mode .stat-number {
+  body.dark-mode .stat-number-admin {
     color: #e4e4e7;
   }
   
-  body.dark-mode .stat-label {
+  body.dark-mode .stat-label-admin {
     color: #a1a1aa;
   }
   
-  body.dark-mode .stat-card-pendiente .stat-number {
+  body.dark-mode .stat-footer-admin {
+    color: #a1a1aa;
+    border-top-color: #3f3f46;
+  }
+  
+  body.dark-mode .stat-card-pendiente .stat-number-admin {
     color: #f5dba3;
   }
   
-  body.dark-mode .stat-card-progreso .stat-number {
+  body.dark-mode .stat-card-progreso .stat-number-admin {
     color: #a3e4e4;
   }
   
-  body.dark-mode .stat-card-resuelto .stat-number {
+  body.dark-mode .stat-card-resuelto .stat-number-admin {
     color: #a3e4b7;
   }
   
-  body.dark-mode .chart-card-header {
-    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+  body.dark-mode .stat-card-pendiente .stat-label-admin {
+    color: #f5dba3;
   }
   
-  body.dark-mode .chart-card-header h5 {
+  body.dark-mode .stat-card-progreso .stat-label-admin {
+    color: #a3e4e4;
+  }
+  
+  body.dark-mode .stat-card-resuelto .stat-label-admin {
+    color: #a3e4b7;
+  }
+  
+  body.dark-mode .stat-card-pendiente .stat-footer-admin {
+    color: #f5dba3;
+  }
+  
+  body.dark-mode .stat-card-progreso .stat-footer-admin {
+    color: #a3e4e4;
+  }
+  
+  body.dark-mode .stat-card-resuelto .stat-footer-admin {
+    color: #a3e4b7;
+  }
+  
+  /* Tarjetas de gráficos en modo nocturno */
+  body.dark-mode .chart-card-admin {
+    background: #1a1a2e;
+  }
+  
+  body.dark-mode .chart-card-admin .card-header h5 {
     color: #e4e4e7;
   }
   
-  body.dark-mode .chart-card-body {
-    background: #27272a;
+  body.dark-mode .chart-body-admin {
+    background: #1a1a2e;
   }
   
-  body.dark-mode .votos-table {
-    background: #27272a;
+  /* Tarjetas de tablas en modo nocturno */
+  body.dark-mode .table-card-admin {
+    background: #1a1a2e;
   }
   
-  body.dark-mode .votos-table thead th {
+  body.dark-mode .tabla-admin {
+    background: #1a1a2e;
+  }
+  
+  body.dark-mode .tabla-admin thead th {
     background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
     color: #e4e4e7;
+    border-bottom: 2px solid #dc3545;
   }
   
-  body.dark-mode .votos-table tbody tr {
+  body.dark-mode .tabla-admin tbody tr {
     border-bottom-color: #3f3f46;
+    background-color: #1a1a2e;
   }
   
-  body.dark-mode .votos-table tbody tr:hover {
-    background-color: #3d3d5c !important;
+  body.dark-mode .tabla-admin tbody tr:hover {
+    background-color: #2d2d44 !important;
   }
   
-  body.dark-mode .votos-table td,
-  body.dark-mode .votos-table th {
+  body.dark-mode .tabla-admin td {
     color: #e4e4e7;
+  }
+  
+  body.dark-mode .tabla-admin .text-muted {
+    color: #a1a1aa !important;
   }
   
   body.dark-mode .categoria-badge-voto {
-    background: #3d3d5c;
+    background: #2d2d44;
     color: #f7931e;
   }
   
@@ -577,43 +742,108 @@ const calles = {
     color: #a1a1aa;
   }
   
-  body.dark-mode .empty-state-votos i {
+  body.dark-mode .empty-state-admin i {
     color: #a1a1aa;
   }
   
-  body.dark-mode .empty-state-votos p {
+  body.dark-mode .empty-state-admin p {
     color: #a1a1aa;
   }
   
-  body.dark-mode .participation-card-header {
-    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+  /* Participación en modo nocturno */
+  body.dark-mode .participation-card-admin {
+    background: #1a1a2e;
   }
   
-  body.dark-mode .participation-card-header h5 {
-    color: #e4e4e7;
-  }
-  
-  body.dark-mode .participation-item {
+  body.dark-mode .participation-item-admin {
     background: #27272a;
     border-color: #3f3f46;
+  }
+  
+  body.dark-mode .participation-item-admin h5 {
     color: #e4e4e7;
   }
   
-  body.dark-mode .participation-item strong {
-    color: #e4e4e7;
+  body.dark-mode .participation-item-admin .text-muted {
+    color: #a1a1aa !important;
   }
   
-  body.dark-mode .participation-icon {
+  body.dark-mode .participation-icon-admin {
     color: #f7931e;
+  }
+  
+  body.dark-mode .participation-icon-admin-vol {
+    color: #20c997;
   }
   
   /* Chart.js en modo nocturno */
   body.dark-mode canvas {
     filter: brightness(0.9);
   }
-  
-  /* Escala de gráficos en modo nocturno */
-  body.dark-mode .chartjs-grid {
-    color: #a1a1aa;
-  }
+  /* ========== CORRECCIÓN PARA TABLA DE VOTOS EN MODO NOCTURNO ========== */
+
+/* Forzar fondo oscuro para la tabla de votos */
+body.dark-mode .table-votos,
+body.dark-mode .tabla-votos {
+  background-color: #1a1a2e !important;
+}
+
+body.dark-mode .tabla-votos tbody {
+  background-color: #1a1a2e !important;
+}
+
+body.dark-mode .tabla-votos tbody tr {
+  background-color: #1a1a2e !important;
+  border-bottom: 1px solid #3f3f46 !important;
+}
+
+body.dark-mode .tabla-votos tbody tr:hover {
+  background-color: #2d2d44 !important;
+}
+
+body.dark-mode .tabla-votos td {
+  color: #e4e4e7 !important;
+  background-color: transparent !important;
+}
+
+body.dark-mode .tabla-votos td strong {
+  color: #e4e4e7 !important;
+}
+
+body.dark-mode .tabla-votos .text-muted {
+  color: #a1a1aa !important;
+}
+
+/* Badges en modo nocturno */
+body.dark-mode .categoria-badge-voto {
+  background: #2d2d44 !important;
+  color: #f7931e !important;
+}
+
+body.dark-mode .votos-badge {
+  background: #3d2e1a !important;
+  color: #f5dba3 !important;
+}
+
+body.dark-mode .location-icon {
+  color: #a1a1aa !important;
+}
+
+body.dark-mode .empty-state-admin i {
+  color: #a1a1aa !important;
+}
+
+body.dark-mode .empty-state-admin p {
+  color: #a1a1aa !important;
+}
+
+/* Card footer en modo nocturno */
+body.dark-mode .table-card-admin .card-footer {
+  background: #1a1a2e !important;
+  border-top: 1px solid #3f3f46 !important;
+}
+
+body.dark-mode .table-card-admin .card-footer .text-muted {
+  color: #a1a1aa !important;
+}
 </style>

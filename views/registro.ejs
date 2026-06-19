@@ -29,17 +29,23 @@
           <% } %>
 
           <!-- Formulario en grid de 2 columnas -->
-          <form method="POST" action="/registro">
+          <form method="POST" action="/registro" id="registroForm" novalidate>
             <div class="row g-4">
               
-              <!-- Cédula -->
+              <!-- Cédula con tipo de documento -->
               <div class="col-md-6">
                 <label class="form-label fw-semibold small mb-2 registro-label">
-                  <i class="bi bi-card-text me-1"></i> Cédula de identidad *
+                  <i class="bi bi-card-text me-1"></i> Documento de identidad *
                 </label>
-                <input type="text" name="cedula" class="form-control rounded-3 registro-input" 
-                       placeholder="Ej: 12345678" required>
-                <small class="text-muted registro-help">Solo números</small>
+                <div class="input-group">
+                  <select name="tipo_documento" id="tipoDocumento" class="form-select rounded-start-3" style="max-width: 70px; border: 1px solid #f0d5c0; background-color: #fefaf7; border-right: none;">
+                    <option value="V">V</option>
+                    <option value="E">E</option>
+                  </select>
+                  <input type="text" name="cedula" id="cedula" class="form-control rounded-end-3 registro-input" 
+                         placeholder="Ej: 12345678" required>
+                </div>
+                <small class="text-muted registro-help" id="cedulaHelp">Solo números. Ej: 12345678</small>
               </div>
 
               <!-- Teléfono -->
@@ -47,8 +53,9 @@
                 <label class="form-label fw-semibold small mb-2 registro-label">
                   <i class="bi bi-telephone-fill me-1"></i> Teléfono *
                 </label>
-                <input type="text" name="telefono" class="form-control rounded-3 registro-input" 
+                <input type="text" name="telefono" id="telefono" class="form-control rounded-3 registro-input" 
                        placeholder="0414-1234567" required>
+                <small class="text-muted registro-help" id="telefonoHelp">Formato: 0414-1234567 (11 dígitos)</small>
               </div>
 
               <!-- Nombre completo -->
@@ -56,8 +63,9 @@
                 <label class="form-label fw-semibold small mb-2 registro-label">
                   <i class="bi bi-person-fill me-1"></i> Nombre completo *
                 </label>
-                <input type="text" name="nombre" class="form-control rounded-3 registro-input" 
+                <input type="text" name="nombre" id="nombre" class="form-control rounded-3 registro-input" 
                        placeholder="Ej: Juan Pérez" required>
+                <small class="text-muted registro-help" id="nombreHelp">Solo letras y espacios. Ej: Juan Pérez</small>
               </div>
 
               <!-- Correo electrónico -->
@@ -65,8 +73,8 @@
                 <label class="form-label fw-semibold small mb-2 registro-label">
                   <i class="bi bi-envelope-fill me-1"></i> Correo electrónico *
                 </label>
-                <input type="email" name="email" class="form-control rounded-3 registro-input" 
-                       placeholder="ejemplo@correo.com" required>
+                <input type="email" name="email" id="email" class="form-control rounded-3 registro-input" 
+                       placeholder="ejemplo@gmail.com" required>
               </div>
 
               <!-- Contraseña -->
@@ -76,6 +84,7 @@
                 </label>
                 <input type="password" name="password" id="password" class="form-control rounded-3 registro-input" 
                        placeholder="Mínimo 6 caracteres" required>
+                <small class="text-muted registro-help" id="passwordHelp">Mínimo 6 caracteres</small>
               </div>
 
               <!-- Confirmar contraseña -->
@@ -85,7 +94,7 @@
                 </label>
                 <input type="password" name="confirm_password" id="confirm_password" class="form-control rounded-3 registro-input" 
                        placeholder="Repite tu contraseña" required>
-                <small class="text-muted registro-help" id="passwordHelp"></small>
+                <small class="text-muted registro-help" id="confirmPasswordHelp"></small>
               </div>
 
               <!-- Calle -->
@@ -93,7 +102,7 @@
                 <label class="form-label fw-semibold small mb-2 registro-label">
                   <i class="bi bi-geo-alt-fill me-1"></i> ¿A qué calle perteneces? *
                 </label>
-                <select name="calle_id" class="form-select rounded-3 registro-select" required>
+                <select name="calle_id" id="calleSelect" class="form-select rounded-3 registro-select" required>
                   <option value="">Seleccione una calle...</option>
                   <% if (calles && calles.length > 0) { %>
                     <% calles.forEach(c => { %>
@@ -148,35 +157,269 @@
 </div>
 
 <script>
-  // Validar que las contraseñas coincidan antes de enviar
-  document.querySelector('form').addEventListener('submit', function(e) {
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirm_password').value;
+  (function() {
+    // ========================================
+    // 1. VALIDACIONES EN TIEMPO REAL
+    // ========================================
     
-    if (password !== confirmPassword) {
-      e.preventDefault();
-      document.getElementById('passwordHelp').innerHTML = '<span class="text-danger">❌ Las contraseñas no coinciden</span>';
-    }
-  });
-  
-  // Validar en tiempo real
-  document.getElementById('confirm_password').addEventListener('keyup', function() {
-    const password = document.getElementById('password').value;
-    const confirmPassword = this.value;
+    // Cédula - solo números
+    const cedulaInput = document.getElementById('cedula');
+    const cedulaHelp = document.getElementById('cedulaHelp');
     
-    if (password === confirmPassword && password !== '') {
-      document.getElementById('passwordHelp').innerHTML = '<span class="text-success">✅ Las contraseñas coinciden</span>';
-    } else if (password !== confirmPassword && confirmPassword !== '') {
-      document.getElementById('passwordHelp').innerHTML = '<span class="text-danger">❌ Las contraseñas no coinciden</span>';
-    } else {
-      document.getElementById('passwordHelp').innerHTML = '';
-    }
-  });
+    cedulaInput.addEventListener('input', function() {
+      this.value = this.value.replace(/[^0-9]/g, '');
+      if (this.value.length > 0 && this.value.length < 6) {
+        cedulaHelp.innerHTML = '<span class="text-warning">⚠️ Mínimo 6 dígitos</span>';
+        this.style.borderColor = '#ffc107';
+      } else if (this.value.length >= 6 && this.value.length <= 10) {
+        cedulaHelp.innerHTML = '<span class="text-success">✅ Cédula válida</span>';
+        this.style.borderColor = '#28a745';
+      } else if (this.value.length > 0) {
+        cedulaHelp.innerHTML = '<span class="text-warning">⚠️ Máximo 10 dígitos</span>';
+        this.style.borderColor = '#ffc107';
+      } else {
+        cedulaHelp.innerHTML = 'Solo números. Ej: 12345678';
+        this.style.borderColor = '';
+      }
+    });
 
-  // Validar cédula solo números
-  document.querySelector('input[name="cedula"]').addEventListener('input', function(e) {
-    this.value = this.value.replace(/[^0-9]/g, '');
-  });
+    // Teléfono - formato 0414-1234567 (11 dígitos)
+    const telefonoInput = document.getElementById('telefono');
+    const telefonoHelp = document.getElementById('telefonoHelp');
+    
+    telefonoInput.addEventListener('input', function() {
+      // Permitir solo números y guiones
+      this.value = this.value.replace(/[^0-9-]/g, '');
+      
+      // Auto-format: 0414-1234567
+      let value = this.value.replace(/-/g, '');
+      if (value.length > 4) {
+        this.value = value.substring(0, 4) + '-' + value.substring(4, 11);
+      }
+      
+      const cleanValue = this.value.replace(/-/g, '');
+      
+      if (cleanValue.length > 0 && cleanValue.length < 11) {
+        telefonoHelp.innerHTML = `<span class="text-warning">⚠️ Faltan ${11 - cleanValue.length} dígitos</span>`;
+        this.style.borderColor = '#ffc107';
+      } else if (cleanValue.length === 11) {
+        telefonoHelp.innerHTML = '<span class="text-success">✅ Teléfono válido</span>';
+        this.style.borderColor = '#28a745';
+      } else {
+        telefonoHelp.innerHTML = 'Formato: 0414-1234567 (11 dígitos)';
+        this.style.borderColor = '';
+      }
+    });
+
+    // Nombre - solo letras y espacios
+    const nombreInput = document.getElementById('nombre');
+    const nombreHelp = document.getElementById('nombreHelp');
+    
+    nombreInput.addEventListener('input', function() {
+      // Permitir solo letras, espacios, tildes y ñ
+      this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '');
+      
+      const words = this.value.trim().split(' ');
+      const filtered = words.filter(w => w.length > 0);
+      
+      if (this.value.length > 0 && filtered.length < 2) {
+        nombreHelp.innerHTML = '<span class="text-warning">⚠️ Ingresa nombre y apellido</span>';
+        this.style.borderColor = '#ffc107';
+      } else if (this.value.length > 0 && filtered.length >= 2) {
+        nombreHelp.innerHTML = '<span class="text-success">✅ Nombre completo válido</span>';
+        this.style.borderColor = '#28a745';
+      } else {
+        nombreHelp.innerHTML = 'Solo letras y espacios. Ej: Juan Pérez';
+        this.style.borderColor = '';
+      }
+    });
+
+    // Email - validación completa
+    const emailInput = document.getElementById('email');
+    const emailHelp = document.getElementById('emailHelp');
+    
+    emailInput.addEventListener('input', function() {
+      const email = this.value;
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      const domainRegex = /@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}/;
+      
+      if (email.length > 0 && !domainRegex.test(email)) {
+        emailHelp.innerHTML = '<span class="text-warning">⚠️ Correo incompleto. Ej: ejemplo@dominio.com</span>';
+        this.style.borderColor = '#ffc107';
+      } else if (email.length > 0 && !emailRegex.test(email)) {
+        emailHelp.innerHTML = '<span class="text-danger">❌ Correo inválido</span>';
+        this.style.borderColor = '#dc3545';
+      } else if (emailRegex.test(email)) {
+        emailHelp.innerHTML = '<span class="text-success">✅ Correo válido</span>';
+        this.style.borderColor = '#28a745';
+      } else {
+        emailHelp.innerHTML = 'ejemplo@gmail.com, ejemplo@comunisolve.com, etc.';
+        this.style.borderColor = '';
+      }
+    });
+
+    // Contraseña - mínimo 6 caracteres
+    const passwordInput = document.getElementById('password');
+    const passwordHelp = document.getElementById('passwordHelp');
+    
+    passwordInput.addEventListener('input', function() {
+      if (this.value.length > 0 && this.value.length < 6) {
+        passwordHelp.innerHTML = `<span class="text-warning">⚠️ Mínimo 6 caracteres (${this.value.length}/6)</span>`;
+        this.style.borderColor = '#ffc107';
+      } else if (this.value.length >= 6) {
+        passwordHelp.innerHTML = '<span class="text-success">✅ Contraseña válida</span>';
+        this.style.borderColor = '#28a745';
+      } else {
+        passwordHelp.innerHTML = 'Mínimo 6 caracteres';
+        this.style.borderColor = '';
+      }
+      // Verificar coincidencia si confirm_password tiene valor
+      const confirmInput = document.getElementById('confirm_password');
+      if (confirmInput.value.length > 0) {
+        checkPasswordMatch();
+      }
+    });
+
+    // Confirmar contraseña
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const confirmPasswordHelp = document.getElementById('confirmPasswordHelp');
+    
+    function checkPasswordMatch() {
+      const password = passwordInput.value;
+      const confirm = confirmPasswordInput.value;
+      
+      if (password === '' && confirm === '') {
+        confirmPasswordHelp.innerHTML = '';
+        confirmPasswordInput.style.borderColor = '';
+        return;
+      }
+      
+      if (password === confirm) {
+        confirmPasswordHelp.innerHTML = '<span class="text-success">✅ Las contraseñas coinciden</span>';
+        confirmPasswordInput.style.borderColor = '#28a745';
+      } else {
+        confirmPasswordHelp.innerHTML = '<span class="text-danger">❌ Las contraseñas no coinciden</span>';
+        confirmPasswordInput.style.borderColor = '#dc3545';
+      }
+    }
+    
+    confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+
+    // ========================================
+    // 2. VALIDACIÓN ANTES DE ENVIAR
+    // ========================================
+    const form = document.getElementById('registroForm');
+    
+    form.addEventListener('submit', function(e) {
+      let isValid = true;
+      let errors = [];
+      
+      // Validar cédula
+      const cedula = cedulaInput.value.trim();
+      if (cedula.length < 6 || cedula.length > 10) {
+        isValid = false;
+        errors.push('La cédula debe tener entre 6 y 10 dígitos');
+        cedulaInput.style.borderColor = '#dc3545';
+        cedulaHelp.innerHTML = '<span class="text-danger">❌ Cédula inválida (6-10 dígitos)</span>';
+      }
+      
+      // Validar teléfono
+      const telefono = telefonoInput.value.replace(/-/g, '');
+      if (telefono.length !== 11) {
+        isValid = false;
+        errors.push('El teléfono debe tener 11 dígitos (ej: 0414-1234567)');
+        telefonoInput.style.borderColor = '#dc3545';
+        telefonoHelp.innerHTML = '<span class="text-danger">❌ Teléfono inválido (11 dígitos)</span>';
+      }
+      
+      // Validar nombre
+      const nombre = nombreInput.value.trim();
+      const words = nombre.split(' ').filter(w => w.length > 0);
+      if (nombre.length < 3 || words.length < 2) {
+        isValid = false;
+        errors.push('Ingresa nombre y apellido');
+        nombreInput.style.borderColor = '#dc3545';
+        nombreHelp.innerHTML = '<span class="text-danger">❌ Ingresa nombre y apellido</span>';
+      }
+      
+      // Validar email
+      const email = emailInput.value.trim();
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(email)) {
+        isValid = false;
+        errors.push('Correo electrónico inválido');
+        emailInput.style.borderColor = '#dc3545';
+        emailHelp.innerHTML = '<span class="text-danger">❌ Correo inválido</span>';
+      }
+      
+      // Validar contraseña
+      const password = passwordInput.value;
+      if (password.length < 6) {
+        isValid = false;
+        errors.push('La contraseña debe tener al menos 6 caracteres');
+        passwordInput.style.borderColor = '#dc3545';
+        passwordHelp.innerHTML = '<span class="text-danger">❌ Mínimo 6 caracteres</span>';
+      }
+      
+      // Validar coincidencia de contraseñas
+      const confirm = confirmPasswordInput.value;
+      if (password !== confirm) {
+        isValid = false;
+        errors.push('Las contraseñas no coinciden');
+        confirmPasswordInput.style.borderColor = '#dc3545';
+        confirmPasswordHelp.innerHTML = '<span class="text-danger">❌ Las contraseñas no coinciden</span>';
+      }
+      
+      // Validar calle seleccionada
+      const calle = document.getElementById('calleSelect').value;
+      if (!calle) {
+        isValid = false;
+        errors.push('Debes seleccionar una calle');
+        document.getElementById('calleSelect').style.borderColor = '#dc3545';
+      }
+      
+      // Si hay errores, prevenir el envío y mostrar mensaje
+      if (!isValid) {
+        e.preventDefault();
+        // Scroll al primer error
+        const firstError = document.querySelector('.is-invalid, [style*="border-color: rgb(220, 53, 69)"]');
+        if (firstError) {
+          firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstError.focus();
+        }
+        // Mostrar alerta de resumen
+        alert('❌ Por favor, corrige los siguientes errores:\n\n• ' + errors.join('\n• '));
+      }
+    });
+
+    // ========================================
+    // 3. LIMPIAR ESTILOS DE ERROR AL FOCUS
+    // ========================================
+    document.querySelectorAll('input, select').forEach(function(el) {
+      el.addEventListener('focus', function() {
+        this.style.borderColor = '';
+        const helpId = this.id + 'Help';
+        const helpEl = document.getElementById(helpId);
+        if (helpEl) {
+          // Reaplicar validación según el campo
+          if (this.id === 'cedula') {
+            // Ya se maneja en el evento input
+          } else if (this.id === 'telefono') {
+            // Ya se maneja en el evento input
+          } else if (this.id === 'nombre') {
+            // Ya se maneja en el evento input
+          } else if (this.id === 'email') {
+            // Ya se maneja en el evento input
+          } else if (this.id === 'password') {
+            // Ya se maneja en el evento input
+          } else if (this.id === 'confirm_password') {
+            checkPasswordMatch();
+          }
+        }
+      });
+    });
+
+  })();
 </script>
 
 <style>
@@ -236,6 +479,16 @@
     border-color: #fd6704bd;
     box-shadow: 0 0 0 3px rgba(253, 103, 4, 0.15);
     background-color: #fefaf7;
+  }
+  
+  /* Select de tipo documento */
+  #tipoDocumento {
+    background-color: #fefaf7;
+    border: 1px solid #f0d5c0;
+  }
+  #tipoDocumento:focus {
+    border-color: #fd6704bd;
+    box-shadow: 0 0 0 3px rgba(253, 103, 4, 0.15);
   }
   
   /* Ayuda */
@@ -335,6 +588,15 @@
     color: #a1a1aa;
   }
   
+  body.dark-mode #tipoDocumento {
+    background-color: #3f3f46;
+    border-color: #3f3f46;
+    color: #e4e4e7;
+  }
+  body.dark-mode #tipoDocumento option {
+    background-color: #27272a;
+  }
+  
   body.dark-mode .registro-help {
     color: #a1a1aa;
   }
@@ -364,7 +626,6 @@
     color: #f5a3a3;
   }
   
-  /* Estilos para selects en modo nocturno */
   body.dark-mode .registro-select option {
     background-color: #27272a;
     color: #e4e4e7;

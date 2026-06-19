@@ -5,7 +5,7 @@
       <!-- Tarjeta principal -->
       <div class="card border-0 rounded-4 shadow-lg overflow-hidden perfil-card">
         
-        <!-- Header con gradiente dual (naranja + azul) -->
+        <!-- Header con gradiente dual -->
         <div class="text-center py-4 px-3 perfil-header">
           <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
             <div class="perfil-icon-wrapper">
@@ -19,7 +19,7 @@
         <!-- Body del card -->
         <div class="card-body p-4 p-lg-5 perfil-body">
           
-          <!-- Mensaje de error -->
+          <!-- Mensajes de sesión -->
           <% if (session && session.error) { %>
             <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 py-2 mb-4" role="alert">
               <i class="bi bi-exclamation-triangle-fill me-2"></i> 
@@ -29,9 +29,42 @@
             <% session.error = null; %>
           <% } %>
 
-          <!-- Formulario -->
-          <form action="/perfil/actualizar" method="POST">
+          <!-- Formulario con enctype="multipart/form-data" -->
+          <form action="/perfil/actualizar" method="POST" enctype="multipart/form-data">
             
+            <!-- Foto de perfil -->
+            <div class="mb-4 text-center">
+              <label class="form-label fw-semibold small mb-2 perfil-label d-block">
+                <i class="bi bi-image me-1"></i> Foto de perfil
+              </label>
+              
+              <!-- Previsualización -->
+              <div class="foto-perfil-container mb-3">
+                <div class="foto-perfil-preview" id="fotoPreviewContainer">
+                  <img id="fotoPreview" 
+                       src="<%= user.foto_perfil || '/images/default-avatar.png' %>" 
+                       alt="Foto de perfil" 
+                       class="foto-perfil-img">
+                </div>
+              </div>
+              
+              <!-- Input de archivo -->
+              <input type="file" name="foto_perfil" id="fotoPerfilInput" 
+                     class="form-control rounded-3 perfil-input" 
+                     accept="image/jpeg,image/png,image/gif,image/webp">
+              <small class="text-muted perfil-help">Formatos: JPG, PNG, GIF, WEBP | Máx: 2MB</small>
+              
+              <!-- Botón para eliminar foto (si existe) -->
+              <% if (user.foto_perfil) { %>
+                <div class="mt-2">
+                  <a href="/perfil/eliminar-foto" class="btn btn-sm btn-outline-danger rounded-3" 
+                     onclick="return confirm('¿Eliminar tu foto de perfil?')">
+                    <i class="bi bi-trash me-1"></i> Eliminar foto
+                  </a>
+                </div>
+              <% } %>
+            </div>
+
             <!-- Cédula -->
             <div class="mb-4">
               <label class="form-label fw-semibold small mb-2 perfil-label">
@@ -110,12 +143,45 @@
 </div>
 
 <script>
-  // Validar cédula solo números
+  // ========================================
+  // PREVISUALIZACIÓN DE FOTO DE PERFIL
+  // ========================================
+  const fotoInput = document.getElementById('fotoPerfilInput');
+  const fotoPreview = document.getElementById('fotoPreview');
+  
+  if (fotoInput) {
+    fotoInput.addEventListener('change', function(e) {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          fotoPreview.src = e.target.result;
+          fotoPreview.classList.add('foto-cargada');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        // Si no hay archivo, restaurar la imagen original
+        const originalSrc = fotoPreview.dataset.original || '/images/default-avatar.png';
+        fotoPreview.src = originalSrc;
+        fotoPreview.classList.remove('foto-cargada');
+      }
+    });
+    
+    // Guardar imagen original para restaurar
+    if (fotoPreview) {
+      fotoPreview.dataset.original = fotoPreview.src;
+    }
+  }
+
+  // ========================================
+  // VALIDACIONES
+  // ========================================
+  // Cédula solo números
   document.querySelector('input[name="cedula"]').addEventListener('input', function(e) {
     this.value = this.value.replace(/[^0-9]/g, '');
   });
 
-  // Validar teléfono solo números y guiones
+  // Teléfono solo números y guiones
   document.querySelector('input[name="telefono"]').addEventListener('input', function(e) {
     this.value = this.value.replace(/[^0-9\-]/g, '');
   });
@@ -129,7 +195,7 @@
     background: #ffffff;
   }
   
-  /* Header con gradiente dual */
+  /* Header */
   .perfil-header {
     background: linear-gradient(135deg, #fce5d4 0%, #fd6704bd 60%, #17a2b8 100%);
   }
@@ -159,6 +225,35 @@
     background: #ffffff;
   }
   
+  /* Foto de perfil */
+  .foto-perfil-container {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .foto-perfil-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #fd6704bd;
+    box-shadow: 0 4px 15px rgba(253, 103, 4, 0.2);
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .foto-perfil-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .foto-perfil-img.foto-cargada {
+    border: 3px solid #28a745;
+  }
+  
   /* Labels */
   .perfil-label {
     color: #5D4037;
@@ -167,7 +262,7 @@
     color: #fd6704bd;
   }
   
-  /* Inputs y selects */
+  /* Inputs */
   .perfil-input, .perfil-select {
     border: 1px solid #f0d5c0;
     background-color: #fefaf7;
@@ -185,6 +280,24 @@
     cursor: not-allowed;
   }
   
+  /* Input file personalizado */
+  input[type="file"] {
+    padding: 0.5rem;
+  }
+  input[type="file"]::file-selector-button {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+    border: none;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+  input[type="file"]::file-selector-button:hover {
+    transform: translateY(-2px);
+  }
+  
   /* Ayuda */
   .perfil-help {
     color: #8B6B5A;
@@ -197,7 +310,7 @@
     color: #856404;
   }
   
-  /* Botón guardar */
+  /* Botones */
   .btn-guardar {
     background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
     border: none;
@@ -209,7 +322,6 @@
     box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
   }
   
-  /* Botón cancelar */
   .btn-cancelar {
     border-color: #f0d5c0;
     color: #5D4037;
@@ -239,7 +351,6 @@
   
   body.dark-mode .perfil-icon-wrapper {
     background: linear-gradient(135deg, #138496 0%, #0e5c6b 100%);
-    box-shadow: 0 4px 10px rgba(19, 132, 150, 0.4);
   }
   
   body.dark-mode .perfil-body {
@@ -281,6 +392,14 @@
     background: #3d2e1a;
     border-left-color: #f5dba3;
     color: #f5dba3;
+  }
+  
+  body.dark-mode .foto-perfil-preview {
+    border-color: #f7931e;
+  }
+  
+  body.dark-mode input[type="file"]::file-selector-button {
+    background: linear-gradient(135deg, #f7931e 0%, #e08515 100%);
   }
   
   body.dark-mode .btn-cancelar {

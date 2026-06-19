@@ -379,27 +379,6 @@ header .nav-link.active::after {
 }
 
 /* ========================================
-   FOOTER
-   ======================================== */
-footer {
-  background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
-  padding: 30px 20px;
-  margin-top: 60px;
-  text-align: center;
-  color: #5D4037;
-  border-top: 1px solid #f0d5c0;
-}
-
-footer p {
-  margin: 0;
-  font-size: 0.85rem;
-}
-
-footer .small {
-  color: #8B6B5A;
-}
-
-/* ========================================
    UTILIDADES
    ======================================== */
 .text-primary { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; color: transparent !important; }
@@ -428,10 +407,6 @@ footer .small {
   }
   
   .report-card {
-    margin-bottom: 15px;
-  }
-  
-  footer .col-md-4 {
     margin-bottom: 15px;
   }
 }
@@ -635,6 +610,7 @@ body.dark-mode .form-control,
 body.dark-mode .dropdown-menu {
   transition: all 0.3s ease;
 }
+
 /* ========================================
    MODO NOCTURNO - CORRECCIONES ADICIONALES
    ======================================== */
@@ -670,21 +646,6 @@ body.dark-mode .row .col-md-6 p,
 body.dark-mode .feature-box p,
 body.dark-mode .description-text {
   color: var(--text-light) !important;
-}
-
-/* Footer */
-body.dark-mode footer,
-body.dark-mode footer p,
-body.dark-mode footer .small,
-body.dark-mode footer .mb-0,
-body.dark-mode footer .col-md-4 p,
-body.dark-mode footer .col-md-4 .small {
-  background: var(--footer-bg) !important;
-  color: var(--footer-text) !important;
-}
-
-body.dark-mode footer .small {
-  color: var(--footer-small) !important;
 }
 
 /* Login y registro */
@@ -838,7 +799,234 @@ body.dark-mode :-ms-input-placeholder {
 body.dark-mode ::placeholder {
   color: var(--text-light) !important;
 }
-/* Logo del footer en modo nocturno - opcional si quieres cambiar la imagen */
-body.dark-mode .footer-logo {
-  filter: brightness(0.8) invert(1);
+
+/* ========================================
+   FOOTER CON IMAGEN DE LA IGLESIA
+   ======================================== */
+.footer-iglesia {
+  background-image: url('/images/iglesia-mercedes.jpg');
+  background-size: cover;
+  background-position: center 30%;
+  background-repeat: no-repeat;
+  position: relative;
+  border-top: 4px solid #fd6704;
+  padding: 3rem 0 !important;
+  margin-top: 60px;
+}
+
+/* OCULTAR el footer tradicional que está causando conflicto */
+footer:not(.footer-iglesia) {
+  display: none !important;
+}
+
+/* Overlay para la imagen de fondo */
+.footer-iglesia::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.88);
+  z-index: 0;
+}
+
+.footer-iglesia .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Contenido con blur */
+.footer-iglesia-content {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(253, 103, 4, 0.2);
+  border-radius: 16px;
+  padding: 1.2rem !important;
+  transition: all 0.3s ease;
+}
+
+.footer-iglesia-content:hover {
+  background: rgba(255, 255, 255, 0.92);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(253, 103, 4, 0.15);
+}
+
+/* Textos del footer - MÁS OSCUROS */
+.footer-iglesia .mb-0.small,
+.footer-iglesia .small.text-muted,
+.footer-iglesia .col-md-4:last-child p {
+  color: #3d2b1e !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+}
+
+.footer-iglesia .col-md-4:last-child .text-muted {
+  color: #4a3728 !important;
+  font-weight: 500 !important;
+}
+
+.footer-iglesia .col-md-4:last-child .small.text-muted.mt-2 {
+  color: #2d1f14 !important;
+  font-weight: 700 !important;
+}
+
+.footer-iglesia h5 {
+  color: #5D4037 !important;
+}
+
+.footer-iglesia .text-muted {
+  color: #8B6B5A !important;
+}
+
+.footer-iglesia .bi-heart-fill {
+  color: #dc3545 !important;
+}
+
+/* ========================================
+   FOOTER EN MODO NOCTURNO
+   ======================================== */
+body.dark-mode .footer-iglesia::before {
+  background: rgba(26, 26, 46, 0.92);
+}
+
+body.dark-mode .footer-iglesia-content {
+  background: rgba(26, 26, 46, 0.8);
+  border-color: rgba(253, 103, 4, 0.3);
+}
+
+body.dark-mode .footer-iglesia-content:hover {
+  background: rgba(26, 26, 46, 0.95);
+}
+
+body.dark-mode .footer-iglesia h5 {
+  color: #e4e4e7 !important;
+}
+
+body.dark-mode .footer-iglesia .text-muted {
+  color: #a1a1aa !important;
+}
+
+body.dark-mode .footer-iglesia .bi-heart-fill {
+  color: #ff6b6b !important;
+}
+
+/* Textos del footer en modo nocturno */
+body.dark-mode .footer-iglesia .mb-0.small,
+body.dark-mode .footer-iglesia .small.text-muted,
+body.dark-mode .footer-iglesia .col-md-4:last-child p {
+  color: #d4d4d8 !important;
+  font-weight: 400 !important;
+}
+
+body.dark-mode .footer-iglesia .col-md-4:last-child .text-muted {
+  color: #c0c0c8 !important;
+}
+
+body.dark-mode .footer-iglesia .col-md-4:last-child .small.text-muted.mt-2 {
+  color: #e8e8ef !important;
+}
+
+/* ========================================
+   FOOTER RESPONSIVE
+   ======================================== */
+@media (max-width: 992px) {
+  .footer-iglesia .row {
+    text-align: center !important;
+  }
+  
+  .footer-iglesia .col-md-4 {
+    margin-bottom: 1.5rem;
+  }
+  
+  .footer-iglesia .col-md-4:last-child {
+    margin-bottom: 0;
+  }
+  
+  .footer-iglesia-content {
+    max-width: 80%;
+    margin: 0 auto;
+  }
+  
+  .footer-iglesia .text-md-start,
+  .footer-iglesia .text-md-end {
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-iglesia {
+    padding: 2rem 0 !important;
+  }
+  
+  .footer-iglesia .footer-logo {
+    height: 50px !important;
+  }
+  
+  .footer-iglesia-content {
+    max-width: 95%;
+    padding: 1rem !important;
+  }
+  
+  .footer-iglesia-content .fs-2 {
+    font-size: 1.8rem !important;
+  }
+  
+  .footer-iglesia h5 {
+    font-size: 1.1rem;
+  }
+  
+  .footer-iglesia h6 {
+    font-size: 0.95rem;
+  }
+  
+  .footer-iglesia .small {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-iglesia .footer-logo {
+    height: 40px !important;
+  }
+  
+  .footer-iglesia-content .fs-2 {
+    font-size: 1.5rem !important;
+  }
+  
+  .footer-iglesia h5 {
+    font-size: 1rem;
+  }
+  
+  .footer-iglesia h6 {
+    font-size: 0.85rem;
+  }
+  
+  .footer-iglesia .small {
+    font-size: 0.7rem;
+  }
+  
+  .footer-iglesia .badge {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.5rem;
+  }
+}
+/* ========================================
+   CORRECCIÓN DEL LOGO IMAGEN EN EL FOOTER
+   ======================================== */
+
+/* El logo imagen en modo claro */
+.footer-iglesia .footer-logo {
+  filter: none;
+}
+
+/* En modo nocturno, el logo imagen se invierte y aclara */
+body.dark-mode .footer-iglesia .footer-logo {
+  filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(253, 103, 4, 0.3));
+}
+
+/* Otra opción: solo aclarar sin invertir */
+body.dark-mode .footer-iglesia .footer-logo-alt {
+  filter: brightness(1.5) drop-shadow(0 0 15px rgba(253, 103, 4, 0.2));
 }

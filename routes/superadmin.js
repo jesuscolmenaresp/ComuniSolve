@@ -5,9 +5,15 @@ const roleMiddleware = require('../middleware/roleMiddleware');
 const backupController = require('../controllers/backupController');
 const configController = require('../controllers/configController');
 
-// ========== CONFIGURACIÓN (sin autenticación primero) ==========
+// ========== CONFIGURACIÓN (acceso público) ==========
+// GET - obtener configuración (público)
 router.get('/config/dark-mode', configController.getConfiguracion);
+
+// POST - cambiar modo nocturno (PÚBLICO - cualquier usuario puede cambiar)
 router.post('/config/dark-mode', configController.toggleDarkMode);
+
+// POST - cambiar visibilidad del botón (SOLO SuperAdmin)
+router.post('/config/mostrar-boton', configController.toggleMostrarBoton);
 
 // ========== TODAS LAS DEMÁS RUTAS requieren rol 5 ==========
 router.use(authMiddleware, roleMiddleware([5]));

@@ -1,4 +1,34 @@
 <div class="container py-4">
+  
+  <!-- ========== MENSAJES FLASH ========== -->
+  <% if (session && session.mensaje) { %>
+    <div class="alert alert-success alert-dismissible fade show border-0 rounded-3 py-3 mb-4 shadow-sm" role="alert" style="border-left: 4px solid #28a745;">
+      <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+        <div>
+          <strong class="d-block">¡Éxito!</strong>
+          <span><%= session.mensaje %></span>
+        </div>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+      </div>
+    </div>
+    <% session.mensaje = null; %>
+  <% } %>
+
+  <% if (session && session.error) { %>
+    <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 py-3 mb-4 shadow-sm" role="alert" style="border-left: 4px solid #dc3545;">
+      <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-exclamation-triangle-fill fs-3 text-danger"></i>
+        <div>
+          <strong class="d-block">Error</strong>
+          <span><%= session.error %></span>
+        </div>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+      </div>
+    </div>
+    <% session.error = null; %>
+  <% } %>
+
   <div class="row g-4">
     
     <!-- COLUMNA IZQUIERDA: Información personal -->
@@ -7,7 +37,11 @@
         <div class="text-center py-4 perfil-header-card">
           <div class="mx-auto d-flex align-items-center justify-content-center mb-2">
             <div class="perfil-avatar">
-              <i class="bi bi-person-fill fs-1 text-white"></i>
+              <% if (user.foto_perfil) { %>
+                <img src="<%= user.foto_perfil %>" alt="Foto de perfil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+              <% } else { %>
+                <i class="bi bi-person-fill fs-1 text-white"></i>
+              <% } %>
             </div>
           </div>
           <h4 class="fw-bold mb-1 perfil-nombre"><%= user.nombre %></h4>
@@ -178,14 +212,27 @@
   }
   
   .perfil-avatar {
-    width: 70px;
-    height: 70px;
-    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
-    border-radius: 35px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 10px rgba(253, 103, 4, 0.3);
+    box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    border: 3px solid white;
+  }
+  
+  .perfil-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .perfil-avatar i {
+    font-size: 2.5rem;
+    color: white;
   }
   
   .perfil-nombre {
@@ -245,6 +292,19 @@
   .btn-cambiar-password:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+  }
+  
+  /* Alertas */
+  .alert-success {
+    background: #d4edda;
+    color: #155724;
+    border-left: 4px solid #28a745;
+  }
+  
+  .alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border-left: 4px solid #dc3545;
   }
   
   /* Tarjetas de estadísticas */
@@ -400,6 +460,23 @@
   
   body.dark-mode .perfil-valor {
     color: #e4e4e7;
+  }
+  
+  body.dark-mode .perfil-avatar {
+    border-color: #3f3f46;
+    box-shadow: 0 4px 15px rgba(253, 103, 4, 0.15);
+  }
+  
+  body.dark-mode .alert-success {
+    background: #0d3b1f;
+    color: #a3e4b7;
+    border-left-color: #28a745;
+  }
+  
+  body.dark-mode .alert-danger {
+    background: #3d1a1f;
+    color: #f5a3a3;
+    border-left-color: #dc3545;
   }
   
   body.dark-mode .stat-card-reportes {

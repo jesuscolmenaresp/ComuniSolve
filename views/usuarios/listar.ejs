@@ -125,6 +125,7 @@
                     data-calles-lideradas="<%= JSON.stringify(u.calles_lideradas || []) %>"
                     data-calle-nombre="<%= u.calle_nombre || '' %>"
                     data-comunidades="<%= JSON.stringify(u.comunidades_atiende || []) %>"
+                    data-foto-perfil="<%= u.foto_perfil || '' %>"
                     style="cursor: pointer;">
                   <td class="small listar-cedula"><%= u.cedula || '—' %></td>
                   <td class="fw-semibold text-start listar-nombre"><%= u.nombre %></td>
@@ -237,6 +238,14 @@
       </div>
     </div>
   </div>
+
+<!-- ========== MENSAJE INFORMATIVO FUERA DE LA TABLA ========== -->
+<div class="text-center mt-3">
+  <span class="badge bg-light text-muted px-3 py-2 rounded-pill" style="font-weight: normal; font-size: 0.75rem; border: 1px solid #e0e0e0;">
+    <i class="bi bi-hand-index-thumb me-1"></i> 
+    Doble clic en cualquier fila para ver detalles
+  </span>
+</div>
 
   <!-- Resumen de usuarios -->
   <div class="card border-0 rounded-4 shadow-sm mt-4 overflow-hidden resumen-card">
@@ -365,6 +374,7 @@
     aplicarFiltros();
   });
 
+  // ========== DOBLE CLICK PARA VER DETALLES CON FOTO ==========
   document.querySelectorAll('#tablaUsuarios tbody tr').forEach(fila => {
     fila.addEventListener('dblclick', function(e) {
       if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
@@ -379,14 +389,28 @@
       const callesLideradas = JSON.parse(this.dataset.callesLideradas || '[]');
       const calleNombre = this.dataset.calleNombre;
       const comunidades = JSON.parse(this.dataset.comunidades || '[]');
+      const fotoPerfil = this.dataset.fotoPerfil || null;
       
       let contenido = `
-        <div class="mb-3">
-          <div class="row mb-2"><div class="col-5 fw-bold">Cédula:</div><div class="col-7">${cedula || '—'}</div></div>
-          <div class="row mb-2"><div class="col-5 fw-bold">Nombre:</div><div class="col-7">${nombre}</div></div>
-          <div class="row mb-2"><div class="col-5 fw-bold">Email:</div><div class="col-7">${email}</div></div>
-          <div class="row mb-2"><div class="col-5 fw-bold">Teléfono:</div><div class="col-7">${telefono}</div></div>
-          <div class="row"><div class="col-5 fw-bold">Rol:</div><div class="col-7"><span class="badge rounded-pill px-3 py-1 ${rolId == 1 ? 'bg-danger' : rolId == 2 ? 'bg-info' : rolId == 3 ? 'bg-success' : rolId == 5 ? 'bg-dark' : 'bg-secondary'}">${rolNombre}</span></div></div>
+        <div class="row mb-3">
+          <div class="col-12 text-center">
+            <div class="detalle-avatar" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; margin: 0 auto; border: 4px solid #fd6704bd; box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3); background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); display: flex; align-items: center; justify-content: center;">
+              ${fotoPerfil && fotoPerfil !== 'null' && fotoPerfil !== '' ? 
+                `<img src="${fotoPerfil}" alt="Foto de perfil" style="width: 100%; height: 100%; object-fit: cover;">` : 
+                `<i class="bi bi-person-fill" style="font-size: 3rem; color: white;"></i>`
+              }
+            </div>
+            <h5 class="fw-bold mt-2 mb-0" style="color: #5D4037;">${nombre}</h5>
+            <span class="badge rounded-pill px-3 py-1 ${rolId == 1 ? 'bg-danger' : rolId == 2 ? 'bg-info' : rolId == 3 ? 'bg-success' : rolId == 5 ? 'bg-dark' : 'bg-secondary'}" style="color: white;">${rolNombre}</span>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-12">
+            <div class="row mb-2"><div class="col-4 fw-bold text-muted">Cédula:</div><div class="col-8">${cedula || '—'}</div></div>
+            <div class="row mb-2"><div class="col-4 fw-bold text-muted">Email:</div><div class="col-8">${email}</div></div>
+            <div class="row mb-2"><div class="col-4 fw-bold text-muted">Teléfono:</div><div class="col-8">${telefono}</div></div>
+          </div>
         </div>`;
       
       if (rolId == 1 && comunidades.length > 0) {
@@ -475,6 +499,7 @@
   .resumen-total, .resumen-ubch, .resumen-lider, .resumen-ciudadano { color: #5D4037; }
   .resumen-label { color: #8B6B5A; }
   
+  /* Modal de rechazar */
   .modal-rechazar { background: white; }
   .modal-rechazar-header { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); }
   .modal-rechazar-body { background: #fefaf7; }
@@ -484,12 +509,18 @@
   .btn-rechazar-confirmar { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; transition: all 0.2s ease; }
   .btn-rechazar-confirmar:hover { transform: translateY(-2px); }
   
+  /* Modal de detalles con foto */
   .modal-detalle-usuario { background: white; }
   .modal-detalle-header { background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); }
   .modal-detalle-body { background: #fefaf7; }
   .modal-detalle-footer { background: #f8f9fa; }
   .btn-editar-detalle { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #333; border: none; transition: all 0.2s ease; }
   .btn-editar-detalle:hover { transform: translateY(-2px); }
+  
+  .detalle-avatar {
+    border-color: #fd6704bd !important;
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%) !important;
+  }
   
   /* ========== MODO NOCTURNO ========== */
   body.dark-mode .listar-title { color: #e4e4e7; }
@@ -544,6 +575,15 @@
   body.dark-mode .modal-detalle-body { background: #1a1a2e; }
   body.dark-mode .modal-detalle-footer { background: #1a1a2e; }
   body.dark-mode .usuario-info { background: #27272a !important; color: #e4e4e7; }
+  
+  body.dark-mode .detalle-avatar {
+    border-color: #f7931e !important;
+    background: linear-gradient(135deg, #f7931e 0%, #e08515 100%) !important;
+  }
+  
+  body.dark-mode .detalle-avatar i {
+    color: #e4e4e7 !important;
+  }
   
   body.dark-mode .btn-outline-secondary { border-color: #3f3f46; color: #e4e4e7; }
   body.dark-mode .btn-outline-secondary:hover { background: #3f3f46; }

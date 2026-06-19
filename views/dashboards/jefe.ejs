@@ -18,25 +18,29 @@ if (porEstado && porEstado.length > 0) {
 
 <div class="container py-4">
   
-  <!-- Encabezado -->
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <div>
-      <h2 class="fw-bold mb-1 jefe-title">
-        <i class="bi bi-person-badge me-2"></i> Panel de Jefe de Calle
-      </h2>
-      <p class="text-muted small mb-0 jefe-subtitle">Gestiona y da seguimiento a los reportes de tu calle</p>
-    </div>
-    <div class="d-flex gap-2">
-      <a href="/reportes" class="btn btn-sm px-3 py-2 fw-semibold rounded-3 btn-jefe-primary">
-        <i class="bi bi-list-ul me-1"></i> Ver reportes
-      </a>
-      <a href="/reportar" class="btn btn-sm btn-outline-secondary px-3 py-2 fw-semibold rounded-3 btn-jefe-outline">
-        <i class="bi bi-plus-circle me-1"></i> Crear reporte
-      </a>
+  <!-- ========== ENCABEZADO MEJORADO ========== -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <h2 class="fw-bold mb-1 jefe-title">
+            <i class="bi bi-person-badge me-2" style="color: #fd6704;"></i> 
+            Panel de Jefe de Calle
+          </h2>
+          <p class="text-muted small mb-0 jefe-subtitle">
+            <i class="bi bi-house-heart me-1"></i> Gestiona y da seguimiento a los reportes de tu calle
+          </p>
+        </div>
+        <div class="d-flex gap-2">
+          <button onclick="window.location.reload()" class="btn btn-actualizar-jefe px-4 py-2 rounded-3">
+            <i class="bi bi-arrow-repeat me-2"></i> Actualizar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Mensajes flash -->
+  <!-- ========== MENSAJES FLASH ========== -->
   <% if (typeof session !== 'undefined' && session && session.mensaje) { %>
     <div class="alert alert-success alert-dismissible fade show border-0 rounded-3 py-2 mb-4" role="alert">
       <i class="bi bi-check-circle-fill me-2"></i> 
@@ -55,9 +59,9 @@ if (porEstado && porEstado.length > 0) {
     <% session.error = null; %>
   <% } %>
 
-  <!-- Información de la calle a cargo -->
+  <!-- ========== INFO CALLE A CARGO ========== -->
   <% if (tieneCalle && miCalle) { %>
-    <div class="alert alert-success border-0 rounded-3 py-3 mb-4 info-calle-jefe info-calle-success">
+    <div class="alert info-calle-jefe info-calle-success border-0 rounded-3 py-3 mb-4">
       <div class="d-flex align-items-center gap-3 flex-wrap">
         <i class="bi bi-geo-alt-fill fs-3 info-calle-icon-success"></i>
         <div>
@@ -67,7 +71,7 @@ if (porEstado && porEstado.length > 0) {
       </div>
     </div>
   <% } else { %>
-    <div class="alert alert-warning border-0 rounded-3 py-3 mb-4 info-calle-jefe info-calle-warning">
+    <div class="alert info-calle-jefe info-calle-warning border-0 rounded-3 py-3 mb-4">
       <div class="d-flex align-items-center gap-3 flex-wrap">
         <i class="bi bi-exclamation-triangle-fill fs-3 info-calle-icon-warning"></i>
         <div>
@@ -78,158 +82,202 @@ if (porEstado && porEstado.length > 0) {
     </div>
   <% } %>
 
-  <!-- Tarjetas de resumen (solo si tiene calle) -->
+  <!-- ========== TARJETAS DE RESUMEN (solo si tiene calle) ========== -->
   <% if (tieneCalle && miCalle) { %>
     <div class="row g-4 mb-5">
       <div class="col-md-3 col-6">
-        <div class="card border-0 rounded-4 shadow-sm text-center p-2 stat-card-jefe stat-card-total-jefe">
-          <i class="bi bi-file-text fs-2 stat-icon-jefe"></i>
-          <h3 class="fw-bold mb-0 stat-number-jefe"><%= totales.total_reportes || 0 %></h3>
-          <small class="text-muted stat-label-jefe">Total reportes</small>
+        <div class="card border-0 rounded-4 shadow-sm stat-card-jefe stat-card-total-jefe">
+          <div class="card-body p-3 text-center">
+            <div class="stat-icon-wrapper-jefe">
+              <i class="bi bi-file-text-fill fs-3 text-white"></i>
+            </div>
+            <h3 class="fw-bold mb-0 stat-number-jefe mt-2"><%= totales.total_reportes || 0 %></h3>
+            <small class="stat-label-jefe">Total reportes</small>
+          </div>
         </div>
       </div>
       <div class="col-md-3 col-6">
-        <div class="card border-0 rounded-4 shadow-sm text-center p-2 stat-card-jefe stat-card-pendiente-jefe">
-          <i class="bi bi-clock-history fs-2 stat-icon-jefe-pendiente"></i>
-          <h3 class="fw-bold mb-0 stat-number-jefe-pendiente"><%= totales.pendientes || 0 %></h3>
-          <small class="text-muted stat-label-jefe-pendiente">Pendientes</small>
+        <div class="card border-0 rounded-4 shadow-sm stat-card-jefe stat-card-pendiente-jefe">
+          <div class="card-body p-3 text-center">
+            <div class="stat-icon-wrapper-jefe">
+              <i class="bi bi-clock-history fs-3 text-white"></i>
+            </div>
+            <h3 class="fw-bold mb-0 stat-number-jefe-pendiente mt-2"><%= totales.pendientes || 0 %></h3>
+            <small class="stat-label-jefe-pendiente">Pendientes</small>
+          </div>
         </div>
       </div>
       <div class="col-md-3 col-6">
-        <div class="card border-0 rounded-4 shadow-sm text-center p-2 stat-card-jefe stat-card-progreso-jefe">
-          <i class="bi bi-arrow-repeat fs-2 stat-icon-jefe-progreso"></i>
-          <h3 class="fw-bold mb-0 stat-number-jefe-progreso"><%= totales.en_progreso || 0 %></h3>
-          <small class="text-muted stat-label-jefe-progreso">En Progreso</small>
+        <div class="card border-0 rounded-4 shadow-sm stat-card-jefe stat-card-progreso-jefe">
+          <div class="card-body p-3 text-center">
+            <div class="stat-icon-wrapper-jefe">
+              <i class="bi bi-arrow-repeat fs-3 text-white"></i>
+            </div>
+            <h3 class="fw-bold mb-0 stat-number-jefe-progreso mt-2"><%= totales.en_progreso || 0 %></h3>
+            <small class="stat-label-jefe-progreso">En Progreso</small>
+          </div>
         </div>
       </div>
       <div class="col-md-3 col-6">
-        <div class="card border-0 rounded-4 shadow-sm text-center p-2 stat-card-jefe stat-card-resuelto-jefe">
-          <i class="bi bi-check-circle fs-2 stat-icon-jefe-resuelto"></i>
-          <h3 class="fw-bold mb-0 stat-number-jefe-resuelto"><%= totales.resueltos || 0 %></h3>
-          <small class="text-muted stat-label-jefe-resuelto">Resueltos</small>
+        <div class="card border-0 rounded-4 shadow-sm stat-card-jefe stat-card-resuelto-jefe">
+          <div class="card-body p-3 text-center">
+            <div class="stat-icon-wrapper-jefe">
+              <i class="bi bi-check-circle-fill fs-3 text-white"></i>
+            </div>
+            <h3 class="fw-bold mb-0 stat-number-jefe-resuelto mt-2"><%= totales.resueltos || 0 %></h3>
+            <small class="stat-label-jefe-resuelto">Resueltos</small>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Gráficas -->
+    <!-- ========== GRÁFICOS (2 columnas) ========== -->
     <div class="row g-4 mb-5">
-      <div class="col-md-6">
-        <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100 chart-card-jefe">
-          <div class="px-4 py-3 chart-card-header-jefe">
-            <h5 class="mb-0 fw-semibold"><i class="bi bi-pie-chart me-2"></i> Reportes por Categoría</h5>
+      <div class="col-lg-6">
+        <div class="card border-0 rounded-4 shadow-sm overflow-hidden chart-card-jefe h-100">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h5 class="mb-0 fw-semibold">
+              <i class="bi bi-pie-chart-fill me-2" style="color: #fd7e14;"></i> 
+              Reportes por Categoría
+            </h5>
           </div>
-          <div class="card-body p-4 chart-card-body-jefe">
-            <canvas id="chartCategoria" style="max-height: 280px; width: 100%;"></canvas>
+          <div class="card-body p-4 pt-0 chart-body-jefe">
+            <canvas id="chartCategoria" style="max-height: 260px; width: 100%;"></canvas>
           </div>
         </div>
       </div>
-      <div class="col-md-6">
-        <div class="card border-0 rounded-4 shadow-sm overflow-hidden h-100 chart-card-jefe">
-          <div class="px-4 py-3 chart-card-header-jefe">
-            <h5 class="mb-0 fw-semibold"><i class="bi bi-donut me-2"></i> Reportes por Estado</h5>
+      <div class="col-lg-6">
+        <div class="card border-0 rounded-4 shadow-sm overflow-hidden chart-card-jefe h-100">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h5 class="mb-0 fw-semibold">
+              <i class="bi bi-donut-fill me-2" style="color: #28a745;"></i> 
+              Reportes por Estado
+            </h5>
           </div>
-          <div class="card-body p-4 chart-card-body-jefe">
-            <canvas id="chartEstado" style="max-height: 280px; width: 100%;"></canvas>
+          <div class="card-body p-4 pt-0 chart-body-jefe">
+            <canvas id="chartEstado" style="max-height: 260px; width: 100%;"></canvas>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Reportes recientes -->
-    <div class="card border-0 rounded-4 shadow-sm overflow-hidden mb-5 table-card-jefe">
-      <div class="px-4 py-3 table-card-header-jefe">
-        <h5 class="mb-0 fw-semibold"><i class="bi bi-clock-history me-2"></i> Reportes Recientes en tu Calle</h5>
-      </div>
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-hover mb-0 tabla-jefe">
-            <thead>
-              <tr class="text-center">
-                <th><i class="bi bi-card-heading"></i> Título</th>
-                <th><i class="bi bi-tag"></i> Categoría</th>
-                <th><i class="bi bi-person"></i> Reportado por</th>
-                <th><i class="bi bi-calendar3"></i> Fecha</th>
-                <th><i class="bi bi-info-circle"></i> Estado</th>
-                <th><i class="bi bi-gear"></i> Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if (reportesRecientes && reportesRecientes.length > 0) { %>
-                <% reportesRecientes.forEach(r => { %>
-                  <tr class="text-center">
-                    <td class="text-start"><strong><%= r.titulo %></strong></td>
-                    <td><span class="badge px-2 py-1 rounded-pill categoria-badge-jefe"><%= r.categoria %></span></td>
-                    <td><%= r.reportado_por || 'Anónimo' %></td>
-                    <td><%= new Date(r.fecha).toLocaleDateString() %></td>
-                    <td>
-                      <span class="badge rounded-pill px-2 py-1 estado-badge-jefe 
-                        <%= r.estado === 'Pendiente' ? 'bg-warning text-dark' : 
-                            r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>">
-                        <%= r.estado === 'Pendiente' ? '⏳ Pendiente' : 
-                            r.estado === 'En Progreso' ? '🔄 Progreso' : '✅ Resuelto' %>
-                      </span>
-                    </td>
-                    <td>
-                      <a href="/reportes" class="btn btn-sm px-3 py-1 rounded-3 btn-ver-jefe">
-                        <i class="bi bi-eye me-1"></i> Ver
-                      </a>
-                    </td>
+    <!-- ========== REPORTES RECIENTES ========== -->
+    <div class="row g-4 mb-5">
+      <div class="col-12">
+        <div class="card border-0 rounded-4 shadow-sm overflow-hidden table-card-jefe">
+          <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h5 class="mb-0 fw-semibold">
+              <i class="bi bi-clock-history me-2" style="color: #ffc107;"></i> 
+              Reportes Recientes en tu Calle
+            </h5>
+            <span class="badge bg-info rounded-pill px-3 py-2">
+              <i class="bi bi-file-text me-1"></i> últimos 5
+            </span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0 tabla-jefe tabla-reportes-jefe">
+                <thead>
+                  <tr>
+                    <th><i class="bi bi-card-heading me-1"></i> Título</th>
+                    <th><i class="bi bi-tag me-1"></i> Categoría</th>
+                    <th><i class="bi bi-info-circle me-1"></i> Estado</th>
+                    <th><i class="bi bi-calendar3 me-1"></i> Fecha</th>
+                    <th class="text-center"><i class="bi bi-eye me-1"></i> Ver</th>
                   </tr>
-                <% }) %>
-              <% } else { %>
-                <tr>
-                  <td colspan="6" class="text-center py-5 empty-state-jefe">
-                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                    <p class="mb-0">No hay reportes en tu calle</p>
-                  </td>
-                </tr>
-              <% } %>
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  <% if (reportesRecientes && reportesRecientes.length > 0) { %>
+                    <% reportesRecientes.slice(0, 5).forEach(r => { %>
+                      <tr>
+                        <td><strong><%= r.titulo %></strong></td>
+                        <td><span class="badge rounded-pill px-2 py-1 categoria-badge-jefe"><%= r.categoria %></span></td>
+                        <td>
+                          <span class="badge rounded-pill px-2 py-1 estado-badge-jefe 
+                            <%= r.estado === 'Pendiente' ? 'bg-warning text-dark' : 
+                                r.estado === 'En Progreso' ? 'bg-info' : 'bg-success' %>">
+                            <%= r.estado === 'Pendiente' ? '⏳' : 
+                                r.estado === 'En Progreso' ? '🔄' : '✅' %>
+                            <%= r.estado %>
+                          </span>
+                        </td>
+                        <td><small><%= new Date(r.fecha).toLocaleDateString() %></small></td>
+                        <td class="text-center">
+                          <a href="/reportes" class="btn btn-sm btn-ver-jefe px-3">
+                            <i class="bi bi-eye me-1"></i> Ver
+                          </a>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="5" class="text-center py-4 empty-state-jefe">
+                        <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                        <p class="mb-0 small">No hay reportes en tu calle</p>
+                      </td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer bg-transparent border-0 text-center pt-3 pb-4">
+            <a href="/reportes" class="btn btn-sm btn-outline-primary rounded-3 px-4">
+              Ver todos los reportes <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Estadísticas adicionales -->
+    <!-- ========== ESTADÍSTICAS ADICIONALES (2 columnas) ========== -->
     <div class="row g-4">
       <div class="col-md-6">
-        <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-jefe">
-          <div class="px-4 py-3 stat-card-header-jefe">
-            <h5 class="mb-0 fw-semibold"><i class="bi bi-star-fill me-2"></i> Reporte más votado</h5>
+        <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-jefe-adicional h-100">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h5 class="mb-0 fw-semibold">
+              <i class="bi bi-star-fill me-2" style="color: #ffc107;"></i> 
+              Reporte más votado
+            </h5>
           </div>
-          <div class="card-body p-4 stat-card-body-jefe">
+          <div class="card-body p-4 text-center stat-card-body-jefe">
             <% if (reporteMasVotado) { %>
-              <div class="d-flex align-items-center gap-3">
-                <i class="bi bi-trophy-fill fs-1 icon-trophy"></i>
-                <div>
-                  <h6 class="mb-1 fw-bold reporte-titulo"><%= reporteMasVotado.titulo %></h6>
-                  <p class="small reporte-descripcion mb-0"><%= reporteMasVotado.descripcion ? (reporteMasVotado.descripcion.substring(0, 100) + '...') : 'Sin descripción' %></p>
-                  <span class="badge bg-warning mt-2 rounded-pill px-3 py-1 badge-votos">👍 <%= reporteMasVotado.votos || 0 %> votos</span>
-                </div>
+              <div class="d-flex flex-column align-items-center">
+                <i class="bi bi-trophy-fill fs-1 icon-trophy mb-2"></i>
+                <h6 class="fw-bold reporte-titulo"><%= reporteMasVotado.titulo %></h6>
+                <p class="small reporte-descripcion mb-2"><%= reporteMasVotado.descripcion ? (reporteMasVotado.descripcion.substring(0, 80) + '...') : 'Sin descripción' %></p>
+                <span class="badge bg-warning rounded-pill px-3 py-1 badge-votos">👍 <%= reporteMasVotado.votos || 0 %> votos</span>
               </div>
             <% } else { %>
-              <p class="text-muted text-center mb-0">No hay reportes votados aún</p>
+              <div class="d-flex flex-column align-items-center">
+                <i class="bi bi-emoji-frown fs-1 text-muted mb-2"></i>
+                <p class="text-muted mb-0">No hay reportes votados aún</p>
+              </div>
             <% } %>
           </div>
         </div>
       </div>
       <div class="col-md-6">
-        <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-jefe">
-          <div class="px-4 py-3 stat-card-header-jefe">
-            <h5 class="mb-0 fw-semibold"><i class="bi bi-calendar-week me-2"></i> Reporte más antiguo</h5>
+        <div class="card border-0 rounded-4 shadow-sm overflow-hidden stat-card-jefe-adicional h-100">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h5 class="mb-0 fw-semibold">
+              <i class="bi bi-calendar-week me-2" style="color: #fd7e14;"></i> 
+              Reporte más antiguo
+            </h5>
           </div>
-          <div class="card-body p-4 stat-card-body-jefe">
+          <div class="card-body p-4 text-center stat-card-body-jefe">
             <% if (reporteMasAntiguo) { %>
-              <div class="d-flex align-items-center gap-3">
-                <i class="bi bi-calendar-fill fs-1 icon-calendario"></i>
-                <div>
-                  <h6 class="mb-1 fw-bold reporte-titulo"><%= reporteMasAntiguo.titulo %></h6>
-                  <p class="small reporte-descripcion mb-0">Desde: <%= new Date(reporteMasAntiguo.fecha).toLocaleDateString() %></p>
-                  <span class="badge rounded-pill px-3 py-1 mt-2 estado-antiguo-badge" style="background: <%= reporteMasAntiguo.estado === 'Pendiente' ? '#ffc107' : (reporteMasAntiguo.estado === 'En Progreso' ? '#17a2b8' : '#28a745') %>; color: white;"><%= reporteMasAntiguo.estado %></span>
-                </div>
+              <div class="d-flex flex-column align-items-center">
+                <i class="bi bi-calendar-fill fs-1 icon-calendario mb-2"></i>
+                <h6 class="fw-bold reporte-titulo"><%= reporteMasAntiguo.titulo %></h6>
+                <p class="small reporte-descripcion mb-2">Desde: <%= new Date(reporteMasAntiguo.fecha).toLocaleDateString() %></p>
+                <span class="badge rounded-pill px-3 py-1 estado-antiguo-badge" style="background: <%= reporteMasAntiguo.estado === 'Pendiente' ? '#ffc107' : (reporteMasAntiguo.estado === 'En Progreso' ? '#17a2b8' : '#28a745') %>; color: white;"><%= reporteMasAntiguo.estado %></span>
               </div>
             <% } else { %>
-              <p class="text-muted text-center mb-0">No hay reportes registrados</p>
+              <div class="d-flex flex-column align-items-center">
+                <i class="bi bi-calendar-x fs-1 text-muted mb-2"></i>
+                <p class="text-muted mb-0">No hay reportes registrados</p>
+              </div>
             <% } %>
           </div>
         </div>
@@ -238,7 +286,7 @@ if (porEstado && porEstado.length > 0) {
   <% } %>
 </div>
 
-<!-- Chart.js -->
+<!-- ========== CHART.JS ========== -->
 <% if (tieneCalle && miCalle && porCategoria && porCategoria.length > 0) { %>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -265,14 +313,34 @@ if (porEstado && porEstado.length > 0) {
             '#17a2b8',   // Extra - CELESTE
             '#fd7e14'    // Extra - NARANJA
           ],
-          borderWidth: 0
+          borderWidth: 0,
+          hoverOffset: 10
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: true,
         plugins: {
-          legend: { position: 'bottom', labels: { font: { size: 11 } } }
+          legend: { 
+            position: 'bottom', 
+            labels: { 
+              font: { size: 11 },
+              padding: 15,
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.raw || 0;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = ((value / total) * 100).toFixed(1);
+                return `${label}: ${value} (${percentage}%)`;
+              }
+            }
+          }
         }
       }
     });
@@ -287,14 +355,35 @@ if (porEstado && porEstado.length > 0) {
         datasets: [{
           data: estadosDatos,
           backgroundColor: ['#ffc107', '#17a2b8', '#28a745'],
-          borderWidth: 0
+          borderWidth: 0,
+          hoverOffset: 10
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: true,
+        cutout: '60%',
         plugins: {
-          legend: { position: 'bottom', labels: { font: { size: 11 } } }
+          legend: { 
+            position: 'bottom', 
+            labels: { 
+              font: { size: 11 },
+              padding: 15,
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.raw || 0;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = ((value / total) * 100).toFixed(1);
+                return `${label}: ${value} (${percentage}%)`;
+              }
+            }
+          }
         }
       }
     });
@@ -316,28 +405,22 @@ if (porEstado && porEstado.length > 0) {
     color: #8B6B5A;
   }
   
-  /* Botones */
-  .btn-jefe-primary {
+  /* Botón actualizar */
+  .btn-actualizar-jefe {
     background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
     color: white;
     border: none;
     transition: all 0.2s ease;
   }
-  .btn-jefe-primary:hover {
+  .btn-actualizar-jefe:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
   }
-  .btn-jefe-outline {
-    border-color: #f0d5c0;
-    color: #5D4037;
-    transition: all 0.2s ease;
-  }
-  .btn-jefe-outline:hover {
-    transform: translateY(-2px);
-    background: #f0d5c0;
-  }
   
   /* Info calle */
+  .info-calle-jefe {
+    border: none;
+  }
   .info-calle-success {
     background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
   }
@@ -366,10 +449,24 @@ if (porEstado && porEstado.length > 0) {
   /* Tarjetas de estadísticas */
   .stat-card-jefe {
     transition: all 0.2s ease;
+    cursor: pointer;
   }
   .stat-card-jefe:hover {
     transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
   }
+  
+  .stat-icon-wrapper-jefe {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+  }
+  
   .stat-card-total-jefe {
     background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
   }
@@ -382,18 +479,7 @@ if (porEstado && porEstado.length > 0) {
   .stat-card-resuelto-jefe {
     background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
   }
-  .stat-icon-jefe {
-    color: #fd6704bd;
-  }
-  .stat-icon-jefe-pendiente {
-    color: #856404;
-  }
-  .stat-icon-jefe-progreso {
-    color: #0c5460;
-  }
-  .stat-icon-jefe-resuelto {
-    color: #155724;
-  }
+  
   .stat-number-jefe {
     color: #5D4037;
   }
@@ -406,6 +492,7 @@ if (porEstado && porEstado.length > 0) {
   .stat-number-jefe-resuelto {
     color: #155724;
   }
+  
   .stat-label-jefe {
     color: #8B6B5A;
   }
@@ -420,42 +507,63 @@ if (porEstado && porEstado.length > 0) {
   }
   
   /* Gráficos */
-  .chart-card-header-jefe {
-    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+  .chart-card-jefe {
+    transition: all 0.2s ease;
+  }
+  .chart-card-jefe .card-header h5 {
     color: #5D4037;
   }
-  .chart-card-body-jefe {
+  .chart-body-jefe {
     background: white;
   }
   
   /* Tablas */
-  .table-card-header-jefe {
-    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
-    color: #5D4037;
+  .table-card-jefe {
+    transition: all 0.2s ease;
   }
+  
   .tabla-jefe {
-    background: white;
+    font-size: 14px;
   }
   .tabla-jefe thead th {
     background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
     color: #5D4037;
+    font-weight: 600;
+    padding: 12px;
     border-bottom: 2px solid #fd6704bd;
+  }
+  .tabla-jefe tbody td {
+    padding: 10px 12px;
+    vertical-align: middle;
+  }
+  .tabla-jefe tbody tr {
+    border-bottom: 1px solid #f0d5c0;
   }
   .tabla-jefe tbody tr:hover {
     background-color: #fff8f0 !important;
   }
+  
   .categoria-badge-jefe {
     background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
     color: white;
+    font-size: 11px;
   }
+  
+  .estado-badge-jefe {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+  
   .btn-ver-jefe {
     background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
     color: white;
+    border: none;
     transition: all 0.2s ease;
   }
   .btn-ver-jefe:hover {
     transform: translateY(-2px);
   }
+  
   .empty-state-jefe i {
     color: #6c757d;
     opacity: 0.5;
@@ -465,8 +573,10 @@ if (porEstado && porEstado.length > 0) {
   }
   
   /* Tarjetas de estadísticas adicionales */
-  .stat-card-header-jefe {
-    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+  .stat-card-jefe-adicional {
+    transition: all 0.2s ease;
+  }
+  .stat-card-jefe-adicional .card-header h5 {
     color: #5D4037;
   }
   .stat-card-body-jefe {
@@ -554,51 +664,75 @@ if (porEstado && porEstado.length > 0) {
   body.dark-mode .stat-label-jefe-resuelto {
     color: #a3e4b7;
   }
-  body.dark-mode .stat-icon-jefe {
-    color: #f7931e;
-  }
-  body.dark-mode .stat-icon-jefe-pendiente {
-    color: #f5dba3;
-  }
-  body.dark-mode .stat-icon-jefe-progreso {
-    color: #a3e4e4;
-  }
-  body.dark-mode .stat-icon-jefe-resuelto {
-    color: #a3e4b7;
-  }
   
-  body.dark-mode .chart-card-header-jefe {
-    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+  body.dark-mode .chart-card-jefe {
+    background: #1a1a2e;
+  }
+  body.dark-mode .chart-card-jefe .card-header h5 {
     color: #e4e4e7;
   }
-  body.dark-mode .chart-card-body-jefe {
-    background: #27272a;
+  body.dark-mode .chart-body-jefe {
+    background: #1a1a2e;
   }
   
-  body.dark-mode .table-card-header-jefe {
-    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
-    color: #e4e4e7;
+  /* TABLAS EN MODO NOCTURNO - CORRECCIÓN */
+  body.dark-mode .table-card-jefe {
+    background: #1a1a2e;
   }
+  
   body.dark-mode .tabla-jefe {
-    background: #27272a;
+    background: #1a1a2e !important;
   }
+  
   body.dark-mode .tabla-jefe thead th {
-    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
-    color: #e4e4e7;
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%) !important;
+    color: #e4e4e7 !important;
+    border-bottom: 2px solid #dc3545 !important;
   }
+  
   body.dark-mode .tabla-jefe tbody tr {
-    border-bottom-color: #3f3f46;
+    border-bottom: 1px solid #3f3f46 !important;
+    background-color: #1a1a2e !important;
   }
+  
   body.dark-mode .tabla-jefe tbody tr:hover {
-    background-color: #3d3d5c !important;
+    background-color: #2d2d44 !important;
   }
-  body.dark-mode .tabla-jefe td,
-  body.dark-mode .tabla-jefe th {
-    color: #e4e4e7;
+  
+  body.dark-mode .tabla-jefe td {
+    color: #e4e4e7 !important;
+    background-color: transparent !important;
   }
+  
+  body.dark-mode .tabla-jefe .text-muted {
+    color: #a1a1aa !important;
+  }
+  
+  body.dark-mode .tabla-jefe strong {
+    color: #e4e4e7 !important;
+  }
+  
+  /* Tabla específica */
+  body.dark-mode .tabla-reportes-jefe {
+    background: #1a1a2e !important;
+  }
+  
+  body.dark-mode .tabla-reportes-jefe tbody {
+    background: #1a1a2e !important;
+  }
+  
+  body.dark-mode .tabla-reportes-jefe tbody tr {
+    background-color: #1a1a2e !important;
+  }
+  
+  body.dark-mode .tabla-reportes-jefe tbody tr:hover {
+    background-color: #2d2d44 !important;
+  }
+  
   body.dark-mode .categoria-badge-jefe {
     background: linear-gradient(135deg, #f7931e 0%, #e08515 100%);
   }
+  
   body.dark-mode .empty-state-jefe i {
     color: #a1a1aa;
   }
@@ -606,12 +740,14 @@ if (porEstado && porEstado.length > 0) {
     color: #a1a1aa;
   }
   
-  body.dark-mode .stat-card-header-jefe {
-    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+  body.dark-mode .stat-card-jefe-adicional {
+    background: #1a1a2e;
+  }
+  body.dark-mode .stat-card-jefe-adicional .card-header h5 {
     color: #e4e4e7;
   }
   body.dark-mode .stat-card-body-jefe {
-    background: #27272a;
+    background: #1a1a2e;
   }
   body.dark-mode .reporte-titulo {
     color: #e4e4e7;
@@ -620,12 +756,13 @@ if (porEstado && porEstado.length > 0) {
     color: #a1a1aa;
   }
   
-  body.dark-mode .btn-jefe-outline {
-    border-color: #3f3f46;
-    color: #e4e4e7;
+  body.dark-mode .btn-outline-primary {
+    border-color: #f7931e;
+    color: #f7931e;
   }
-  body.dark-mode .btn-jefe-outline:hover {
-    background: #3f3f46;
+  body.dark-mode .btn-outline-primary:hover {
+    background: linear-gradient(135deg, #fd6704 0%, #f7931e 100%);
+    color: white;
   }
   
   body.dark-mode canvas {
@@ -638,11 +775,5 @@ if (porEstado && porEstado.length > 0) {
   }
   .badge {
     font-weight: normal;
-  }
-  .table-hover tbody tr:hover {
-    background-color: #fff8f0 !important;
-  }
-  body.dark-mode .table-hover tbody tr:hover {
-    background-color: #3d3d5c !important;
   }
 </style>

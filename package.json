@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "date-fns": "^4.4.0",
     "dotenv": "^17.4.2",
     "ejs": "^3.1.10",
     "exceljs": "^4.4.0",
@@ -23,7 +24,9 @@
     "multer": "^2.0.2",
     "mysql2": "^3.14.2",
     "node-mailjet": "^6.0.11",
-    "pdfkit": "^0.18.0"
+    "nodemailer": "^9.0.1",
+    "pdfkit": "^0.18.0",
+    "sharp": "^0.35.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
