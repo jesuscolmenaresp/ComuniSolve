@@ -261,7 +261,18 @@
       <div class="container-fluid">
         <!-- Logo + Botón modo nocturno juntos -->
         <div class="navbar-brand-wrapper">
-          <a class="navbar-brand" href="/">
+          <% 
+            // Determinar a dónde va el logo según el rol del usuario
+            let logoLink = '/';
+            if (usuario) {
+              if (usuario.rol_id === 5) logoLink = '/dashboard/superadmin';
+              else if (usuario.rol_id === 1) logoLink = '/dashboard/admin';
+              else if (usuario.rol_id === 2) logoLink = '/dashboard/lider';
+              else if (usuario.rol_id === 3) logoLink = '/dashboard/jefe';
+              // rol 4 (ciudadano) se queda en '/'
+            }
+          %>
+          <a class="navbar-brand" href="<%= logoLink %>" title="Ir al dashboard">
             <img src="/images/isotipo.png" alt="ComuniSolve" style="height: 60px;">
           </a>
           <!-- BOTÓN MODO NOCTURNO (visible para todos si está activo) - al lado del logo -->

@@ -47,7 +47,7 @@
 
   <!-- Mapa -->
   <div class="card border-0 rounded-4 shadow-sm overflow-hidden mb-4 mapa-card">
-    <div id="map" style="height: 450px; width: 100%;"></div>
+    <div id="map" style="height: 500px; width: 100%;"></div>
   </div>
 
   <!-- Filtros y leyenda -->
@@ -58,22 +58,11 @@
           <h6 class="mb-0 fw-semibold"><i class="bi bi-funnel me-2"></i> Filtrar por categoría</h6>
         </div>
         <div class="card-body p-3 filtros-body-mapa">
-          <div class="d-flex flex-wrap gap-2">
+          <div class="d-flex flex-wrap gap-2" id="filtrosCategorias">
             <button class="btn btn-sm rounded-pill px-3 filtro-categoria active" data-categoria="todos" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;">
               <i class="bi bi-globe me-1"></i> Todos
             </button>
-            <button class="btn btn-sm btn-outline-primary rounded-pill px-3 filtro-categoria" data-categoria="Agua">
-              <i class="bi bi-droplet me-1"></i> Agua
-            </button>
-            <button class="btn btn-sm btn-outline-warning rounded-pill px-3 filtro-categoria" data-categoria="Electricidad">
-              <i class="bi bi-lightning-charge me-1"></i> Electricidad
-            </button>
-            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 filtro-categoria" data-categoria="Vialidad">
-              <i class="bi bi-road me-1"></i> Vialidad
-            </button>
-            <button class="btn btn-sm btn-outline-danger rounded-pill px-3 filtro-categoria" data-categoria="Salud">
-              <i class="bi bi-heart-pulse me-1"></i> Salud
-            </button>
+            <!-- Los botones se generarán dinámicamente con JavaScript -->
           </div>
         </div>
       </div>
@@ -101,32 +90,74 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-  // Inicializar mapa centrado en Villa de Cura
+  // ========================================
+  // 1. DATOS DE REPORTES
+  // ========================================
+  const reportes = JSON.parse('<%- JSON.stringify(reportes || []) %>');
+  
+  // ========================================
+  // 2. MAPA DE COLORES PARA CATEGORÍAS
+  // ========================================
+  const categoriaColores = {
+    'Agua': '#0d6efd',
+    'Electricidad': '#ffc107',
+    'Vialidad': '#6c757d',
+    'Salud': '#dc3545',
+    'Educación': '#28a745',
+    'Seguridad': '#17a2b8',
+    'Ambiente': '#198754',
+    'Infraestructura': '#fd7e14',
+    'Transporte': '#6f42c1',
+    'Comunicación': '#20c997',
+    'Deportes': '#0dcaf0',
+    'Cultura': '#d63384',
+    'Participación': '#ff6b6b',
+    'Urbanismo': '#3b82f6',
+    'Servicios': '#8b5cf6',
+    'Vivienda': '#f59e0b',
+    'Alimentación': '#10b981',
+    'Salud Mental': '#8b5cf6',
+    'Adulto Mayor': '#6366f1',
+    'Juventud': '#ec4899',
+    'Género': '#a855f7',
+    'Diversidad': '#06b6d4',
+    'Areas Verdes': '#22c55e'
+  };
+
+  const coloresRespaldo = [
+    '#0d6efd', '#dc3545', '#28a745', '#ffc107', '#17a2b8',
+    '#6f42c1', '#fd7e14', '#20c997', '#d63384', '#0dcaf0',
+    '#198754', '#3b82f6', '#8b5cf6', '#f59e0b', '#10b981',
+    '#6366f1', '#ec4899', '#a855f7', '#06b6d4', '#22c55e'
+  ];
+
+  function getColorCategoria(categoria) {
+    if (categoriaColores[categoria]) {
+      return categoriaColores[categoria];
+    }
+    const index = Math.floor(Math.random() * coloresRespaldo.length);
+    return coloresRespaldo[index];
+  }
+
+  // ========================================
+  // 3. INICIALIZAR MAPA
+  // ========================================
   const map = L.map('map').setView([10.042, -67.489], 14);
 
-  // Capa base de OpenStreetMap
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
 
-  // 📌 Reportes desde backend
-  const reportes = JSON.parse('<%- JSON.stringify(reportes || []) %>');
-  
-  // Objeto para guardar los marcadores por categoría
-  const markers = {};
-
-  // Obtener categorías únicas
-  const categoriasUnicas = [...new Set(reportes.map(r => r.categoria_nombre).filter(c => c))];
-  
-  if (categoriasUnicas.length === 0) {
-    categoriasUnicas.push('Agua', 'Electricidad', 'Vialidad', 'Salud');
+  // ========================================
+  // 4. FUNCIONES AUXILIARES
+  // ========================================
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
-  
-  categoriasUnicas.forEach(cat => {
-    markers[cat] = L.layerGroup().addTo(map);
-  });
 
-  // Función para determinar color según estado
   function getColor(estado) {
     switch(estado) {
       case 'Pendiente': return '#ffc107';
@@ -136,41 +167,92 @@
     }
   }
 
-  // Función para obtener icono de categoría
   function getCategoriaIcono(categoria) {
     const mapa = {
       'Agua': '💧',
       'Electricidad': '⚡',
       'Vialidad': '🚧',
-      'Salud': '🏥'
+      'Salud': '🏥',
+      'Educación': '📚',
+      'Seguridad': '🛡️',
+      'Ambiente': '🌿',
+      'Infraestructura': '🏗️',
+      'Transporte': '🚌',
+      'Comunicación': '📡',
+      'Deportes': '⚽',
+      'Cultura': '🎭',
+      'Participación': '🤝',
+      'Urbanismo': '🏙️',
+      'Servicios': '⚙️',
+      'Vivienda': '🏠',
+      'Alimentación': '🍎',
+      'Areas Verdes': '🌳'
     };
     return mapa[categoria] || '📌';
   }
 
-  // Agregar cada reporte al grupo correspondiente
+  // ========================================
+  // 5. OBTENER CATEGORÍAS ÚNICAS
+  // ========================================
+  const categoriasUnicas = [...new Set(reportes.map(r => r.categoria_nombre).filter(c => c && c !== ''))];
+  
+  const categoriasDefault = ['Agua', 'Electricidad', 'Vialidad', 'Salud', 'Areas Verdes'];
+  const categoriasMostrar = categoriasUnicas.length > 0 ? categoriasUnicas : categoriasDefault;
+
+  // ========================================
+  // 6. CREAR BOTONES DE FILTRO DINÁMICAMENTE
+  // ========================================
+  const contenedorBotones = document.getElementById('filtrosCategorias');
+
+  categoriasMostrar.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-sm rounded-pill px-3 filtro-categoria';
+    btn.dataset.categoria = cat;
+    const color = getColorCategoria(cat);
+    btn.innerHTML = `<span style="display:inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${color}; margin-right: 6px;"></span> ${cat}`;
+    contenedorBotones.appendChild(btn);
+  });
+
+  // ========================================
+  // 7. CREAR MARCADORES POR CATEGORÍA
+  // ========================================
+  const markers = {};
+  let todosLosMarcadores = L.layerGroup().addTo(map);
+
+  categoriasMostrar.forEach(cat => {
+    markers[cat] = L.layerGroup();
+  });
+
   reportes.forEach(r => {
     if (r.ubicacion_lat && r.ubicacion_lng) {
       const categoria = r.categoria_nombre || 'General';
       
-      // Crear marcador personalizado
+      let categoriaKey = categoriasMostrar.find(c => c === categoria);
+      if (!categoriaKey) categoriaKey = 'General';
+      
+      if (!markers[categoriaKey]) {
+        markers[categoriaKey] = L.layerGroup();
+      }
+
+      const catColor = getColorCategoria(categoriaKey);
+
       const marker = L.marker([r.ubicacion_lat, r.ubicacion_lng], {
         icon: L.divIcon({
           className: 'custom-marker',
-          html: `<div style="background-color: ${getColor(r.estado)}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>`,
+          html: `<div style="background-color: ${getColor(r.estado)}; width: 14px; height: 14px; border-radius: 50%; border: 3px solid ${catColor}; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>`,
           iconSize: [14, 14]
         })
       });
 
-      // Contenido del popup
       let popupContent = `
-        <div style="min-width: 240px; max-width: 280px;">
+        <div style="min-width: 240px; max-width: 280px; font-family: 'Inter', sans-serif;">
           <h6 class="mb-1 fw-bold" style="color: #5D4037;">${escapeHtml(r.titulo)}</h6>
           <p class="small text-muted mb-2">${escapeHtml(r.descripcion ? (r.descripcion.substring(0, 100) + (r.descripcion.length > 100 ? '...' : '')) : 'Sin descripción')}</p>
           <div class="mb-2">
-            <span class="badge px-2 py-1 rounded-pill me-1 badge-categoria-mapa">
+            <span class="badge px-2 py-1 rounded-pill me-1" style="background-color: ${catColor}; color: white;">
               ${r.categoria_icono || getCategoriaIcono(r.categoria_nombre)} ${r.categoria_nombre}
             </span>
-            <span class="badge px-2 py-1 rounded-pill badge-estado-mapa" style="background-color: ${getColor(r.estado)}; color: white; font-size: 0.7rem;">
+            <span class="badge px-2 py-1 rounded-pill" style="background-color: ${getColor(r.estado)}; color: ${r.estado === 'Pendiente' ? '#333' : 'white'}; font-size: 0.65rem;">
               ${r.estado}
             </span>
           </div>
@@ -182,98 +264,85 @@
       `;
       
       if (r.imagen) {
-        popupContent += `<img src="${r.imagen}" style="max-width: 100%; max-height: 100px; border-radius: 8px; margin-top: 8px; object-fit: cover; cursor: pointer;" onclick="window.open('${r.imagen}', '_blank')">`;
+        popupContent += `<div class="mt-2"><img src="${r.imagen}" style="max-width: 100%; max-height: 100px; border-radius: 8px; object-fit: cover; cursor: pointer;" onclick="window.open('${r.imagen}', '_blank')"></div>`;
       }
       
       popupContent += `</div>`;
       
       marker.bindPopup(popupContent);
       
-      // Agregar al grupo correspondiente
-      if (markers[categoria]) {
-        markers[categoria].addLayer(marker);
-      } else {
-        markers[categoria] = L.layerGroup().addTo(map);
-        markers[categoria].addLayer(marker);
-      }
+      markers[categoriaKey].addLayer(marker);
+      todosLosMarcadores.addLayer(marker);
     }
   });
 
-  // Filtros por categoría
+  // ========================================
+  // 8. FUNCIÓN DE FILTRADO
+  // ========================================
+  function filtrarPorCategoria(categoria) {
+    map.eachLayer(function(layer) {
+      if (layer instanceof L.LayerGroup) {
+        map.removeLayer(layer);
+      }
+    });
+    
+    if (categoria === 'todos') {
+      map.addLayer(todosLosMarcadores);
+    } else {
+      if (markers[categoria]) {
+        map.addLayer(markers[categoria]);
+      }
+    }
+  }
+
+  // ========================================
+  // 9. EVENTOS DE FILTRO
+  // ========================================
   document.querySelectorAll('.filtro-categoria').forEach(btn => {
     btn.addEventListener('click', function() {
       const categoria = this.dataset.categoria;
       
-      // Actualizar estilos de botones
       document.querySelectorAll('.filtro-categoria').forEach(b => {
         b.classList.remove('active');
-        b.classList.remove('btn-primary', 'btn-warning', 'btn-secondary', 'btn-danger');
-        b.classList.add('btn-outline-primary', 'btn-outline-warning', 'btn-outline-secondary', 'btn-outline-danger');
+        b.style.background = '';
+        b.style.color = '';
+        b.style.border = '';
       });
       
-      this.classList.remove('btn-outline-primary', 'btn-outline-warning', 'btn-outline-secondary', 'btn-outline-danger');
       this.classList.add('active');
       
-      // Aplicar color de fondo al botón activo
       if (categoria === 'todos') {
         this.style.background = 'linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%)';
         this.style.color = 'white';
         this.style.border = 'none';
-      } else if (categoria === 'Agua') {
-        this.classList.add('btn-primary');
-        this.style.background = '#0d6efd';
-      } else if (categoria === 'Electricidad') {
-        this.classList.add('btn-warning');
-        this.style.background = '#ffc107';
-        this.style.color = '#333';
-      } else if (categoria === 'Vialidad') {
-        this.classList.add('btn-secondary');
-        this.style.background = '#6c757d';
-      } else if (categoria === 'Salud') {
-        this.classList.add('btn-danger');
-        this.style.background = '#dc3545';
+      } else {
+        const color = getColorCategoria(categoria);
+        this.style.background = color;
+        this.style.color = 'white';
+        this.style.border = 'none';
       }
       
-      // Mostrar/ocultar capas
-      if (categoria === 'todos') {
-        categoriasUnicas.forEach(cat => {
-          if (markers[cat]) map.addLayer(markers[cat]);
-        });
-      } else {
-        categoriasUnicas.forEach(cat => {
-          if (markers[cat]) {
-            if (cat === categoria) {
-              map.addLayer(markers[cat]);
-            } else {
-              map.removeLayer(markers[cat]);
-            }
-          }
-        });
-      }
+      filtrarPorCategoria(categoria);
     });
   });
 
-  // Ajustar mapa para mostrar todos los marcadores
+  // ========================================
+  // 10. AJUSTAR MAPA A LOS MARCADORES
+  // ========================================
   const puntos = reportes.filter(r => r.ubicacion_lat && r.ubicacion_lng);
   if (puntos.length > 0) {
     const group = L.featureGroup(puntos.map(r => L.marker([r.ubicacion_lat, r.ubicacion_lng])));
     if (group.getLayers().length > 0) {
       map.fitBounds(group.getBounds().pad(0.1));
     }
-  }
-
-  function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+  } else {
+    map.setView([10.042, -67.489], 14);
   }
 </script>
 
 <style>
   /* ========== ESTILOS BASE (MODO CLARO) ========== */
   
-  /* Títulos */
   .mapa-title {
     color: #5D4037;
   }
@@ -284,7 +353,6 @@
     color: #8B6B5A;
   }
   
-  /* Botón principal */
   .btn-mapa-primary {
     background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
     color: white;
@@ -296,7 +364,6 @@
     box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
   }
   
-  /* Tarjetas de estadísticas */
   .stat-card-mapa {
     transition: all 0.2s ease;
   }
@@ -352,7 +419,6 @@
     color: #155724;
   }
   
-  /* Mapa */
   .mapa-card {
     border-radius: 20px;
     overflow: hidden;
@@ -360,9 +426,9 @@
   #map {
     border-radius: 20px;
     z-index: 1;
+    height: 500px;
   }
   
-  /* Filtros */
   .filtros-card-mapa {
     background: white;
   }
@@ -374,7 +440,39 @@
     background: white;
   }
   
-  /* Leyenda */
+  /* ========================================
+     CORRECCIÓN DE BOTONES DE FILTRO
+     ======================================== */
+  .filtro-categoria {
+    transition: all 0.2s ease;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 20px !important;
+    border: 2px solid #d0d0d0 !important;
+    background: #f8f9fa !important;
+    color: #333 !important;
+    font-weight: 500;
+  }
+
+  .filtro-categoria:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background: #e9ecef !important;
+  }
+
+  .filtro-categoria.active {
+    color: white !important;
+    border-color: transparent !important;
+  }
+
+  .filtro-categoria.active[data-categoria="todos"] {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%) !important;
+  }
+
+  .filtro-categoria i {
+    margin-right: 4px;
+  }
+  
   .leyenda-card-mapa {
     background: white;
   }
@@ -386,13 +484,6 @@
     background: white;
   }
   
-  /* Badges en popup */
-  .badge-categoria-mapa {
-    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
-    color: white;
-  }
-  
-  /* Estilos del mapa */
   .custom-marker {
     background: transparent;
     border: none;
@@ -405,31 +496,13 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   }
   
-  /* Filtros botones */
-  .filtro-categoria {
-    transition: all 0.2s ease;
-  }
-  .filtro-categoria:hover {
-    transform: translateY(-2px);
-  }
-  .filtro-categoria.active {
-    color: white !important;
-    border-color: transparent !important;
-  }
-  .filtro-categoria.active.btn-primary { background: #0d6efd !important; }
-  .filtro-categoria.active.btn-warning { background: #ffc107 !important; color: #333 !important; }
-  .filtro-categoria.active.btn-secondary { background: #6c757d !important; }
-  .filtro-categoria.active.btn-danger { background: #dc3545 !important; }
-  .filtro-categoria.active[data-categoria="todos"] { background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%) !important; }
-  
-  /* Hover en cards */
   .card {
     transition: transform 0.2s ease;
   }
   .card:hover {
     transform: translateY(-2px);
   }
-  
+
   /* ========== MODO NOCTURNO ========== */
   body.dark-mode .mapa-title {
     color: #e4e4e7;
@@ -437,7 +510,7 @@
   body.dark-mode .mapa-subtitle {
     color: #a1a1aa;
   }
-  
+
   body.dark-mode .stat-card-total-mapa {
     background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
   }
@@ -450,7 +523,7 @@
   body.dark-mode .stat-card-resuelto-mapa {
     background: linear-gradient(135deg, #0d3b1f 0%, #0a2a16 100%);
   }
-  
+
   body.dark-mode .stat-number-mapa-total {
     color: #e4e4e7;
   }
@@ -487,50 +560,55 @@
   body.dark-mode .stat-icon-mapa-resuelto {
     color: #a3e4b7;
   }
-  
+
   body.dark-mode .filtros-card-mapa {
-    background: #27272a;
+    background: #1a1a2e;
   }
   body.dark-mode .filtros-header-mapa {
     background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
     color: #e4e4e7;
   }
   body.dark-mode .filtros-body-mapa {
-    background: #27272a;
+    background: #1a1a2e;
   }
-  
+
+  /* ========================================
+     CORRECCIÓN DE BOTONES DE FILTRO - MODO NOCTURNO
+     ======================================== */
+  body.dark-mode .filtro-categoria {
+    background: #2d2d44 !important;
+    border-color: #3f3f46 !important;
+    color: #e4e4e7 !important;
+  }
+
+  body.dark-mode .filtro-categoria:hover {
+    background: #3d3d5c !important;
+    border-color: #52525b !important;
+  }
+
+  body.dark-mode .filtro-categoria.active {
+    color: white !important;
+    border-color: transparent !important;
+  }
+
+  body.dark-mode .filtro-categoria.active[data-categoria="todos"] {
+    background: linear-gradient(135deg, #f7931e 0%, #e08515 100%) !important;
+  }
+
   body.dark-mode .leyenda-card-mapa {
-    background: #27272a;
+    background: #1a1a2e;
   }
   body.dark-mode .leyenda-header-mapa {
     background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
     color: #e4e4e7;
   }
   body.dark-mode .leyenda-body-mapa {
-    background: #27272a;
+    background: #1a1a2e;
   }
   body.dark-mode .leyenda-body-mapa small {
     color: #a1a1aa;
   }
-  
-  body.dark-mode .badge-categoria-mapa {
-    background: linear-gradient(135deg, #f7931e 0%, #e08515 100%);
-  }
-  
-  body.dark-mode .filtro-categoria.btn-outline-primary,
-  body.dark-mode .filtro-categoria.btn-outline-warning,
-  body.dark-mode .filtro-categoria.btn-outline-secondary,
-  body.dark-mode .filtro-categoria.btn-outline-danger {
-    border-color: #3f3f46;
-    color: #e4e4e7;
-  }
-  body.dark-mode .filtro-categoria.btn-outline-primary:hover,
-  body.dark-mode .filtro-categoria.btn-outline-warning:hover,
-  body.dark-mode .filtro-categoria.btn-outline-secondary:hover,
-  body.dark-mode .filtro-categoria.btn-outline-danger:hover {
-    background: #3f3f46;
-  }
-  
+
   body.dark-mode .leaflet-popup-content-wrapper {
     background: #27272a;
     color: #e4e4e7;
@@ -547,28 +625,11 @@
   body.dark-mode .leaflet-popup-content .small {
     color: #a1a1aa !important;
   }
-  body.dark-mode .leaflet-popup-content .badge-categoria-mapa {
-    background: linear-gradient(135deg, #f7931e 0%, #e08515 100%);
+
+  .btn-sm, .btn {
+    transition: all 0.2s ease;
   }
-  
-  body.dark-mode .btn-outline-primary {
-    border-color: #f7931e;
-    color: #f7931e;
-  }
-  body.dark-mode .btn-outline-primary:hover {
-    background: linear-gradient(135deg, #fd6704 0%, #f7931e 100%);
-    color: white;
-  }
-  body.dark-mode .btn-outline-warning {
-    border-color: #ffc107;
-    color: #ffc107;
-  }
-  body.dark-mode .btn-outline-secondary {
-    border-color: #6c757d;
-    color: #a1a1aa;
-  }
-  body.dark-mode .btn-outline-danger {
-    border-color: #dc3545;
-    color: #dc3545;
+  .badge {
+    font-weight: normal;
   }
 </style>

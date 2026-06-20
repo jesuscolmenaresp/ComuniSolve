@@ -4,13 +4,13 @@
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
       <h2 class="fw-bold mb-1" style="color: #5D4037;">
-        <i class="bi bi-eye-slash me-2" style="color: #dc3545;"></i> Reportes Inactivos
+        <i class="bi bi-person-x-fill me-2" style="color: #dc3545;"></i> Usuarios Inactivos
       </h2>
-      <p class="text-muted small mb-0" style="color: #8B6B5A;">Reportes desactivados del sistema</p>
+      <p class="text-muted small mb-0" style="color: #8B6B5A;">Usuarios desactivados del sistema</p>
     </div>
     <div class="d-flex gap-2">
-      <a href="/reportes" class="btn btn-sm btn-outline-secondary px-3 py-2 rounded-3">
-        <i class="bi bi-arrow-left me-1"></i> Volver a reportes activos
+      <a href="/usuarios" class="btn btn-sm btn-outline-secondary px-3 py-2 rounded-3">
+        <i class="bi bi-arrow-left me-1"></i> Volver a usuarios activos
       </a>
       <button onclick="window.location.reload()" class="btn btn-sm px-3 py-2 rounded-3"
               style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
@@ -38,15 +38,15 @@
     <% session.error = null; %>
   <% } %>
 
-  <!-- Tabla de reportes inactivos -->
+  <!-- Tabla de usuarios inactivos -->
   <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
     <div class="card-header bg-white py-3 border-0">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="mb-0 fw-bold" style="color: #5D4037;">
-          <i class="bi bi-eye-slash me-2" style="color: #dc3545;"></i> Lista de Reportes Inactivos
+          <i class="bi bi-person-x me-2" style="color: #dc3545;"></i> Lista de Usuarios Inactivos
         </h5>
         <span class="badge bg-danger rounded-pill px-3 py-2">
-          <i class="bi bi-file-text me-1"></i> Total: <%= reportes ? reportes.length : 0 %>
+          <i class="bi bi-people me-1"></i> Total: <%= usuarios ? usuarios.length : 0 %>
         </span>
       </div>
     </div>
@@ -55,37 +55,38 @@
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr class="text-center">
-              <th style="width: 25%"><i class="bi bi-card-heading"></i> Título</th>
-              <th style="width: 18%"><i class="bi bi-geo-alt"></i> Calle</th>
-              <th style="width: 15%"><i class="bi bi-tag"></i> Categoría</th>
-              <th style="width: 17%"><i class="bi bi-person"></i> Reportado por</th>
-              <th style="width: 25%"><i class="bi bi-gear"></i> Acciones</th>
+              <th style="width: 25%"><i class="bi bi-person"></i> Nombre</th>
+              <th style="width: 30%"><i class="bi bi-envelope"></i> Email</th>
+              <th style="width: 15%"><i class="bi bi-tag"></i> Rol</th>
+              <th style="width: 20%"><i class="bi bi-calendar3"></i> Registro</th>
+              <th style="width: 10%"><i class="bi bi-gear"></i> Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <% if (reportes && reportes.length > 0) { %>
-              <% reportes.forEach(r => { %>
+            <% if (usuarios && usuarios.length > 0) { %>
+              <% usuarios.forEach(u => { %>
                 <tr class="text-center align-middle">
                   <td class="text-start">
-                    <strong><%= r.titulo %></strong>
-                    <br><small class="text-muted"><%= r.descripcion ? r.descripcion.substring(0, 60) + (r.descripcion.length > 60 ? '...' : '') : '' %></small>
-                    <br><small class="text-muted"><i class="bi bi-info-circle me-1"></i> Motivo: <%= r.motivo_inactivo || 'Sin motivo' %></small>
+                    <strong><%= u.nombre %></strong>
+                    <% if (u.cedula) { %>
+                      <br><small class="text-muted">C.I: <%= u.cedula %></small>
+                    <% } %>
                   </td>
-                  <td><i class="bi bi-pin-map-fill me-1"></i> <%= r.nombre_calle %></td>
+                  <td><small><%= u.email %></small></td>
                   <td>
                     <span class="badge bg-secondary rounded-pill px-2 py-1">
-                      <%= r.categoria_icono || '📌' %> <%= r.categoria_nombre %>
+                      <%= u.rol_nombre || u.rol_id %>
                     </span>
                   </td>
-                  <td><%= r.nombre_usuario || 'Anónimo' %></td>
+                  <td><small><%= new Date(u.fecha_registro).toLocaleDateString() %></small></td>
                   <td>
                     <div class="d-flex gap-1 justify-content-center flex-wrap">
                       
                       <!-- Botón ACTIVAR -->
-                      <form action="/reportes/<%= r.id %>/activar" method="POST" class="d-inline">
+                      <form action="/usuarios/<%= u.id %>/activar" method="POST" class="d-inline">
                         <input type="hidden" name="motivo" value="Reactivado por <%= session.usuario.nombre %>">
                         <button type="submit" class="btn btn-sm btn-success px-3 py-1 rounded-3" 
-                                title="Activar reporte" onclick="return confirm('¿Activar este reporte?')">
+                                title="Activar usuario" onclick="return confirm('¿Activar este usuario?')">
                           <i class="bi bi-check-circle me-1"></i> Activar
                         </button>
                       </form>
@@ -94,7 +95,7 @@
                       <% if (session.usuario && session.usuario.rol_id === 5) { %>
                         <button type="button" class="btn btn-sm btn-danger px-3 py-1 rounded-3" 
                                 title="Eliminar permanentemente"
-                                onclick="abrirModalEliminar('<%= r.id %>', '<%= r.titulo.replace(/'/g, "\\'") %>')">
+                                onclick="abrirModalEliminar('<%= u.id %>', '<%= u.nombre.replace(/'/g, "\\'") %>', '<%= u.email %>')">
                           <i class="bi bi-trash3 me-1"></i> Eliminar
                         </button>
                       <% } %>
@@ -107,8 +108,8 @@
               <tr>
                 <td colspan="5" class="text-center py-5">
                   <i class="bi bi-check-circle-fill fs-1 text-success d-block mb-3"></i>
-                  <h5 class="text-muted">No hay reportes inactivos</h5>
-                  <p class="text-muted small mb-0">Todos los reportes están activos en el sistema</p>
+                  <h5 class="text-muted">No hay usuarios inactivos</h5>
+                  <p class="text-muted small mb-0">Todos los usuarios están activos en el sistema</p>
                 </td>
               </tr>
             <% } %>
@@ -119,7 +120,7 @@
     <div class="card-footer bg-transparent text-center py-3">
       <small class="text-muted">
         <i class="bi bi-info-circle me-1"></i> 
-        Los reportes inactivos no son visibles para los ciudadanos. Los SuperAdministradores pueden eliminar reportes permanentemente (requiere motivo).
+        Los usuarios inactivos no pueden iniciar sesión. Los SuperAdministradores pueden eliminar usuarios permanentemente (requiere motivo).
       </small>
     </div>
   </div>
@@ -141,8 +142,8 @@
             <i class="bi bi-info-circle me-1"></i>
             <strong>¡Cuidado!</strong> Esta acción NO se puede deshacer.
           </div>
-          <p class="mb-2">Estás a punto de eliminar permanentemente el reporte:</p>
-          <div class="bg-light p-2 rounded-3 mb-3 text-center" id="reporteAEliminarInfo">
+          <p class="mb-2">Estás a punto de eliminar permanentemente a:</p>
+          <div class="bg-light p-2 rounded-3 mb-3 text-center" id="usuarioAEliminarInfo">
             <!-- Se llena con JavaScript -->
           </div>
           <div class="mb-3">
@@ -150,7 +151,7 @@
               <i class="bi bi-chat-text me-1"></i> Motivo de eliminación:
             </label>
             <textarea name="motivo" id="motivoEliminacion" class="form-control rounded-3" rows="3" 
-                      placeholder="Ej: Reporte duplicado, spam, información incorrecta..."
+                      placeholder="Ej: Usuario duplicado, solicitud del usuario, información falsa..."
                       required></textarea>
             <small class="text-muted">Este motivo quedará registrado en la auditoría.</small>
           </div>
@@ -167,10 +168,10 @@
 </div>
 
 <script>
-  function abrirModalEliminar(reporteId, reporteTitulo) {
-    document.getElementById('formEliminarGlobal').action = '/reportes/' + reporteId + '/destruir';
-    document.getElementById('reporteAEliminarInfo').innerHTML = 
-      '<strong>' + reporteTitulo.replace(/\\'/g, "'") + '</strong>';
+  function abrirModalEliminar(usuarioId, usuarioNombre, usuarioEmail) {
+    document.getElementById('formEliminarGlobal').action = '/usuarios/' + usuarioId + '/destruir';
+    document.getElementById('usuarioAEliminarInfo').innerHTML = 
+      '<strong>' + usuarioNombre.replace(/\\'/g, "'") + '</strong><br><small class="text-muted">' + usuarioEmail + '</small>';
     document.getElementById('motivoEliminacion').value = '';
     var modal = new bootstrap.Modal(document.getElementById('modalEliminarGlobal'));
     modal.show();
