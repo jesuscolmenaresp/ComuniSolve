@@ -142,14 +142,37 @@ exports.mostrarRegistro = async (req, res) => {
     res.status(500).send("Error al cargar formulario de registro");
   }
 };
-
 // Registro de ciudadano (con cédula, confirmación y estado pendiente)
 exports.registrar = async (req, res) => {
+  // Obtener datos del body
   const { cedula, nombre, email, password, confirm_password, telefono, calle_id } = req.body;
+  
+  // Obtener foto de perfil si se subió
+  let fotoPerfil = null;
+  if (req.file) {
+    fotoPerfil = '/uploads/perfiles/' + req.file.filename;
+    
+    // Procesar la imagen con sharp (cuadrado, 200x200)
+    try {
+      const { procesarFotoPerfil } = require('../middleware/imageProcessor');
+      await procesarFotoPerfil(req.file.path);
+    } catch (err) {
+      console.error('Error al procesar imagen de perfil:', err);
+    }
+  }
+
+  // Validar que los campos requeridos existan
+  if (!nombre || !email || !password || !confirm_password || !cedula) {
+    const [calles] = await db.query("SELECT id, nombre FROM calles ORDER BY nombre");
+    return res.render('registro', { 
+      error: 'Todos los campos marcados con * son obligatorios', 
+      calles 
+    });
+  }
 
   // Validar que las contraseñas coincidan
   if (password !== confirm_password) {
-    const [calles] = await db.query("SELECT * FROM calles ORDER BY nombre");
+    const [calles] = await db.query("SELECT id, nombre FROM calles ORDER BY nombre");
     return res.render('registro', { 
       error: 'Las contraseñas no coinciden', 
       calles 
@@ -158,7 +181,7 @@ exports.registrar = async (req, res) => {
 
   // Validar longitud de contraseña
   if (password.length < 6) {
-    const [calles] = await db.query("SELECT * FROM calles ORDER BY nombre");
+    const [calles] = await db.query("SELECT id, nombre FROM calles ORDER BY nombre");
     return res.render('registro', { 
       error: 'La contraseña debe tener al menos 6 caracteres', 
       calles 
@@ -167,9 +190,19 @@ exports.registrar = async (req, res) => {
 
   // Validar cédula (solo números)
   if (!cedula || !/^\d+$/.test(cedula)) {
-    const [calles] = await db.query("SELECT * FROM calles ORDER BY nombre");
+    const [calles] = await db.query("SELECT id, nombre FROM calles ORDER BY nombre");
     return res.render('registro', { 
       error: 'La cédula debe contener solo números', 
+      calles 
+    });
+  }
+
+  // Validar teléfono (11 dígitos)
+  const telefonoLimpio = telefono ? telefono.replace(/-/g, '') : '';
+  if (telefonoLimpio && telefonoLimpio.length !== 11) {
+    const [calles] = await db.query("SELECT id, nombre FROM calles ORDER BY nombre");
+    return res.render('registro', { 
+      error: 'El teléfono debe tener 11 dígitos (ej: 0414-1234567)', 
       calles 
     });
   }
@@ -178,7 +211,7 @@ exports.registrar = async (req, res) => {
     // Verificar si el email ya existe
     const [existente] = await db.query('SELECT id FROM usuarios WHERE email = ?', [email]);
     if (existente.length > 0) {
-      const [calles] = await db.query("SELECT * FROM calles ORDER BY nombre");
+      const [calles] = await db.query("SELECT id, nombre FROM calles ORDER BY nombre");
       return res.render('registro', { 
         error: 'El email ya está registrado', 
         calles 
@@ -188,7 +221,7 @@ exports.registrar = async (req, res) => {
     // Verificar si la cédula ya existe
     const [cedulaExistente] = await db.query('SELECT id FROM usuarios WHERE cedula = ?', [cedula]);
     if (cedulaExistente.length > 0) {
-      const [calles] = await db.query("SELECT * FROM calles ORDER BY nombre");
+      const [calles] = await db.query("SELECT id, nombre FROM calles ORDER BY nombre");
       return res.render('registro', { 
         error: 'La cédula ya está registrada', 
         calles 
@@ -198,10 +231,23 @@ exports.registrar = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     
     // Insertar usuario con estado 'pendiente'
-    const [result] = await db.query(
-      'INSERT INTO usuarios (cedula, nombre, email, password, telefono, rol_id, calle_id, estado, fecha_registro) VALUES (?, ?, ?, ?, ?, 4, ?, "pendiente", NOW())', 
-      [cedula, nombre, email, hashedPassword, telefono, calle_id || null]
-    );
+    let query = `
+      INSERT INTO usuarios 
+      (cedula, nombre, email, password, telefono, rol_id, calle_id, estado, fecha_registro
+    `;
+    let values = [
+      cedula, nombre, email, hashedPassword, telefono || null, 
+      4, calle_id || null, 'pendiente', new Date()
+    ];
+    
+    if (fotoPerfil) {
+      query += ', foto_perfil';
+      values.push(fotoPerfil);
+    }
+    
+    query += ') VALUES (?' + ', ?'.repeat(values.length - 1) + ')';
+    
+    const [result] = await db.query(query, values);
 
     // Obtener la calle para saber quiénes deben ser notificados
     const [calleInfo] = await db.query(`
@@ -216,7 +262,7 @@ exports.registrar = async (req, res) => {
     // Notificar al líder de la calle
     if (calleInfo[0]?.lider_email) {
       await enviarNotificacionNuevoUsuario(
-        { email: calleInfo[0].lider_email, nombre: calleInfo[0].lider_nombre },
+        { email: calleInfo[0].lider_email, nombre: calleInfo[0].lider_nombre || 'Líder' },
         { cedula, nombre, email, telefono, calle: calleInfo[0].nombre }
       );
     }
@@ -231,8 +277,11 @@ exports.registrar = async (req, res) => {
 
     res.redirect('/login?registro=exitoso');
   } catch (err) {
-    console.error(err);
-    const [calles] = await db.query("SELECT * FROM calles ORDER BY nombre");
-    res.render('registro', { error: 'Error al registrar usuario', calles });
+    console.error('Error en registro:', err);
+    const [calles] = await db.query("SELECT id, nombre FROM calles ORDER BY nombre");
+    res.render('registro', { 
+      error: 'Error al registrar usuario: ' + err.message, 
+      calles 
+    });
   }
 };

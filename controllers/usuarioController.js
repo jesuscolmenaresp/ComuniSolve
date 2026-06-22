@@ -27,7 +27,6 @@ exports.listar = async (req, res) => {
         u.nombre ASC
     `);
 
-    // Para cada usuario, obtener sus calles y comunidades
     for (let usuario of usuarios) {
       if (usuario.rol_id === 2) {
         const [calles] = await db.query(`
@@ -72,17 +71,16 @@ exports.listar = async (req, res) => {
       session: req.session
     });
   } catch (err) {
-    console.error(err);
+    console.error('Error al listar usuarios:', err);
     res.status(500).send('Error al listar usuarios');
   }
 };
 
 // ==========================
-// 📌 LISTAR USUARIOS INACTIVOS (UBCH y SuperAdmin)
+// 📌 LISTAR USUARIOS INACTIVOS
 // ==========================
 exports.listarInactivos = async (req, res) => {
   try {
-    // Verificar que sea UBCH o SuperAdmin
     if (!req.session.usuario || (req.session.usuario.rol_id !== 1 && req.session.usuario.rol_id !== 5)) {
       req.session.error = 'No autorizado';
       return res.redirect('/dashboard');
@@ -95,7 +93,6 @@ exports.listarInactivos = async (req, res) => {
       WHERE u.activo = 0
     `;
     
-    // Si es UBCH (rol 1), no mostrar SuperAdmins inactivos
     if (req.session.usuario.rol_id === 1) {
       query += " AND u.rol_id != 5";
     }
@@ -110,7 +107,7 @@ exports.listarInactivos = async (req, res) => {
       session: req.session
     });
   } catch (err) {
-    console.error(err);
+    console.error('Error al listar usuarios inactivos:', err);
     req.session.error = 'Error al listar usuarios inactivos';
     res.redirect('/dashboard');
   }
@@ -141,7 +138,7 @@ exports.formCrear = async (req, res) => {
       session: req.session
     });
   } catch (err) {
-    console.error(err);
+    console.error('Error al cargar formulario:', err);
     res.status(500).send('Error al cargar formulario');
   }
 };
@@ -150,24 +147,35 @@ exports.formCrear = async (req, res) => {
 // 📌 GUARDAR NUEVO USUARIO
 // ==========================
 exports.crear = async (req, res) => {
-  const { cedula, nombre, email, password, telefono, rol_id, calle_id, calles_lider, comunidades } = req.body;
+  let { cedula, nombre, email, password, telefono, rol_id, calle_id, calles_lider, comunidades } = req.body;
+  
+  if (Array.isArray(calle_id)) {
+    calle_id = calle_id.find(id => id !== '' && id !== null && id !== undefined) || null;
+  }
+  
+  let fotoPerfil = null;
+  if (req.file) {
+    fotoPerfil = '/uploads/perfiles/' + req.file.filename;
+    try {
+      const { procesarFotoPerfil } = require('../middleware/imageProcessor');
+      await procesarFotoPerfil(req.file.path);
+    } catch (err) {
+      console.error('Error al procesar imagen de perfil:', err);
+    }
+  }
 
   try {
-    // ========== VALIDACIÓN DE PERMISOS PARA CREAR SUPERADMIN ==========
-    // Solo SuperAdmin puede crear otro SuperAdmin
     if (rol_id == 5 && req.session.usuario.rol_id !== 5) {
       req.session.error = 'No tiene permisos para crear un SuperAdministrador';
       return res.redirect('/usuarios/nuevo');
     }
 
-    // Verificar si el email ya existe
     const [existente] = await db.query('SELECT id FROM usuarios WHERE email = ? AND activo = 1', [email]);
     if (existente.length > 0) {
       req.session.error = 'El email ya está registrado';
       return res.redirect('/usuarios/nuevo');
     }
 
-    // Verificar si la cédula ya existe
     if (cedula && cedula.trim() !== '') {
       const [cedulaExistente] = await db.query('SELECT id FROM usuarios WHERE cedula = ? AND activo = 1', [cedula]);
       if (cedulaExistente.length > 0) {
@@ -176,11 +184,9 @@ exports.crear = async (req, res) => {
       }
     }
 
-    // Encriptar contraseña
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Iniciar transacción
     const connection = await db.getConnection();
     await connection.beginTransaction();
 
@@ -190,15 +196,25 @@ exports.crear = async (req, res) => {
         calleAsignada = calle_id || null;
       }
 
-      const [result] = await connection.query(
-        `INSERT INTO usuarios (cedula, nombre, email, password, telefono, rol_id, calle_id, activo) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
-        [cedula || null, nombre, email, passwordHash, telefono || null, rol_id, calleAsignada]
-      );
-
+      let query = `
+        INSERT INTO usuarios 
+        (cedula, nombre, email, password, telefono, rol_id, calle_id, activo
+      `;
+      let values = [
+        cedula || null, nombre, email, passwordHash, telefono || null, 
+        parseInt(rol_id), calleAsignada, 1
+      ];
+      
+      if (fotoPerfil) {
+        query += ', foto_perfil';
+        values.push(fotoPerfil);
+      }
+      
+      query += ') VALUES (?' + ', ?'.repeat(values.length - 1) + ')';
+      
+      const [result] = await connection.query(query, values);
       const nuevoUsuarioId = result.insertId;
 
-      // Si es líder y seleccionó calles, asignarlas
       if (rol_id == 2 && calles_lider && calles_lider.length > 0) {
         const callesArray = Array.isArray(calles_lider) ? calles_lider : [calles_lider];
         for (const calleId of callesArray) {
@@ -209,7 +225,6 @@ exports.crear = async (req, res) => {
         }
       }
 
-      // Si es UBCH y seleccionó comunidades, asignarlas
       if (rol_id == 1 && comunidades && comunidades.length > 0) {
         const comunidadesArray = Array.isArray(comunidades) ? comunidades : [comunidades];
         for (const comunidadId of comunidadesArray) {
@@ -228,7 +243,7 @@ exports.crear = async (req, res) => {
         'usuarios',
         nuevoUsuarioId,
         null,
-        { cedula, nombre, email, rol_id, calle_id: calleAsignada }
+        { cedula, nombre, email, rol_id, calle_id: calleAsignada, foto_perfil: fotoPerfil || 'No subida' }
       );
 
       req.session.mensaje = 'Usuario creado exitosamente';
@@ -241,7 +256,7 @@ exports.crear = async (req, res) => {
     }
 
   } catch (err) {
-    console.error(err);
+    console.error('Error al crear usuario:', err);
     req.session.error = 'Error al crear usuario';
     res.redirect('/usuarios/nuevo');
   }
@@ -297,7 +312,7 @@ exports.formEditar = async (req, res) => {
       session: req.session
     });
   } catch (err) {
-    console.error(err);
+    console.error('Error al cargar formulario de edición:', err);
     res.status(500).send('Error al cargar formulario');
   }
 };
@@ -307,19 +322,34 @@ exports.formEditar = async (req, res) => {
 // ==========================
 exports.actualizar = async (req, res) => {
   const { id } = req.params;
-  const { 
+  let { 
     cedula, nombre, email, telefono, rol_id, 
     password, 
     calle_jefe_id, calle_ciudadano_id, 
     calles_lider, 
     comunidades 
   } = req.body;
+  
+  if (Array.isArray(calle_jefe_id)) {
+    calle_jefe_id = calle_jefe_id.find(id => id !== '' && id !== null && id !== undefined) || null;
+  }
+  if (Array.isArray(calle_ciudadano_id)) {
+    calle_ciudadano_id = calle_ciudadano_id.find(id => id !== '' && id !== null && id !== undefined) || null;
+  }
+  
+  let fotoPerfil = null;
+  if (req.file) {
+    fotoPerfil = '/uploads/perfiles/' + req.file.filename;
+    try {
+      const { procesarFotoPerfil } = require('../middleware/imageProcessor');
+      await procesarFotoPerfil(req.file.path);
+    } catch (err) {
+      console.error('Error al procesar imagen de perfil:', err);
+    }
+  }
 
   try {
-    // ========== VALIDACIONES DE PERMISOS PARA EDITAR ==========
-    
-    // Obtener el usuario actual para verificar su rol
-    const [usuarioActual] = await db.query('SELECT rol_id FROM usuarios WHERE id = ?', [id]);
+    const [usuarioActual] = await db.query('SELECT rol_id, foto_perfil FROM usuarios WHERE id = ?', [id]);
     
     if (usuarioActual.length === 0) {
       req.session.error = 'Usuario no encontrado';
@@ -328,20 +358,16 @@ exports.actualizar = async (req, res) => {
     
     const rolActual = usuarioActual[0].rol_id;
     
-    // 1. Si el usuario actual es SuperAdmin y quien edita NO es SuperAdmin -> NO PERMITIR
     if (rolActual === 5 && req.session.usuario.rol_id !== 5) {
       req.session.error = 'No tiene permisos para editar un SuperAdministrador';
       return res.redirect('/usuarios');
     }
     
-    // 2. Si intentan cambiar el rol a SuperAdmin pero quien edita NO es SuperAdmin -> NO PERMITIR
     if (rol_id == 5 && req.session.usuario.rol_id !== 5) {
       req.session.error = 'No tiene permisos para asignar el rol de SuperAdministrador';
       return res.redirect(`/usuarios/${id}/editar`);
     }
     
-    // 3. Si quien edita es UBCH (rol 1) y el usuario a editar es UBCH (rol 1) -> NO PERMITIR
-    // (Un UBCH no puede editar a otro UBCH, solo SuperAdmin puede)
     if (req.session.usuario.rol_id === 1 && rolActual === 1) {
       req.session.error = 'No tiene permisos para editar otro usuario UBCH';
       return res.redirect('/usuarios');
@@ -352,12 +378,21 @@ exports.actualizar = async (req, res) => {
 
     try {
       const [usuarioAnterior] = await connection.query(
-        'SELECT nombre, email, telefono, rol_id, calle_id, cedula FROM usuarios WHERE id = ? AND activo = 1',
+        'SELECT nombre, email, telefono, rol_id, calle_id, cedula, foto_perfil FROM usuarios WHERE id = ? AND activo = 1',
         [id]
       );
 
       if (usuarioAnterior.length === 0) {
         throw new Error('Usuario no encontrado');
+      }
+
+      if (fotoPerfil && usuarioAnterior[0].foto_perfil) {
+        const fs = require('fs');
+        const path = require('path');
+        const oldPath = path.join(__dirname, '../public', usuarioAnterior[0].foto_perfil);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
       }
 
       let updates = [];
@@ -399,13 +434,17 @@ exports.actualizar = async (req, res) => {
         params.push(passwordHash);
       }
 
+      if (fotoPerfil) {
+        updates.push('foto_perfil = ?');
+        params.push(fotoPerfil);
+      }
+
       params.push(id);
 
       const query = `UPDATE usuarios SET ${updates.join(', ')} WHERE id = ?`;
       
       await connection.query(query, params);
 
-      // Si es líder, actualizar sus calles
       if (rol_id == 2) {
         await connection.query('UPDATE calles SET lider_id = NULL WHERE lider_id = ?', [id]);
         
@@ -422,7 +461,6 @@ exports.actualizar = async (req, res) => {
         await connection.query('UPDATE calles SET lider_id = NULL WHERE lider_id = ?', [id]);
       }
 
-      // Si es UBCH, actualizar sus comunidades
       if (rol_id == 1) {
         await connection.query('DELETE FROM ubch_comunidades WHERE ubch_id = ?', [id]);
         
@@ -443,7 +481,8 @@ exports.actualizar = async (req, res) => {
         cedula, nombre, email, telefono, rol_id, 
         calle_id: nuevaCalleId,
         calles_lider: calles_lider || [],
-        comunidades: comunidades || []
+        comunidades: comunidades || [],
+        foto_perfil: fotoPerfil || usuarioAnterior[0].foto_perfil
       };
       
       await registrarAuditoria(
@@ -466,11 +505,12 @@ exports.actualizar = async (req, res) => {
     }
 
   } catch (err) {
-    console.error(err);
+    console.error('Error al actualizar usuario:', err);
     req.session.error = 'Error al actualizar usuario';
     res.redirect(`/usuarios/${id}/editar`);
   }
 };
+
 // ==========================
 // 📌 DESACTIVAR USUARIO (SOFT DELETE)
 // ==========================
@@ -479,7 +519,6 @@ exports.eliminar = async (req, res) => {
   const { motivo } = req.body;
 
   try {
-    // No permitir desactivarse a sí mismo
     if (parseInt(id) === req.session.usuario.id) {
       req.session.error = 'No puedes desactivarte a ti mismo';
       return res.redirect('/usuarios');
@@ -495,7 +534,6 @@ exports.eliminar = async (req, res) => {
       return res.redirect('/usuarios');
     }
 
-    // Desactivar usuario (soft delete)
     await db.query('UPDATE usuarios SET activo = 0 WHERE id = ?', [id]);
 
     await registrarAuditoria(
@@ -510,7 +548,7 @@ exports.eliminar = async (req, res) => {
     req.session.mensaje = `Usuario "${usuarioADesactivar[0].nombre}" desactivado correctamente`;
     res.redirect('/usuarios');
   } catch (err) {
-    console.error(err);
+    console.error('Error al desactivar usuario:', err);
     req.session.error = 'Error al desactivar usuario';
     res.redirect('/usuarios');
   }
@@ -534,7 +572,6 @@ exports.activar = async (req, res) => {
       return res.redirect('/usuarios/inactivos');
     }
 
-    // Activar usuario
     await db.query('UPDATE usuarios SET activo = 1 WHERE id = ?', [id]);
 
     await registrarAuditoria(
@@ -549,7 +586,7 @@ exports.activar = async (req, res) => {
     req.session.mensaje = `Usuario "${usuarioAActivar[0].nombre}" activado correctamente`;
     res.redirect('/usuarios/inactivos');
   } catch (err) {
-    console.error(err);
+    console.error('Error al activar usuario:', err);
     req.session.error = 'Error al activar usuario';
     res.redirect('/usuarios/inactivos');
   }
@@ -562,24 +599,17 @@ exports.destruir = async (req, res) => {
   const { id } = req.params;
   const { motivo } = req.body;
 
-  console.log('=== DESTRUIR USUARIO ===');
-  console.log('ID:', id);
-  console.log('Motivo recibido:', motivo);
-
   try {
-    // Verificar que sea SuperAdmin
     if (!req.session.usuario || req.session.usuario.rol_id !== 5) {
       req.session.error = 'No autorizado';
       return res.redirect('/usuarios/inactivos');
     }
 
-    // Validar que se ingrese un motivo
     if (!motivo || motivo.trim() === '') {
       req.session.error = 'Debe especificar un motivo para eliminar permanentemente al usuario';
       return res.redirect('/usuarios/inactivos');
     }
 
-    // No permitir eliminarse a sí mismo
     if (parseInt(id) === req.session.usuario.id) {
       req.session.error = 'No puedes eliminarte a ti mismo';
       return res.redirect('/usuarios/inactivos');
@@ -595,10 +625,8 @@ exports.destruir = async (req, res) => {
       return res.redirect('/usuarios/inactivos');
     }
 
-    // Guardar datos para auditoría antes de eliminar
     const datosUsuario = usuarioAEliminar[0];
     
-    // Crear un objeto con los datos del usuario y el motivo
     const datosParaAuditoria = {
       id: datosUsuario.id,
       nombre: datosUsuario.nombre,
@@ -611,37 +639,33 @@ exports.destruir = async (req, res) => {
       fecha_eliminacion: new Date().toLocaleString()
     };
 
-    console.log('Datos a guardar en auditoría:', datosParaAuditoria);
-
-    // Eliminación física permanente
     await db.query('DELETE FROM usuarios WHERE id = ?', [id]);
 
-    // Registrar en auditoría con el motivo (PASANDO req PARA IP Y USER-AGENT)
     await registrarAuditoria(
       req.session.usuario,
       'ELIMINAR_PERMANENTEMENTE',
       'usuarios',
       id,
-      datosParaAuditoria,  // Datos anteriores (lo que se eliminó con el motivo)
+      datosParaAuditoria,
       { 
         motivo: motivo.trim(), 
         eliminado_por: req.session.usuario.nombre,
         accion: 'Eliminación permanente'
       },
-      req  // 👈 IMPORTANTE: pasar req para IP y User-Agent
+      req
     );
 
     req.session.mensaje = `Usuario "${datosUsuario.nombre}" eliminado permanentemente. Motivo: ${motivo}`;
     res.redirect('/usuarios/inactivos');
   } catch (err) {
     console.error('Error en destruir:', err);
-    req.session.error = 'Error al eliminar usuario permanentemente: ' + err.message;
+    req.session.error = 'Error al eliminar usuario permanentemente';
     res.redirect('/usuarios/inactivos');
   }
 };
 
 // ==========================
-// 📌 APROBAR CIUDADANO (con auditoría)
+// 📌 APROBAR CIUDADANO
 // ==========================
 exports.aprobar = async (req, res) => {
   const { id } = req.params;
@@ -664,7 +688,6 @@ exports.aprobar = async (req, res) => {
       [adminId, id]
     );
 
-    // Registrar en auditoría
     await registrarAuditoria(
       req.session.usuario,
       'EDITAR',
@@ -681,14 +704,14 @@ exports.aprobar = async (req, res) => {
     req.session.mensaje = 'Usuario aprobado exitosamente';
     res.redirect('/usuarios');
   } catch (err) {
-    console.error(err);
+    console.error('Error al aprobar usuario:', err);
     req.session.error = 'Error al aprobar usuario';
     res.redirect('/usuarios');
   }
 };
 
 // ==========================
-// 📌 RECHAZAR CIUDADANO (con auditoría)
+// 📌 RECHAZAR CIUDADANO
 // ==========================
 exports.rechazar = async (req, res) => {
   const { id } = req.params;
@@ -712,7 +735,6 @@ exports.rechazar = async (req, res) => {
       [adminId, id]
     );
 
-    // Registrar en auditoría
     await registrarAuditoria(
       req.session.usuario,
       'EDITAR',
@@ -729,13 +751,14 @@ exports.rechazar = async (req, res) => {
     req.session.mensaje = 'Usuario rechazado';
     res.redirect('/usuarios');
   } catch (err) {
-    console.error(err);
+    console.error('Error al rechazar usuario:', err);
     req.session.error = 'Error al rechazar usuario';
     res.redirect('/usuarios');
   }
 };
+
 // ==========================
-// 📌 REAPROBAR USUARIO (cambiar de rechazado a aprobado)
+// 📌 REAPROBAR USUARIO
 // ==========================
 exports.reaprobar = async (req, res) => {
   const { id } = req.params;
@@ -763,7 +786,6 @@ exports.reaprobar = async (req, res) => {
       [adminId, id]
     );
 
-    // Registrar en auditoría
     await registrarAuditoria(
       req.session.usuario,
       'REAPROBAR',
@@ -780,8 +802,62 @@ exports.reaprobar = async (req, res) => {
     req.session.mensaje = `Usuario "${usuario[0].nombre}" ha sido reaprobado exitosamente`;
     res.redirect('/usuarios');
   } catch (err) {
-    console.error(err);
+    console.error('Error al reaprobar usuario:', err);
     req.session.error = 'Error al reaprobar usuario';
+    res.redirect('/usuarios');
+  }
+};
+
+// ==========================
+// 📌 ELIMINAR FOTO DE PERFIL
+// ==========================
+exports.eliminarFoto = async (req, res) => {
+  const { id } = req.params;
+  const usuario = req.session.usuario;
+
+  try {
+    const [userData] = await db.query(
+      'SELECT foto_perfil, nombre FROM usuarios WHERE id = ?',
+      [id]
+    );
+
+    if (userData.length === 0) {
+      req.session.error = 'Usuario no encontrado';
+      return res.redirect('/usuarios');
+    }
+
+    if (userData[0].foto_perfil) {
+      const fs = require('fs');
+      const path = require('path');
+      const oldPath = path.join(__dirname, '../public', userData[0].foto_perfil);
+      
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+
+      await db.query(
+        'UPDATE usuarios SET foto_perfil = NULL WHERE id = ?',
+        [id]
+      );
+
+      await registrarAuditoria(
+        usuario,
+        'EDITAR',
+        'usuarios',
+        id,
+        { foto_perfil: userData[0].foto_perfil },
+        { foto_perfil: null }
+      );
+
+      req.session.mensaje = `Foto de perfil eliminada para "${userData[0].nombre}"`;
+    } else {
+      req.session.mensaje = 'Este usuario no tenía foto de perfil';
+    }
+
+    res.redirect('/usuarios');
+  } catch (err) {
+    console.error('Error al eliminar la foto:', err);
+    req.session.error = 'Error al eliminar la foto';
     res.redirect('/usuarios');
   }
 };

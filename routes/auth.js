@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const passwordController = require('../controllers/passwordController'); // 👈 AGREGAR ESTA LÍNEA
+const passwordController = require('../controllers/passwordController');
+const { uploadPerfil } = require('../middleware/uploadMiddleware');
 
 // ==========================
 // 📌 LOGIN
@@ -10,10 +11,10 @@ router.get('/login', authController.mostrarLogin);
 router.post('/login', authController.login);
 
 // ==========================
-// 📌 REGISTRO
+// 📌 REGISTRO (con foto de perfil)
 // ==========================
 router.get('/registro', authController.mostrarRegistro);
-router.post('/registro', authController.registrar);
+router.post('/registro', uploadPerfil.single('foto_perfil'), authController.registrar);
 
 // ==========================
 // 📌 LOGOUT

@@ -37,17 +37,41 @@
           <% } %>
 
           <!-- Formulario -->
-          <form action="/usuarios" method="POST">
+          <form action="/usuarios" method="POST" enctype="multipart/form-data" id="crearForm" novalidate>
             
             <div class="row g-3">
+              <!-- Foto de perfil -->
+              <div class="col-12 text-center">
+                <label class="form-label fw-semibold small mb-2 crear-label d-block">
+                  <i class="bi bi-image me-1"></i> Foto de perfil (opcional)
+                </label>
+                
+                <!-- Previsualización -->
+                <div class="foto-perfil-container mb-3">
+                  <div class="foto-perfil-preview" id="fotoPreviewContainer">
+                    <img id="fotoPreview" 
+                         src="/images/default-avatar.png" 
+                         alt="Foto de perfil" 
+                         class="foto-perfil-img">
+                  </div>
+                </div>
+                
+                <!-- Input de archivo -->
+                <input type="file" name="foto_perfil" id="fotoPerfilInput" 
+                       class="form-control rounded-3 crear-input" 
+                       accept="image/jpeg,image/png,image/gif,image/webp"
+                       style="max-width: 300px; margin: 0 auto;">
+                <small class="text-muted crear-help">Formatos: JPG, PNG, GIF, WEBP | Máx: 2MB</small>
+              </div>
+
               <!-- Cédula -->
               <div class="col-md-6">
                 <label class="form-label fw-semibold small mb-2 crear-label">
                   <i class="bi bi-card-text me-1"></i> Cédula de identidad
                 </label>
-                <input type="text" name="cedula" class="form-control rounded-3 crear-input" 
+                <input type="text" name="cedula" id="cedula" class="form-control rounded-3 crear-input" 
                        placeholder="12345678">
-                <small class="text-muted crear-help">Solo números</small>
+                <small class="text-muted crear-help" id="cedulaHelp">Solo números. Ej: 12345678</small>
               </div>
 
               <!-- Nombre -->
@@ -55,8 +79,9 @@
                 <label class="form-label fw-semibold small mb-2 crear-label">
                   <i class="bi bi-person-fill me-1"></i> Nombre completo *
                 </label>
-                <input type="text" name="nombre" class="form-control rounded-3 crear-input" required
+                <input type="text" name="nombre" id="nombre" class="form-control rounded-3 crear-input" required
                        placeholder="Ej: Juan Pérez">
+                <small class="text-muted crear-help" id="nombreHelp">Solo letras y espacios</small>
               </div>
 
               <!-- Email -->
@@ -64,8 +89,9 @@
                 <label class="form-label fw-semibold small mb-2 crear-label">
                   <i class="bi bi-envelope-fill me-1"></i> Email *
                 </label>
-                <input type="email" name="email" class="form-control rounded-3 crear-input" required
+                <input type="email" name="email" id="email" class="form-control rounded-3 crear-input" required
                        placeholder="ejemplo@correo.com">
+                <small class="text-muted crear-help" id="emailHelp">ejemplo@gmail.com</small>
               </div>
 
               <!-- Contraseña -->
@@ -73,8 +99,9 @@
                 <label class="form-label fw-semibold small mb-2 crear-label">
                   <i class="bi bi-lock-fill me-1"></i> Contraseña *
                 </label>
-                <input type="password" name="password" class="form-control rounded-3 crear-input" required 
+                <input type="password" name="password" id="password" class="form-control rounded-3 crear-input" required 
                        minlength="6" placeholder="Mínimo 6 caracteres">
+                <small class="text-muted crear-help" id="passwordHelp">Mínimo 6 caracteres</small>
               </div>
 
               <!-- Teléfono -->
@@ -82,8 +109,9 @@
                 <label class="form-label fw-semibold small mb-2 crear-label">
                   <i class="bi bi-telephone-fill me-1"></i> Teléfono
                 </label>
-                <input type="text" name="telefono" class="form-control rounded-3 crear-input" 
+                <input type="text" name="telefono" id="telefono" class="form-control rounded-3 crear-input" 
                        placeholder="0414-1234567">
+                <small class="text-muted crear-help" id="telefonoHelp">Formato: 0414-1234567 (11 dígitos)</small>
               </div>
 
               <!-- Rol (con permisos según usuario logueado) -->
@@ -176,7 +204,7 @@
 
             <!-- Botones -->
             <div class="d-flex gap-3 mt-4 pt-2">
-              <button type="submit" class="btn px-4 py-2 fw-semibold rounded-3 btn-guardar-crear">
+              <button type="submit" class="btn px-4 py-2 fw-semibold rounded-3 btn-guardar-crear" id="btnGuardar">
                 <i class="bi bi-save me-2"></i> Guardar usuario
               </button>
               <a href="/usuarios" class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3 btn-cancelar-crear">
@@ -204,12 +232,228 @@
 </div>
 
 <script>
+  // ========================================
+  // PREVISUALIZACIÓN DE FOTO DE PERFIL
+  // ========================================
+  const fotoInput = document.getElementById('fotoPerfilInput');
+  const fotoPreview = document.getElementById('fotoPreview');
+  
+  if (fotoInput) {
+    fotoInput.addEventListener('change', function(e) {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          fotoPreview.src = e.target.result;
+          fotoPreview.classList.add('foto-cargada');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        fotoPreview.src = '/images/default-avatar.png';
+        fotoPreview.classList.remove('foto-cargada');
+      }
+    });
+  }
+
+  // ========================================
+  // VALIDACIONES EN TIEMPO REAL
+  // ========================================
+  
+  // Cédula - solo números
+  const cedulaInput = document.getElementById('cedula');
+  const cedulaHelp = document.getElementById('cedulaHelp');
+  
+  if (cedulaInput) {
+    cedulaInput.addEventListener('input', function() {
+      this.value = this.value.replace(/[^0-9]/g, '');
+      if (this.value.length > 0 && this.value.length < 6) {
+        cedulaHelp.innerHTML = '<span class="text-warning">⚠️ Mínimo 6 dígitos</span>';
+        this.style.borderColor = '#ffc107';
+      } else if (this.value.length >= 6 && this.value.length <= 10) {
+        cedulaHelp.innerHTML = '<span class="text-success">✅ Cédula válida</span>';
+        this.style.borderColor = '#28a745';
+      } else if (this.value.length > 0) {
+        cedulaHelp.innerHTML = '<span class="text-warning">⚠️ Máximo 10 dígitos</span>';
+        this.style.borderColor = '#ffc107';
+      } else {
+        cedulaHelp.innerHTML = 'Solo números. Ej: 12345678';
+        this.style.borderColor = '';
+      }
+    });
+  }
+
+  // Teléfono - formato 0414-1234567 (11 dígitos)
+  const telefonoInput = document.getElementById('telefono');
+  const telefonoHelp = document.getElementById('telefonoHelp');
+  
+  if (telefonoInput) {
+    telefonoInput.addEventListener('input', function() {
+      this.value = this.value.replace(/[^0-9-]/g, '');
+      
+      let value = this.value.replace(/-/g, '');
+      if (value.length > 4) {
+        this.value = value.substring(0, 4) + '-' + value.substring(4, 11);
+      }
+      
+      const cleanValue = this.value.replace(/-/g, '');
+      
+      if (cleanValue.length > 0 && cleanValue.length < 11) {
+        telefonoHelp.innerHTML = `<span class="text-warning">⚠️ Faltan ${11 - cleanValue.length} dígitos</span>`;
+        this.style.borderColor = '#ffc107';
+      } else if (cleanValue.length === 11) {
+        telefonoHelp.innerHTML = '<span class="text-success">✅ Teléfono válido</span>';
+        this.style.borderColor = '#28a745';
+      } else {
+        telefonoHelp.innerHTML = 'Formato: 0414-1234567 (11 dígitos)';
+        this.style.borderColor = '';
+      }
+    });
+  }
+
+  // Nombre - solo letras y espacios
+  const nombreInput = document.getElementById('nombre');
+  const nombreHelp = document.getElementById('nombreHelp');
+  
+  if (nombreInput) {
+    nombreInput.addEventListener('input', function() {
+      this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '');
+      
+      const words = this.value.trim().split(' ');
+      const filtered = words.filter(w => w.length > 0);
+      
+      if (this.value.length > 0 && filtered.length < 2) {
+        nombreHelp.innerHTML = '<span class="text-warning">⚠️ Ingresa nombre y apellido</span>';
+        this.style.borderColor = '#ffc107';
+      } else if (this.value.length > 0 && filtered.length >= 2) {
+        nombreHelp.innerHTML = '<span class="text-success">✅ Nombre completo válido</span>';
+        this.style.borderColor = '#28a745';
+      } else {
+        nombreHelp.innerHTML = 'Solo letras y espacios. Ej: Juan Pérez';
+        this.style.borderColor = '';
+      }
+    });
+  }
+
+  // Email - validación completa
+  const emailInput = document.getElementById('email');
+  const emailHelp = document.getElementById('emailHelp');
+  
+  if (emailInput) {
+    emailInput.addEventListener('input', function() {
+      const email = this.value;
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      const domainRegex = /@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}/;
+      
+      if (email.length > 0 && !domainRegex.test(email)) {
+        emailHelp.innerHTML = '<span class="text-warning">⚠️ Correo incompleto. Ej: ejemplo@dominio.com</span>';
+        this.style.borderColor = '#ffc107';
+      } else if (email.length > 0 && !emailRegex.test(email)) {
+        emailHelp.innerHTML = '<span class="text-danger">❌ Correo inválido</span>';
+        this.style.borderColor = '#dc3545';
+      } else if (emailRegex.test(email)) {
+        emailHelp.innerHTML = '<span class="text-success">✅ Correo válido</span>';
+        this.style.borderColor = '#28a745';
+      } else {
+        emailHelp.innerHTML = 'ejemplo@gmail.com, ejemplo@comunisolve.com, etc.';
+        this.style.borderColor = '';
+      }
+    });
+  }
+
+  // Contraseña - mínimo 6 caracteres
+  const passwordInput = document.getElementById('password');
+  const passwordHelp = document.getElementById('passwordHelp');
+  
+  if (passwordInput) {
+    passwordInput.addEventListener('input', function() {
+      if (this.value.length > 0 && this.value.length < 6) {
+        passwordHelp.innerHTML = `<span class="text-warning">⚠️ Mínimo 6 caracteres (${this.value.length}/6)</span>`;
+        this.style.borderColor = '#ffc107';
+      } else if (this.value.length >= 6) {
+        passwordHelp.innerHTML = '<span class="text-success">✅ Contraseña válida</span>';
+        this.style.borderColor = '#28a745';
+      } else {
+        passwordHelp.innerHTML = 'Mínimo 6 caracteres';
+        this.style.borderColor = '';
+      }
+    });
+  }
+
+  // ========================================
+  // MOSTRAR CAMPOS SEGÚN ROL
+  // ========================================
   document.getElementById('rolSelect').addEventListener('change', function() {
     const rol = this.value;
     document.getElementById('campoJefe').style.display = rol == '3' ? 'block' : 'none';
     document.getElementById('campoLider').style.display = rol == '2' ? 'block' : 'none';
     document.getElementById('campoCiudadano').style.display = rol == '4' ? 'block' : 'none';
     document.getElementById('campoUbch').style.display = rol == '1' ? 'block' : 'none';
+  });
+
+  // ========================================
+  // VALIDACIÓN ANTES DE ENVIAR
+  // ========================================
+  document.getElementById('crearForm').addEventListener('submit', function(e) {
+    let isValid = true;
+    let errors = [];
+    
+    // Validar cédula (si se ingresó)
+    const cedula = document.getElementById('cedula').value.trim();
+    if (cedula && (cedula.length < 6 || cedula.length > 10)) {
+      isValid = false;
+      errors.push('La cédula debe tener entre 6 y 10 dígitos');
+    }
+    
+    // Validar teléfono (si se ingresó)
+    const telefono = document.getElementById('telefono').value.replace(/-/g, '');
+    if (telefono && telefono.length !== 11) {
+      isValid = false;
+      errors.push('El teléfono debe tener 11 dígitos (ej: 0414-1234567)');
+    }
+    
+    // Validar nombre
+    const nombre = document.getElementById('nombre').value.trim();
+    const words = nombre.split(' ').filter(w => w.length > 0);
+    if (nombre.length < 3 || words.length < 2) {
+      isValid = false;
+      errors.push('Ingresa nombre y apellido');
+    }
+    
+    // Validar email
+    const email = document.getElementById('email').value.trim();
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      isValid = false;
+      errors.push('Correo electrónico inválido');
+    }
+    
+    // Validar contraseña
+    const password = document.getElementById('password').value;
+    if (password.length < 6) {
+      isValid = false;
+      errors.push('La contraseña debe tener al menos 6 caracteres');
+    }
+    
+    // Validar rol seleccionado
+    const rol = document.getElementById('rolSelect').value;
+    if (!rol) {
+      isValid = false;
+      errors.push('Debes seleccionar un rol');
+    }
+    
+    if (!isValid) {
+      e.preventDefault();
+      alert('❌ Por favor, corrige los siguientes errores:\n\n• ' + errors.join('\n• '));
+    }
+  });
+
+  // ========================================
+  // LIMPIAR ESTILOS DE ERROR AL FOCUS
+  // ========================================
+  document.querySelectorAll('input, select').forEach(function(el) {
+    el.addEventListener('focus', function() {
+      this.style.borderColor = '';
+    });
   });
 </script>
 
@@ -259,6 +503,53 @@
   }
   .btn-volver-crear:hover {
     background: #f0d5c0;
+    transform: translateY(-2px);
+  }
+  
+  /* Foto de perfil */
+  .foto-perfil-container {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .foto-perfil-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #fd6704bd;
+    box-shadow: 0 4px 15px rgba(253, 103, 4, 0.2);
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .foto-perfil-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .foto-perfil-img.foto-cargada {
+    border: 3px solid #28a745;
+  }
+  
+  /* Input file personalizado */
+  input[type="file"] {
+    padding: 0.5rem;
+  }
+  input[type="file"]::file-selector-button {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+    border: none;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+  input[type="file"]::file-selector-button:hover {
     transform: translateY(-2px);
   }
   
@@ -354,6 +645,14 @@
   
   body.dark-mode .crear-body {
     background: #27272a;
+  }
+  
+  body.dark-mode .foto-perfil-preview {
+    border-color: #f7931e;
+  }
+  
+  body.dark-mode input[type="file"]::file-selector-button {
+    background: linear-gradient(135deg, #f7931e 0%, #e08515 100%);
   }
   
   body.dark-mode .btn-volver-crear {

@@ -3,6 +3,7 @@ const router = express.Router();
 const usuarioController = require('../controllers/usuarioController');
 const authMiddleware = require('../middleware/authMiddleware');
 const roleMiddleware = require('../middleware/roleMiddleware');
+const { uploadPerfil } = require('../middleware/uploadMiddleware');
 
 // ========== RUTAS PARA UBCH (rol 1) y SUPERADMIN (rol 5) ==========
 
@@ -27,11 +28,13 @@ router.get('/usuarios/nuevo',
   usuarioController.formCrear
 );
 
-// Crear usuario (UBCH y SuperAdmin)
+// Crear usuario (UBCH y SuperAdmin) - CON FOTO DE PERFIL
+// IMPORTANTE: uploadPerfil debe ir ANTES del controlador
 router.post('/usuarios', 
   authMiddleware, 
-  roleMiddleware([1, 5]), 
-  usuarioController.crear
+  roleMiddleware([1, 5]),
+  uploadPerfil.single('foto_perfil'), // ✅ Primero se procesa la imagen
+  usuarioController.crear // ✅ Luego se ejecuta el controlador
 );
 
 // Formulario editar (UBCH y SuperAdmin)
@@ -41,10 +44,11 @@ router.get('/usuarios/:id/editar',
   usuarioController.formEditar
 );
 
-// Actualizar usuario (UBCH y SuperAdmin)
+// Actualizar usuario (UBCH y SuperAdmin) - CON FOTO DE PERFIL
 router.post('/usuarios/:id/editar', 
   authMiddleware, 
-  roleMiddleware([1, 5]), 
+  roleMiddleware([1, 5]),
+  uploadPerfil.single('foto_perfil'),
   usuarioController.actualizar
 );
 
@@ -70,10 +74,29 @@ router.post('/usuarios/:id/destruir',
 );
 
 // Aprobar/Rechazar ciudadanos (UBCH, Líder y SuperAdmin)
-router.post('/usuarios/:id/aprobar', authMiddleware, roleMiddleware([1, 2, 5]), usuarioController.aprobar);
-router.post('/usuarios/:id/rechazar', authMiddleware, roleMiddleware([1, 2, 5]), usuarioController.rechazar);
+router.post('/usuarios/:id/aprobar', 
+  authMiddleware, 
+  roleMiddleware([1, 2, 5]), 
+  usuarioController.aprobar
+);
+router.post('/usuarios/:id/rechazar', 
+  authMiddleware, 
+  roleMiddleware([1, 2, 5]), 
+  usuarioController.rechazar
+);
 
 // Reaprobar usuario (cambiar de rechazado a aprobado) - UBCH, Líder y SuperAdmin
-router.post('/usuarios/:id/reaprobar', authMiddleware, roleMiddleware([1, 2, 5]), usuarioController.reaprobar);
+router.post('/usuarios/:id/reaprobar', 
+  authMiddleware, 
+  roleMiddleware([1, 2, 5]), 
+  usuarioController.reaprobar
+);
+
+// Eliminar foto de perfil (solo SuperAdmin y UBCH)
+router.get('/usuarios/:id/eliminar-foto',
+  authMiddleware,
+  roleMiddleware([1, 5]),
+  usuarioController.eliminarFoto
+);
 
 module.exports = router;

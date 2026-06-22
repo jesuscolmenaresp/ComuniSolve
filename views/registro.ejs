@@ -29,9 +29,33 @@
           <% } %>
 
           <!-- Formulario en grid de 2 columnas -->
-          <form method="POST" action="/registro" id="registroForm" novalidate>
+          <form method="POST" action="/registro" id="registroForm" enctype="multipart/form-data" novalidate>
             <div class="row g-4">
               
+              <!-- Foto de perfil -->
+              <div class="col-12 text-center">
+                <label class="form-label fw-semibold small mb-2 registro-label d-block">
+                  <i class="bi bi-image me-1"></i> Foto de perfil (opcional)
+                </label>
+                
+                <!-- Previsualización -->
+                <div class="foto-perfil-container mb-3">
+                  <div class="foto-perfil-preview" id="fotoPreviewContainer">
+                    <img id="fotoPreview" 
+                         src="/images/default-avatar.png" 
+                         alt="Foto de perfil" 
+                         class="foto-perfil-img">
+                  </div>
+                </div>
+                
+                <!-- Input de archivo -->
+                <input type="file" name="foto_perfil" id="fotoPerfilInput" 
+                       class="form-control rounded-3 registro-input" 
+                       accept="image/jpeg,image/png,image/gif,image/webp"
+                       style="max-width: 300px; margin: 0 auto;">
+                <small class="text-muted registro-help">Formatos: JPG, PNG, GIF, WEBP | Máx: 2MB</small>
+              </div>
+
               <!-- Cédula con tipo de documento -->
               <div class="col-md-6">
                 <label class="form-label fw-semibold small mb-2 registro-label">
@@ -75,6 +99,7 @@
                 </label>
                 <input type="email" name="email" id="email" class="form-control rounded-3 registro-input" 
                        placeholder="ejemplo@gmail.com" required>
+                <small class="text-muted registro-help" id="emailHelp">ejemplo@gmail.com, ejemplo@comunisolve.com, etc.</small>
               </div>
 
               <!-- Contraseña -->
@@ -159,7 +184,30 @@
 <script>
   (function() {
     // ========================================
-    // 1. VALIDACIONES EN TIEMPO REAL
+    // 1. PREVISUALIZACIÓN DE FOTO DE PERFIL
+    // ========================================
+    const fotoInput = document.getElementById('fotoPerfilInput');
+    const fotoPreview = document.getElementById('fotoPreview');
+    
+    if (fotoInput) {
+      fotoInput.addEventListener('change', function(e) {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            fotoPreview.src = e.target.result;
+            fotoPreview.classList.add('foto-cargada');
+          };
+          reader.readAsDataURL(file);
+        } else {
+          fotoPreview.src = '/images/default-avatar.png';
+          fotoPreview.classList.remove('foto-cargada');
+        }
+      });
+    }
+
+    // ========================================
+    // 2. VALIDACIONES EN TIEMPO REAL
     // ========================================
     
     // Cédula - solo números
@@ -306,7 +354,7 @@
     confirmPasswordInput.addEventListener('input', checkPasswordMatch);
 
     // ========================================
-    // 2. VALIDACIÓN ANTES DE ENVIAR
+    // 3. VALIDACIÓN ANTES DE ENVIAR
     // ========================================
     const form = document.getElementById('registroForm');
     
@@ -393,7 +441,7 @@
     });
 
     // ========================================
-    // 3. LIMPIAR ESTILOS DE ERROR AL FOCUS
+    // 4. LIMPIAR ESTILOS DE ERROR AL FOCUS
     // ========================================
     document.querySelectorAll('input, select').forEach(function(el) {
       el.addEventListener('focus', function() {
@@ -458,6 +506,53 @@
   /* Body */
   .registro-card-body {
     background: #ffffff;
+  }
+  
+  /* Foto de perfil */
+  .foto-perfil-container {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .foto-perfil-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #fd6704bd;
+    box-shadow: 0 4px 15px rgba(253, 103, 4, 0.2);
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .foto-perfil-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .foto-perfil-img.foto-cargada {
+    border: 3px solid #28a745;
+  }
+  
+  /* Input file personalizado */
+  input[type="file"] {
+    padding: 0.5rem;
+  }
+  input[type="file"]::file-selector-button {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+    border: none;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+  input[type="file"]::file-selector-button:hover {
+    transform: translateY(-2px);
   }
   
   /* Labels */
@@ -565,6 +660,10 @@
     background: #27272a;
   }
   
+  body.dark-mode .foto-perfil-preview {
+    border-color: #f7931e;
+  }
+  
   body.dark-mode .registro-label {
     color: #e4e4e7;
   }
@@ -599,6 +698,10 @@
   
   body.dark-mode .registro-help {
     color: #a1a1aa;
+  }
+  
+  body.dark-mode input[type="file"]::file-selector-button {
+    background: linear-gradient(135deg, #f7931e 0%, #e08515 100%);
   }
   
   body.dark-mode .registro-cancel-btn {
