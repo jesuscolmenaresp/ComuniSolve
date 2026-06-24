@@ -452,6 +452,17 @@
                 </ul>
               </li>
             <% } %>
+            <!-- ========== NOTIFICACIONES - BADGE ========== -->
+            <% if (usuario) { %>
+              <li class="nav-item position-relative">
+                <a class="nav-link" href="/notificaciones" id="notificacionesLink">
+                  <i class="bi bi-bell-fill fs-5"></i>
+                  <span id="notificacionesBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; display: none; transform: translate(0%, -50%) !important;">
+                    0
+                  </span>
+                </a>
+              </li>
+            <% } %>
             
             <!-- ========== LOGIN / REGISTRO / LOGOUT ========== -->
             <% if (!usuario) { %>
@@ -510,8 +521,13 @@
             "Construyendo comunidad <br>
             transformando realidades"
           </p>
+          <!-- Enlace a Acerca de -->
+          <div class="mt-3">
+            <a href="/acerca" class="text-decoration-none text-muted small" style="transition: all 0.2s ease;">
+              <i class="bi bi-info-circle me-1"></i> Acerca de ComuniSolve
+            </a>
+          </div>
         </div>
-      </div>
     </div>
   </footer>
 
@@ -564,6 +580,29 @@
 
       btn.addEventListener('click', toggleDarkMode);
     })();
+  </script>
+  <!-- ========== SCRIPT PARA NOTIFICACIONES ========== -->
+  <script>
+    async function actualizarContadorNotificaciones() {
+      try {
+        const response = await fetch('/api/notificaciones/no-leidas');
+        const data = await response.json();
+        const badge = document.getElementById('notificacionesBadge');
+        if (data.total > 0) {
+          badge.textContent = data.total > 99 ? '99+' : data.total;
+          badge.style.display = 'block';
+        } else {
+          badge.style.display = 'none';
+        }
+      } catch (error) {
+        console.error('Error al obtener notificaciones:', error);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      actualizarContadorNotificaciones();
+      setInterval(actualizarContadorNotificaciones, 30000);
+    });
   </script>
 </body>
 </html>

@@ -50,4 +50,12 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Acerca de
+router.get('/acerca', (req, res) => {
+  res.render('acerca', { 
+    usuario: req.session.usuario,
+    session: req.session 
+  });
+});
+
 module.exports = router;

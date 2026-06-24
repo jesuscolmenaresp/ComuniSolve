@@ -1,0 +1,314 @@
+<div class="container py-4">
+  
+  <!-- Encabezado -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1" style="color: #5D4037;">
+        <i class="bi bi-bell-fill me-2" style="color: #fd6704bd;"></i>
+        Notificaciones
+        <span class="badge bg-danger rounded-pill ms-2" id="contadorNoLeidas"><%= noLeidas %></span>
+      </h2>
+      <p class="text-muted small mb-0">Mantente informado sobre las novedades de tu comunidad</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button id="btnMarcarTodas" class="btn btn-sm btn-outline-secondary px-3 py-2 rounded-3">
+        <i class="bi bi-check2-all me-1"></i> Marcar todas como leídas
+      </button>
+      <% if (usuario && [1, 5].includes(usuario.rol_id)) { %>
+        <button class="btn btn-sm px-3 py-2 rounded-3" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;" data-bs-toggle="modal" data-bs-target="#modalCrearNotificacion">
+          <i class="bi bi-plus-circle me-1"></i> Nueva notificación
+        </button>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Mensajes flash -->
+  <% if (session && session.mensaje) { %>
+    <div class="alert alert-success alert-dismissible fade show border-0 rounded-3 py-2 mb-4" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i> 
+      <small><%= session.mensaje %></small>
+      <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+    </div>
+    <% session.mensaje = null; %>
+  <% } %>
+
+  <% if (session && session.error) { %>
+    <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 py-2 mb-4" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i> 
+      <small><%= session.error %></small>
+      <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+    </div>
+    <% session.error = null; %>
+  <% } %>
+
+  <!-- Lista de notificaciones -->
+  <% if (notificaciones && notificaciones.length > 0) { %>
+    <div class="list-group list-group-flush">
+      <% notificaciones.forEach(n => { %>
+        <div class="list-group-item border-0 rounded-4 shadow-sm mb-3 notificacion-item <%= n.leida ? 'notificacion-leida' : 'notificacion-no-leida' %>" data-id="<%= n.id %>">
+          <div class="d-flex gap-3 align-items-start">
+            <div class="notificacion-icon">
+              <% if (n.tipo === 'general') { %>
+                <i class="bi bi-megaphone-fill fs-4" style="color: #fd6704bd;"></i>
+              <% } else if (n.tipo === 'reporte') { %>
+                <i class="bi bi-file-text-fill fs-4" style="color: #17a2b8;"></i>
+              <% } else if (n.tipo === 'voluntario') { %>
+                <i class="bi bi-person-badge-fill fs-4" style="color: #28a745;"></i>
+              <% } else { %>
+                <i class="bi bi-building-fill fs-4" style="color: #6f42c1;"></i>
+              <% } %>
+            </div>
+            <div class="flex-grow-1">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="fw-bold mb-1"><%= n.titulo %></h6>
+                  <p class="small text-muted mb-1"><%= n.contenido %></p>
+                  <div class="d-flex gap-2 align-items-center">
+                    <span class="badge rounded-pill px-2 py-1 
+                      <%= n.prioridad === 'alta' ? 'bg-danger' : n.prioridad === 'media' ? 'bg-warning text-dark' : 'bg-info' %>">
+                      <%= n.prioridad === 'alta' ? '🔴 Alta' : n.prioridad === 'media' ? '🟡 Media' : '🟢 Baja' %>
+                    </span>
+                    <span class="badge rounded-pill px-2 py-1" style="background: #f0d5c0; color: #5D4037;">
+                      <i class="bi bi-person me-1"></i> <%= n.creador_nombre %>
+                    </span>
+                    <span class="small text-muted">
+                      <i class="bi bi-clock me-1"></i> <%= new Date(n.fecha_creacion).toLocaleString() %>
+                    </span>
+                  </div>
+                </div>
+                <div class="d-flex gap-2">
+                  <% if (!n.leida) { %>
+                    <button class="btn btn-sm btn-outline-success rounded-3 btn-marcar-leida" data-id="<%= n.id %>">
+                      <i class="bi bi-check2"></i>
+                    </button>
+                  <% } else { %>
+                    <span class="badge bg-success rounded-pill px-2 py-1">
+                      <i class="bi bi-check-circle me-1"></i> Leída
+                    </span>
+                  <% } %>
+                  <% if (usuario && (usuario.rol_id === 5 || usuario.id === n.creado_por)) { %>
+                    <form action="/notificaciones/<%= n.id %>/eliminar" method="POST" style="display: inline;" 
+                          onsubmit="return confirm('¿Eliminar esta notificación?')">
+                      <button type="submit" class="btn btn-sm btn-outline-danger rounded-3">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </form>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="card border-0 rounded-4 shadow-sm">
+      <div class="card-body text-center py-5">
+        <i class="bi bi-bell-slash-fill fs-1 d-block mb-3 text-muted"></i>
+        <h5 class="text-muted">No hay notificaciones</h5>
+        <p class="text-muted small">Las notificaciones importantes aparecerán aquí</p>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Botón volver - Redirige según el rol -->
+  <div class="text-center mt-4">
+    <% 
+      let volverLink = '/';
+      if (usuario) {
+        if (usuario.rol_id === 5) volverLink = '/dashboard/superadmin';
+        else if (usuario.rol_id === 1) volverLink = '/dashboard/admin';
+        else if (usuario.rol_id === 2) volverLink = '/dashboard/lider';
+        else if (usuario.rol_id === 3) volverLink = '/dashboard/jefe';
+        // rol 4 (ciudadano) se queda en '/'
+      }
+    %>
+    <a href="<%= volverLink %>" class="btn btn-outline-secondary rounded-3 px-4 py-2">
+      <i class="bi bi-arrow-left me-2"></i> Volver al dashboard
+    </a>
+  </div>
+</div>
+
+<!-- Modal para crear notificación (solo UBCH y SuperAdmin) -->
+<% if (usuario && [1, 5].includes(usuario.rol_id)) { %>
+<div class="modal fade" id="modalCrearNotificacion" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <div class="modal-header" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-plus-circle me-2"></i> Crear Notificación
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/notificaciones/crear" method="POST">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Título *</label>
+            <input type="text" name="titulo" class="form-control rounded-3" required placeholder="Ej: Recolección de basura">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Contenido *</label>
+            <textarea name="contenido" class="form-control rounded-3" rows="4" required placeholder="Describe el mensaje que quieres compartir..."></textarea>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Tipo</label>
+              <select name="tipo" class="form-select rounded-3">
+                <option value="general">📢 General</option>
+                <option value="reporte">📋 Reporte</option>
+                <option value="voluntario">🤝 Voluntario</option>
+                <option value="comunidad">🏘️ Comunidad</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Prioridad</label>
+              <select name="prioridad" class="form-select rounded-3">
+                <option value="baja">🟢 Baja</option>
+                <option value="media" selected>🟡 Media</option>
+                <option value="alta">🔴 Alta</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn rounded-3 px-4" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;">
+            <i class="bi bi-send me-1"></i> Publicar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<script>
+  // Marcar notificación como leída
+  document.querySelectorAll('.btn-marcar-leida').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const id = this.dataset.id;
+      const item = this.closest('.notificacion-item');
+      
+      try {
+        const response = await fetch(`/notificaciones/${id}/leer`, {
+          method: 'POST'
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          // Actualizar visualmente
+          item.classList.remove('notificacion-no-leida');
+          item.classList.add('notificacion-leida');
+          this.remove();
+          // Actualizar contador
+          const contador = document.getElementById('contadorNoLeidas');
+          const actual = parseInt(contador.textContent);
+          contador.textContent = Math.max(0, actual - 1);
+          // Agregar badge de leída
+          const badgeDiv = this.parentElement;
+          badgeDiv.innerHTML = '<span class="badge bg-success rounded-pill px-2 py-1"><i class="bi bi-check-circle me-1"></i> Leída</span>';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+  });
+
+  // Marcar todas como leídas
+  document.getElementById('btnMarcarTodas').addEventListener('click', async function() {
+    try {
+      const response = await fetch('/notificaciones/leer-todas', {
+        method: 'POST'
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        // Marcar visualmente todas
+        document.querySelectorAll('.notificacion-no-leida').forEach(item => {
+          item.classList.remove('notificacion-no-leida');
+          item.classList.add('notificacion-leida');
+          const btn = item.querySelector('.btn-marcar-leida');
+          if (btn) {
+            const badgeDiv = btn.parentElement;
+            badgeDiv.innerHTML = '<span class="badge bg-success rounded-pill px-2 py-1"><i class="bi bi-check-circle me-1"></i> Leída</span>';
+          }
+        });
+        document.getElementById('contadorNoLeidas').textContent = '0';
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  });
+</script>
+
+<style>
+  /* ========== ESTILOS BASE ========== */
+  .notificacion-item {
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+  
+  .notificacion-item:hover {
+    transform: translateX(3px);
+  }
+  
+  .notificacion-no-leida {
+    background: #fefaf7;
+    border-left: 4px solid #fd6704bd;
+  }
+  
+  .notificacion-leida {
+    background: #ffffff;
+    border-left: 4px solid #d0d0d0;
+    opacity: 0.85;
+  }
+  
+  .notificacion-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  /* ========== MODO NOCTURNO ========== */
+  body.dark-mode .notificacion-no-leida {
+    background: #1f1f2e;
+    border-left-color: #f7931e;
+  }
+  
+  body.dark-mode .notificacion-leida {
+    background: #27272a;
+    border-left-color: #3f3f46;
+  }
+  
+  body.dark-mode .notificacion-icon {
+    background: #1f1f2e;
+  }
+  
+  body.dark-mode .notificacion-item h6 {
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .notificacion-item .text-muted {
+    color: #a1a1aa !important;
+  }
+  
+  body.dark-mode .modal-content {
+    background: #27272a;
+  }
+  
+  body.dark-mode .modal-footer {
+    background: #1f1f2e;
+  }
+  
+  body.dark-mode .form-control,
+  body.dark-mode .form-select {
+    background: #3f3f46;
+    border-color: #3f3f46;
+    color: #e4e4e7;
+  }
+</style>

@@ -1,0 +1,526 @@
+<div class="container py-5">
+  
+  <!-- Encabezado -->
+  <div class="text-center mb-5">
+    <h1 class="fw-bold display-4" style="color: #5D4037;">
+      <i class="bi bi-info-circle-fill me-2" style="color: #fd6704bd;"></i>
+      Acerca de ComuniSolve
+    </h1>
+    <p class="text-muted lead">Conoce la estructura y funcionamiento de nuestra plataforma comunitaria</p>
+    <div class="d-flex justify-content-center mt-3">
+      <span class="badge px-4 py-2 rounded-pill" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; font-size: 1rem;">
+        <i class="bi bi-people me-2"></i> Gestión Comunitaria Inteligente
+      </span>
+    </div>
+  </div>
+
+  <!-- Jerarquía de roles - Estilo escalera -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-lg-10">
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden jerarquia-card">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h4 class="mb-0 fw-bold" style="color: #5D4037;">
+            <i class="bi bi-diagram-3 me-2" style="color: #fd6704bd;"></i>
+            Jerarquía de Roles
+          </h4>
+          <p class="text-muted small mb-0">Estructura organizativa de la comunidad</p>
+        </div>
+        <div class="card-body p-4">
+          <!-- Escalera visual -->
+          <div class="jerarquia-escalera">
+            
+            <!-- Nivel 1: SuperAdmin -->
+            <div class="escalon nivel-superadmin">
+              <div class="d-flex align-items-center gap-3">
+                <div class="escalon-icon">
+                  <i class="bi bi-shield-lock-fill fs-1" style="color: #ffc107;"></i>
+                </div>
+                <div class="escalon-contenido">
+                  <h5 class="mb-0 fw-bold">👑 SuperAdministrador</h5>
+                  <p class="small text-muted mb-0">Control total del sistema - Acceso a todas las funcionalidades</p>
+                </div>
+                <div class="ms-auto">
+                  <span class="badge bg-dark rounded-pill px-3 py-2">Nivel 5</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Flecha hacia abajo -->
+            <div class="text-center my-2">
+              <i class="bi bi-chevron-down fs-2" style="color: #fd6704bd;"></i>
+            </div>
+
+            <!-- Nivel 2: UBCH -->
+            <div class="escalon nivel-ubch">
+              <div class="d-flex align-items-center gap-3">
+                <div class="escalon-icon">
+                  <i class="bi bi-building-fill fs-1" style="color: #dc3545;"></i>
+                </div>
+                <div class="escalon-contenido">
+                  <h5 class="mb-0 fw-bold">🏛️ UBCH</h5>
+                  <p class="small text-muted mb-0">Administración de comunidades - Supervisa múltiples comunidades</p>
+                  <div class="mt-1">
+                    <span class="badge rounded-pill px-2 py-1" style="background: #dc3545; color: white; font-size: 0.65rem;">
+                      <i class="bi bi-buildings me-1"></i> Comunidades a cargo: <strong>Múltiples</strong>
+                    </span>
+                  </div>
+                </div>
+                <div class="ms-auto">
+                  <span class="badge bg-danger rounded-pill px-3 py-2">Nivel 1</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Flecha hacia abajo -->
+            <div class="text-center my-2">
+              <i class="bi bi-chevron-down fs-2" style="color: #fd6704bd;"></i>
+            </div>
+
+            <!-- Nivel 3: Líder -->
+            <div class="escalon nivel-lider">
+              <div class="d-flex align-items-center gap-3">
+                <div class="escalon-icon">
+                  <i class="bi bi-person-badge-fill fs-1" style="color: #17a2b8;"></i>
+                </div>
+                <div class="escalon-contenido">
+                  <h5 class="mb-0 fw-bold">👨‍💼 Líder Comunitario</h5>
+                  <p class="small text-muted mb-0">Liderazgo de calles - Supervisa múltiples calles</p>
+                  <div class="mt-1">
+                    <span class="badge rounded-pill px-2 py-1" style="background: #17a2b8; color: white; font-size: 0.65rem;">
+                      <i class="bi bi-geo-alt-fill me-1"></i> Calles a cargo: <strong>Múltiples</strong>
+                    </span>
+                  </div>
+                </div>
+                <div class="ms-auto">
+                  <span class="badge bg-info rounded-pill px-3 py-2">Nivel 2</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Flecha hacia abajo -->
+            <div class="text-center my-2">
+              <i class="bi bi-chevron-down fs-2" style="color: #fd6704bd;"></i>
+            </div>
+
+            <!-- Nivel 4: Jefe de Calle -->
+            <div class="escalon nivel-jefe">
+              <div class="d-flex align-items-center gap-3">
+                <div class="escalon-icon">
+                  <i class="bi bi-person-fill fs-1" style="color: #28a745;"></i>
+                </div>
+                <div class="escalon-contenido">
+                  <h5 class="mb-0 fw-bold">👤 Jefe de Calle</h5>
+                  <p class="small text-muted mb-0">Gestión de una calle - Supervisa solo su calle</p>
+                  <div class="mt-1">
+                    <span class="badge rounded-pill px-2 py-1" style="background: #28a745; color: white; font-size: 0.65rem;">
+                      <i class="bi bi-house-fill me-1"></i> Calle a cargo: <strong>1 calle</strong>
+                    </span>
+                  </div>
+                </div>
+                <div class="ms-auto">
+                  <span class="badge bg-success rounded-pill px-3 py-2">Nivel 3</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Flecha hacia abajo -->
+            <div class="text-center my-2">
+              <i class="bi bi-chevron-down fs-2" style="color: #fd6704bd;"></i>
+            </div>
+
+            <!-- Nivel 5: Ciudadano -->
+            <div class="escalon nivel-ciudadano">
+              <div class="d-flex align-items-center gap-3">
+                <div class="escalon-icon">
+                  <i class="bi bi-person-fill fs-1" style="color: #6c757d;"></i>
+                </div>
+                <div class="escalon-contenido">
+                  <h5 class="mb-0 fw-bold">🧑‍🤝‍🧑 Ciudadano</h5>
+                  <p class="small text-muted mb-0">Participación ciudadana - Reporta problemas y vota</p>
+                  <div class="mt-1">
+                    <span class="badge rounded-pill px-2 py-1" style="background: #6c757d; color: white; font-size: 0.65rem;">
+                      <i class="bi bi-house-heart me-1"></i> Calle donde reside
+                    </span>
+                  </div>
+                </div>
+                <div class="ms-auto">
+                  <span class="badge bg-secondary rounded-pill px-3 py-2">Nivel 4</span>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Explicación detallada -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-6">
+      <div class="card border-0 rounded-4 shadow-sm h-100 explicacion-card">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-3" style="color: #5D4037;">
+            <i class="bi bi-question-circle me-2" style="color: #fd6704bd;"></i>
+            ¿Cómo funciona?
+          </h5>
+          <ul class="list-unstyled">
+            <li class="mb-3 d-flex gap-2">
+              <i class="bi bi-check-circle-fill text-success mt-1"></i>
+              <div>
+                <strong>Jerarquía descendente:</strong>
+                <span class="text-muted">Cada rol tiene responsabilidades específicas dentro de la comunidad.</span>
+              </div>
+            </li>
+            <li class="mb-3 d-flex gap-2">
+              <i class="bi bi-check-circle-fill text-success mt-1"></i>
+              <div>
+                <strong>SuperAdmin → UBCH → Líder → Jefe → Ciudadano:</strong>
+                <span class="text-muted">La información fluye de arriba hacia abajo.</span>
+              </div>
+            </li>
+            <li class="mb-3 d-flex gap-2">
+              <i class="bi bi-check-circle-fill text-success mt-1"></i>
+              <div>
+                <strong>Reportes:</strong>
+                <span class="text-muted">Los ciudadanos reportan problemas, los líderes y jefes los gestionan.</span>
+              </div>
+            </li>
+            <li class="d-flex gap-2">
+              <i class="bi bi-check-circle-fill text-success mt-1"></i>
+              <div>
+                <strong>Participación:</strong>
+                <span class="text-muted">Todos los roles pueden colaborar en la solución de problemas.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-0 rounded-4 shadow-sm h-100 explicacion-card">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-3" style="color: #5D4037;">
+            <i class="bi bi-list-check me-2" style="color: #fd6704bd;"></i>
+            ¿Qué puede hacer cada rol?
+          </h5>
+          <div class="accordion" id="accordionRoles">
+            <!-- SuperAdmin -->
+            <div class="accordion-item border-0 mb-2">
+              <div class="accordion-header">
+                <button class="accordion-button collapsed rounded-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSA" style="background: #fff8f0; color: #5D4037;">
+                  <i class="bi bi-shield-lock-fill me-2" style="color: #ffc107;"></i>
+                  <strong>SuperAdministrador</strong>
+                  <span class="badge bg-dark ms-2">Control total</span>
+                </button>
+              </div>
+              <div id="collapseSA" class="accordion-collapse collapse" data-bs-parent="#accordionRoles">
+                <div class="accordion-body">
+                  <ul class="list-unstyled mb-0">
+                    <li><i class="bi bi-check2 text-success me-2"></i> Gestionar todos los usuarios</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Ver todos los reportes</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Auditoría completa</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Configurar modo nocturno</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Eliminar registros permanentemente</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Gestionar respaldos</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- UBCH -->
+            <div class="accordion-item border-0 mb-2">
+              <div class="accordion-header">
+                <button class="accordion-button collapsed rounded-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUBCH" style="background: #fff8f0; color: #5D4037;">
+                  <i class="bi bi-building-fill me-2" style="color: #dc3545;"></i>
+                  <strong>UBCH</strong>
+                  <span class="badge bg-danger ms-2">Comunidades</span>
+                </button>
+              </div>
+              <div id="collapseUBCH" class="accordion-collapse collapse" data-bs-parent="#accordionRoles">
+                <div class="accordion-body">
+                  <ul class="list-unstyled mb-0">
+                    <li><i class="bi bi-check2 text-success me-2"></i> Gestionar comunidades a cargo</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Aprobar/rechazar usuarios</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Gestionar categorías, calles, empresas</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Desactivar reportes</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Exportar reportes</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Ver auditoría</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Líder -->
+            <div class="accordion-item border-0 mb-2">
+              <div class="accordion-header">
+                <button class="accordion-button collapsed rounded-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLider" style="background: #fff8f0; color: #5D4037;">
+                  <i class="bi bi-person-badge-fill me-2" style="color: #17a2b8;"></i>
+                  <strong>Líder Comunitario</strong>
+                  <span class="badge bg-info ms-2">Calles</span>
+                </button>
+              </div>
+              <div id="collapseLider" class="accordion-collapse collapse" data-bs-parent="#accordionRoles">
+                <div class="accordion-body">
+                  <ul class="list-unstyled mb-0">
+                    <li><i class="bi bi-check2 text-success me-2"></i> Gestionar calles a cargo</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Asignar empresa/voluntario a reportes</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Cambiar estado de reportes</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Gestionar voluntarios</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Exportar reportes</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Ver estadísticas de sus calles</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Jefe de Calle -->
+            <div class="accordion-item border-0 mb-2">
+              <div class="accordion-header">
+                <button class="accordion-button collapsed rounded-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseJefe" style="background: #fff8f0; color: #5D4037;">
+                  <i class="bi bi-person-fill me-2" style="color: #28a745;"></i>
+                  <strong>Jefe de Calle</strong>
+                  <span class="badge bg-success ms-2">1 calle</span>
+                </button>
+              </div>
+              <div id="collapseJefe" class="accordion-collapse collapse" data-bs-parent="#accordionRoles">
+                <div class="accordion-body">
+                  <ul class="list-unstyled mb-0">
+                    <li><i class="bi bi-check2 text-success me-2"></i> Ver reportes de su calle</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Cambiar estado de reportes</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Exportar reportes</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Ver estadísticas de su calle</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Dar seguimiento a problemas</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ciudadano -->
+            <div class="accordion-item border-0">
+              <div class="accordion-header">
+                <button class="accordion-button collapsed rounded-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCiudadano" style="background: #fff8f0; color: #5D4037;">
+                  <i class="bi bi-person-fill me-2" style="color: #6c757d;"></i>
+                  <strong>Ciudadano</strong>
+                  <span class="badge bg-secondary ms-2">Participación</span>
+                </button>
+              </div>
+              <div id="collapseCiudadano" class="accordion-collapse collapse" data-bs-parent="#accordionRoles">
+                <div class="accordion-body">
+                  <ul class="list-unstyled mb-0">
+                    <li><i class="bi bi-check2 text-success me-2"></i> Crear reportes</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Votar reportes</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Ver reportes de su calle</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Ser voluntario</li>
+                    <li><i class="bi bi-check2 text-success me-2"></i> Ver estado de sus reportes</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Misión y Visión -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-4">
+      <div class="card border-0 rounded-4 shadow-sm h-100 mision-card">
+        <div class="card-body text-center p-4">
+          <div class="icon-wrapper mb-3">
+            <i class="bi bi-flag-fill fs-1" style="color: #fd6704bd;"></i>
+          </div>
+          <h5 class="fw-bold" style="color: #5D4037;">Nuestra Misión</h5>
+          <p class="text-muted small">Fortalecer la participación ciudadana mediante una plataforma digital que conecta a los ciudadanos con sus líderes comunitarios, facilitando la resolución de problemas.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 rounded-4 shadow-sm h-100 vision-card">
+        <div class="card-body text-center p-4">
+          <div class="icon-wrapper mb-3">
+            <i class="bi bi-eye-fill fs-1" style="color: #17a2b8;"></i>
+          </div>
+          <h5 class="fw-bold" style="color: #5D4037;">Nuestra Visión</h5>
+          <p class="text-muted small">Ser la herramienta principal de gestión comunitaria en Venezuela, empoderando a las comunidades para resolver sus problemas de manera colaborativa.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 rounded-4 shadow-sm h-100 valores-card">
+        <div class="card-body text-center p-4">
+          <div class="icon-wrapper mb-3">
+            <i class="bi bi-heart-fill fs-1" style="color: #dc3545;"></i>
+          </div>
+          <h5 class="fw-bold" style="color: #5D4037;">Nuestros Valores</h5>
+          <p class="text-muted small">Transparencia, participación ciudadana, colaboración comunitaria, responsabilidad social y compromiso con el bienestar colectivo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón volver -->
+  <div class="text-center mt-4">
+    <a href="/" class="btn btn-outline-secondary rounded-3 px-4 py-2">
+      <i class="bi bi-arrow-left me-2"></i> Volver al inicio
+    </a>
+  </div>
+</div>
+
+<style>
+  /* ========== ESTILOS PARA ACERCA DE ========== */
+  
+  .jerarquia-card {
+    background: #ffffff;
+  }
+  
+  .escalon {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-radius: 12px;
+    border-left: 4px solid #fd6704bd;
+    transition: all 0.3s ease;
+  }
+  
+  .escalon:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  
+  .nivel-superadmin { border-left-color: #ffc107; }
+  .nivel-ubch { border-left-color: #dc3545; }
+  .nivel-lider { border-left-color: #17a2b8; }
+  .nivel-jefe { border-left-color: #28a745; }
+  .nivel-ciudadano { border-left-color: #6c757d; }
+  
+  .escalon-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .explicacion-card {
+    background: #ffffff;
+  }
+  
+  .accordion-button {
+    font-weight: 500;
+    border: none;
+  }
+  
+  .accordion-button:focus {
+    box-shadow: none;
+    border-color: #fd6704bd;
+  }
+  
+  .accordion-button:not(.collapsed) {
+    background: linear-gradient(135deg, #fce5d4 0%, #fdf1e7 100%);
+    color: #5D4037;
+  }
+  
+  .accordion-body {
+    background: #fefaf7;
+  }
+  
+  .mision-card, .vision-card, .valores-card {
+    background: #ffffff;
+    transition: all 0.3s ease;
+  }
+  
+  .mision-card:hover, .vision-card:hover, .valores-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #fefaf7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border: 2px solid #f0d5c0;
+  }
+  
+/* ========== MODO NOCTURNO ========== */
+    body.dark-mode .jerarquia-card,
+    body.dark-mode .explicacion-card,
+    body.dark-mode .mision-card,
+    body.dark-mode .vision-card,
+    body.dark-mode .valores-card {
+    background: #27272a;
+    }
+
+    body.dark-mode .jerarquia-card .card-header {
+    background: #27272a !important;
+    }
+
+    body.dark-mode .jerarquia-card .card-header h4 {
+    color: #e4e4e7 !important;
+    }
+
+    body.dark-mode .jerarquia-card .card-header p {
+    color: #a1a1aa !important;
+    }
+
+    body.dark-mode .escalon {
+    background: #1f1f2e;
+    }
+
+    body.dark-mode .escalon-contenido h5 {
+    color: #e4e4e7;
+    }
+
+    body.dark-mode .escalon-contenido p {
+    color: #a1a1aa !important;
+    }
+
+    body.dark-mode .escalon-contenido .badge {
+    background: #3f3f46 !important;
+    color: #e4e4e7 !important;
+    }
+
+    body.dark-mode .accordion-button {
+    background: #1f1f2e;
+    color: #e4e4e7;
+    }
+
+    body.dark-mode .accordion-button:not(.collapsed) {
+    background: linear-gradient(135deg, #2d2d44 0%, #1f1f35 100%);
+    color: #e4e4e7;
+    }
+
+    body.dark-mode .accordion-body {
+    background: #1a1a2e;
+    }
+
+    body.dark-mode .accordion-body li {
+    color: #e4e4e7;
+    }
+
+    body.dark-mode .icon-wrapper {
+    background: #1f1f2e;
+    border-color: #3f3f46;
+    }
+
+    body.dark-mode .icon-wrapper i {
+    color: #f7931e !important;
+    }
+
+    body.dark-mode .mision-card h5,
+    body.dark-mode .vision-card h5,
+    body.dark-mode .valores-card h5 {
+    color: #e4e4e7 !important;
+    }
+
+    body.dark-mode .mision-card p,
+    body.dark-mode .vision-card p,
+    body.dark-mode .valores-card p {
+    color: #a1a1aa !important;
+    }
+</style>

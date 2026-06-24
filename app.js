@@ -133,6 +133,8 @@ const superadminRoutes = require('./routes/superadmin');
 
 const configRoutes = require('./routes/config');
 
+const notificacionesRoutes = require('./routes/notificaciones');
+
 app.use('/', indexRouter);
 app.use(authRoutes);
 app.use(reporteRoutes);
@@ -160,6 +162,7 @@ app.use('/superadmin', superadminRoutes);
 
 app.use('/config', configRoutes);
 
+app.use('/', notificacionesRoutes);
 
 // ================================================
 // INICIAR SERVIDOR

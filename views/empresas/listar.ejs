@@ -56,7 +56,17 @@
           <tbody>
             <% if (empresas && empresas.length > 0) { %>
               <% empresas.forEach(e => { %>
-                <tr class="align-middle text-center empresa-fila">
+                <tr class="align-middle text-center empresa-fila" 
+                    data-id="<%= e.id %>"
+                    data-nombre="<%= e.nombre %>"
+                    data-rif="<%= e.rif || '—' %>"
+                    data-contacto="<%= e.contacto || '—' %>"
+                    data-telefono="<%= e.telefono || '—' %>"
+                    data-email="<%= e.email || '—' %>"
+                    data-tipo="<%= e.tipo || '—' %>"
+                    data-direccion="<%= e.direccion || '—' %>"
+                    data-categorias="<%= e.categorias_nombres || '' %>"
+                    style="cursor: pointer;">
                   <td class="fw-semibold text-start empresa-nombre"><%= e.nombre %></td>
                   <td><%= e.rif || '—' %></td>
                   <td><%= e.contacto || '—' %></td>
@@ -111,6 +121,14 @@
     </div>
   </div>
 
+  <!-- Mensaje de doble clic -->
+  <div class="text-center mt-3">
+    <span class="badge bg-light text-muted px-3 py-2 rounded-pill" style="font-weight: normal; font-size: 0.75rem; border: 1px solid #e0e0e0;">
+      <i class="bi bi-hand-index-thumb me-1"></i> 
+      Doble clic en cualquier fila para ver más detalles
+    </span>
+  </div>
+
   <!-- Badge de información -->
   <div class="text-center mt-4">
     <small class="text-muted empresas-info">
@@ -119,6 +137,145 @@
     </small>
   </div>
 </div>
+
+<!-- Modal de Detalles de Empresa -->
+<div class="modal fade" id="modalEmpresaDetalle" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 rounded-4 shadow-lg modal-empresa-detalle">
+      <div class="modal-header modal-empresa-header">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-building me-2"></i> Detalles de la Empresa
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4 modal-empresa-body" id="detalleEmpresaContent">
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="mt-2 text-muted">Cargando información...</p>
+        </div>
+      </div>
+      <div class="modal-footer modal-empresa-footer">
+        <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" id="btnEditarEmpresa" class="btn rounded-3 px-4 btn-editar-detalle-empresa">
+          ✏️ Editar empresa
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ========================================
+  // DOBLE CLIC PARA VER DETALLES DE EMPRESA
+  // ========================================
+  document.querySelectorAll('.empresa-fila').forEach(fila => {
+    fila.addEventListener('dblclick', function(e) {
+      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.tagName === 'FORM') return;
+      
+      const id = this.dataset.id;
+      const nombre = this.dataset.nombre;
+      const rif = this.dataset.rif;
+      const contacto = this.dataset.contacto;
+      const telefono = this.dataset.telefono;
+      const email = this.dataset.email;
+      const tipo = this.dataset.tipo;
+      const direccion = this.dataset.direccion;
+      const categorias = this.dataset.categorias || 'Sin categorías asignadas';
+      
+      // Mapeo de tipos a iconos y colores
+      const tipoMap = {
+        'pública': { icon: '🏛️', color: '#28a745' },
+        'privada': { icon: '💼', color: '#ffc107' },
+        'mixta': { icon: '🤝', color: '#17a2b8' },
+        'comunitaria': { icon: '🌱', color: '#fd7e14' }
+      };
+      
+      const tipoInfo = tipoMap[tipo] || { icon: '📌', color: '#6c757d' };
+      
+      let contenido = `
+        <div class="row">
+          <div class="col-12 text-center mb-4">
+            <div class="empresa-detalle-icon">
+              <i class="bi bi-building-fill fs-1" style="color: #fd6704bd;"></i>
+            </div>
+            <h4 class="fw-bold mt-2" style="color: #5D4037;">${nombre}</h4>
+            <span class="badge rounded-pill px-3 py-1" style="background: ${tipoInfo.color}; color: white; font-size: 0.85rem;">
+              ${tipoInfo.icon} ${tipo}
+            </span>
+          </div>
+        </div>
+        <hr>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
+              <i class="bi bi-card-list fs-4" style="color: #fd6704bd;"></i>
+              <div>
+                <strong class="small text-muted d-block">RIF</strong>
+                <span class="fw-semibold">${rif}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
+              <i class="bi bi-envelope fs-4" style="color: #17a2b8;"></i>
+              <div>
+                <strong class="small text-muted d-block">Email</strong>
+                <span class="fw-semibold">${email}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
+              <i class="bi bi-person fs-4" style="color: #28a745;"></i>
+              <div>
+                <strong class="small text-muted d-block">Persona de contacto</strong>
+                <span class="fw-semibold">${contacto}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
+              <i class="bi bi-telephone fs-4" style="color: #6f42c1;"></i>
+              <div>
+                <strong class="small text-muted d-block">Teléfono</strong>
+                <span class="fw-semibold">${telefono}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
+              <i class="bi bi-geo-alt fs-4" style="color: #dc3545;"></i>
+              <div>
+                <strong class="small text-muted d-block">Dirección</strong>
+                <span class="fw-semibold">${direccion}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
+              <i class="bi bi-tags fs-4" style="color: #ffc107;"></i>
+              <div>
+                <strong class="small text-muted d-block">Categorías que atiende</strong>
+                <div class="mt-1">
+                  ${categorias !== 'Sin categorías asignadas' ? 
+                    categorias.split(',').map(cat => 
+                      `<span class="badge rounded-pill px-2 py-1 me-1" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">${cat.trim()}</span>`
+                    ).join('') : 
+                    `<span class="text-muted">${categorias}</span>`
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('detalleEmpresaContent').innerHTML = contenido;
+      document.getElementById('btnEditarEmpresa').href = `/empresas/${id}/editar`;
+      new bootstrap.Modal(document.getElementById('modalEmpresaDetalle')).show();
+    });
+  });
+</script>
 
 <style>
   /* ========== ESTILOS BASE (MODO CLARO) ========== */
@@ -167,6 +324,7 @@
   
   .empresa-fila {
     border-bottom-color: #f0d5c0;
+    transition: all 0.2s ease;
   }
   
   .empresa-fila:hover {
@@ -246,6 +404,46 @@
   }
   .empresas-info i {
     color: #fd6704bd;
+  }
+  
+  /* ========== MODAL DE DETALLES ========== */
+  .modal-empresa-detalle {
+    background: white;
+  }
+  
+  .modal-empresa-header {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+  }
+  
+  .modal-empresa-body {
+    background: #fefaf7;
+  }
+  
+  .modal-empresa-footer {
+    background: #f8f9fa;
+  }
+  
+  .btn-editar-detalle-empresa {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: #333;
+    border: none;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-editar-detalle-empresa:hover {
+    transform: translateY(-2px);
+  }
+  
+  .empresa-detalle-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: #fefaf7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border: 2px solid #f0d5c0;
   }
   
   /* ========== MODO NOCTURNO ========== */
@@ -335,6 +533,40 @@
   
   body.dark-mode .text-muted {
     color: #a1a1aa !important;
+  }
+  
+  /* Modal en modo nocturno */
+  body.dark-mode .modal-empresa-detalle {
+    background: #1a1a2e;
+  }
+  
+  body.dark-mode .modal-empresa-body {
+    background: #1a1a2e;
+  }
+  
+  body.dark-mode .modal-empresa-footer {
+    background: #1a1a2e;
+  }
+  
+  body.dark-mode .modal-empresa-body h4 {
+    color: #e4e4e7 !important;
+  }
+  
+  body.dark-mode .modal-empresa-body .text-muted {
+    color: #a1a1aa !important;
+  }
+  
+  body.dark-mode .modal-empresa-body .bg-light {
+    background: #27272a !important;
+  }
+  
+  body.dark-mode .modal-empresa-body .fw-semibold {
+    color: #e4e4e7 !important;
+  }
+  
+  body.dark-mode .empresa-detalle-icon {
+    background: #1f1f2e;
+    border-color: #3f3f46;
   }
   
   .btn-sm, .btn {
