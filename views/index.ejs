@@ -167,8 +167,7 @@
               <p class="report-description"><%= r.descripcion.substring(0, 100) %>...</p>
               <div class="report-card-footer mt-auto">
                 <p class="mb-1"><i class="bi bi-geo-alt"></i> <%= r.nombre_calle %></p>
-                <small class="text-muted"><i class="bi bi-calendar3"></i> <%= new Date(r.fecha).toLocaleDateString() %></small>
-              </div>
+                <small class="text-muted"><i class="bi bi-calendar3"></i> <%= r.fecha_formateada || 'Fecha no disponible' %></small>              </div>
             </div>
           </div>
         <% }) %>

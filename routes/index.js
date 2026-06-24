@@ -10,11 +10,11 @@ router.get('/', async (req, res) => {
     
     switch(rol) {
       case 1: // UBCH
-        return res.redirect('/admin');
+        return res.redirect('/dashboard/admin');
       case 2: // Líder
-        return res.redirect('/lider');
+        return res.redirect('/dashboard/lider');
       case 3: // Jefe de Calle
-        return res.redirect('/jefe');
+        return res.redirect('/dashboard/jefe');
       case 4: // Ciudadano
         // El ciudadano ve la página de inicio normal
         break;
@@ -28,6 +28,7 @@ router.get('/', async (req, res) => {
     const [reportes] = await db.query(`
       SELECT r.id, r.titulo, r.descripcion, r.estado,
              r.ubicacion_lat, r.ubicacion_lng,
+             r.fecha,
              c.nombre AS nombre_calle,
              cat.nombre AS categoria_nombre,
              cat.icono AS categoria_icono,
@@ -35,14 +36,26 @@ router.get('/', async (req, res) => {
       FROM reportes r
       INNER JOIN calles c ON r.calle_id = c.id
       INNER JOIN categorias cat ON r.categoria_id = cat.id
+      WHERE r.activo = 1
       ORDER BY r.fecha DESC
       LIMIT 10
     `);
-    
+
+    // Formatear la fecha en el servidor
+    const reportesFormateados = reportes.map(r => ({
+      ...r,
+      fecha_formateada: r.fecha ? new Date(r.fecha).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }) : 'Fecha no disponible'
+    }));
+
     res.render('index', { 
       title: 'ComuniSolve - Bienvenido', 
       usuario: req.session.usuario, 
-      reportes 
+      reportes: reportesFormateados,
+      session: req.session
     });
   } catch (err) {
     console.error(err);
