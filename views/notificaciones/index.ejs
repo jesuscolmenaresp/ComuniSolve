@@ -1,7 +1,6 @@
 <div class="container py-4">
   
-  <!-- Encabezado -->
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
     <div>
       <h2 class="fw-bold mb-1" style="color: #5D4037;">
         <i class="bi bi-bell-fill me-2" style="color: #fd6704bd;"></i>
@@ -10,19 +9,18 @@
       </h2>
       <p class="text-muted small mb-0">Mantente informado sobre las novedades de tu comunidad</p>
     </div>
-    <div class="d-flex gap-2">
-      <button id="btnMarcarTodas" class="btn btn-sm btn-outline-secondary px-3 py-2 rounded-3">
+    <div class="d-flex flex-wrap gap-2">
+      <button id="btnMarcarTodas" class="btn btn-sm btn-outline-secondary px-3 py-2 rounded-3 flex-grow-1 flex-md-grow-0">
         <i class="bi bi-check2-all me-1"></i> Marcar todas como leídas
       </button>
       <% if (usuario && [1, 5].includes(usuario.rol_id)) { %>
-        <button class="btn btn-sm px-3 py-2 rounded-3" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;" data-bs-toggle="modal" data-bs-target="#modalCrearNotificacion">
+        <button class="btn btn-sm px-3 py-2 rounded-3 flex-grow-1 flex-md-grow-0" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;" data-bs-toggle="modal" data-bs-target="#modalCrearNotificacion">
           <i class="bi bi-plus-circle me-1"></i> Nueva notificación
         </button>
       <% } %>
     </div>
   </div>
 
-  <!-- Mensajes flash -->
   <% if (session && session.mensaje) { %>
     <div class="alert alert-success alert-dismissible fade show border-0 rounded-3 py-2 mb-4" role="alert">
       <i class="bi bi-check-circle-fill me-2"></i> 
@@ -41,13 +39,12 @@
     <% session.error = null; %>
   <% } %>
 
-  <!-- Lista de notificaciones -->
   <% if (notificaciones && notificaciones.length > 0) { %>
     <div class="list-group list-group-flush">
       <% notificaciones.forEach(n => { %>
         <div class="list-group-item border-0 rounded-4 shadow-sm mb-3 notificacion-item <%= n.leida ? 'notificacion-leida' : 'notificacion-no-leida' %>" data-id="<%= n.id %>">
           <div class="d-flex gap-3 align-items-start">
-            <div class="notificacion-icon">
+            <div class="notificacion-icon flex-shrink-0">
               <% if (n.tipo === 'general') { %>
                 <i class="bi bi-megaphone-fill fs-4" style="color: #fd6704bd;"></i>
               <% } else if (n.tipo === 'reporte') { %>
@@ -58,12 +55,13 @@
                 <i class="bi bi-building-fill fs-4" style="color: #6f42c1;"></i>
               <% } %>
             </div>
-            <div class="flex-grow-1">
-              <div class="d-flex justify-content-between align-items-start">
-                <div>
+            
+            <div class="flex-grow-1 w-100">
+              <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start gap-2">
+                <div class="text-break">
                   <h6 class="fw-bold mb-1"><%= n.titulo %></h6>
-                  <p class="small text-muted mb-1"><%= n.contenido %></p>
-                  <div class="d-flex gap-2 align-items-center">
+                  <p class="small text-muted mb-2"><%= n.contenido %></p>
+                  <div class="d-flex flex-wrap gap-2 align-items-center">
                     <span class="badge rounded-pill px-2 py-1 
                       <%= n.prioridad === 'alta' ? 'bg-danger' : n.prioridad === 'media' ? 'bg-warning text-dark' : 'bg-info' %>">
                       <%= n.prioridad === 'alta' ? '🔴 Alta' : n.prioridad === 'media' ? '🟡 Media' : '🟢 Baja' %>
@@ -76,7 +74,8 @@
                     </span>
                   </div>
                 </div>
-                <div class="d-flex gap-2">
+                
+                <div class="d-flex gap-2 flex-shrink-0 align-self-end align-self-sm-start mt-2 mt-sm-0">
                   <% if (!n.leida) { %>
                     <button class="btn btn-sm btn-outline-success rounded-3 btn-marcar-leida" data-id="<%= n.id %>">
                       <i class="bi bi-check2"></i>
@@ -111,7 +110,6 @@
     </div>
   <% } %>
 
-  <!-- Botón volver - Redirige según el rol -->
   <div class="text-center mt-4">
     <% 
       let volverLink = '/';
@@ -129,7 +127,6 @@
   </div>
 </div>
 
-<!-- Modal para crear notificación (solo UBCH y SuperAdmin) -->
 <% if (usuario && [1, 5].includes(usuario.rol_id)) { %>
 <div class="modal fade" id="modalCrearNotificacion" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
