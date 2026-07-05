@@ -142,124 +142,154 @@ exports.formCrear = async (req, res) => {
     res.status(500).send('Error al cargar formulario');
   }
 };
-
 // ==========================
-// 📌 GUARDAR NUEVO USUARIO
+// 📌 GUARDAR NUEVO USUARIO - CORREGIDO
 // ==========================
 exports.crear = async (req, res) => {
-  let { cedula, nombre, email, password, telefono, rol_id, calle_id, calles_lider, comunidades } = req.body;
-  
-  if (Array.isArray(calle_id)) {
-    calle_id = calle_id.find(id => id !== '' && id !== null && id !== undefined) || null;
-  }
-  
-  let fotoPerfil = null;
-  if (req.file) {
-    fotoPerfil = '/uploads/perfiles/' + req.file.filename;
-    try {
-      const { procesarFotoPerfil } = require('../middleware/imageProcessor');
-      await procesarFotoPerfil(req.file.path);
-    } catch (err) {
-      console.error('Error al procesar imagen de perfil:', err);
+    let { cedula, nombre, email, password, telefono, rol_id, calle_id, calles_lider, comunidades } = req.body;
+    
+    if (Array.isArray(calle_id)) {
+        calle_id = calle_id.find(id => id !== '' && id !== null && id !== undefined) || null;
     }
-  }
-
-  try {
-    if (rol_id == 5 && req.session.usuario.rol_id !== 5) {
-      req.session.error = 'No tiene permisos para crear un SuperAdministrador';
-      return res.redirect('/usuarios/nuevo');
+    
+    let fotoPerfil = null;
+    if (req.file) {
+        fotoPerfil = '/uploads/perfiles/' + req.file.filename;
+        try {
+            const { procesarFotoPerfil } = require('../middleware/imageProcessor');
+            await procesarFotoPerfil(req.file.path);
+        } catch (err) {
+            console.error('Error al procesar imagen de perfil:', err);
+        }
     }
-
-    const [existente] = await db.query('SELECT id FROM usuarios WHERE email = ? AND activo = 1', [email]);
-    if (existente.length > 0) {
-      req.session.error = 'El email ya está registrado';
-      return res.redirect('/usuarios/nuevo');
-    }
-
-    if (cedula && cedula.trim() !== '') {
-      const [cedulaExistente] = await db.query('SELECT id FROM usuarios WHERE cedula = ? AND activo = 1', [cedula]);
-      if (cedulaExistente.length > 0) {
-        req.session.error = 'La cédula ya está registrada';
-        return res.redirect('/usuarios/nuevo');
-      }
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-
-    const connection = await db.getConnection();
-    await connection.beginTransaction();
 
     try {
-      let calleAsignada = null;
-      if (rol_id == 3 || rol_id == 4) {
-        calleAsignada = calle_id || null;
-      }
-
-      let query = `
-        INSERT INTO usuarios 
-        (cedula, nombre, email, password, telefono, rol_id, calle_id, activo
-      `;
-      let values = [
-        cedula || null, nombre, email, passwordHash, telefono || null, 
-        parseInt(rol_id), calleAsignada, 1
-      ];
-      
-      if (fotoPerfil) {
-        query += ', foto_perfil';
-        values.push(fotoPerfil);
-      }
-      
-      query += ') VALUES (?' + ', ?'.repeat(values.length - 1) + ')';
-      
-      const [result] = await connection.query(query, values);
-      const nuevoUsuarioId = result.insertId;
-
-      if (rol_id == 2 && calles_lider && calles_lider.length > 0) {
-        const callesArray = Array.isArray(calles_lider) ? calles_lider : [calles_lider];
-        for (const calleId of callesArray) {
-          await connection.query(
-            'UPDATE calles SET lider_id = ? WHERE id = ?',
-            [nuevoUsuarioId, calleId]
-          );
+        if (rol_id == 5 && req.session.usuario.rol_id !== 5) {
+            req.session.error = 'No tiene permisos para crear un SuperAdministrador';
+            return res.redirect('/usuarios/nuevo');
         }
-      }
 
-      if (rol_id == 1 && comunidades && comunidades.length > 0) {
-        const comunidadesArray = Array.isArray(comunidades) ? comunidades : [comunidades];
-        for (const comunidadId of comunidadesArray) {
-          await connection.query(
-            'INSERT INTO ubch_comunidades (ubch_id, comunidad_id) VALUES (?, ?)',
-            [nuevoUsuarioId, comunidadId]
-          );
+        const [existente] = await db.query('SELECT id FROM usuarios WHERE email = ? AND activo = 1', [email]);
+        if (existente.length > 0) {
+            req.session.error = 'El email ya está registrado';
+            return res.redirect('/usuarios/nuevo');
         }
-      }
 
-      await connection.commit();
+        if (cedula && cedula.trim() !== '') {
+            const [cedulaExistente] = await db.query('SELECT id FROM usuarios WHERE cedula = ? AND activo = 1', [cedula]);
+            if (cedulaExistente.length > 0) {
+                req.session.error = 'La cédula ya está registrada';
+                return res.redirect('/usuarios/nuevo');
+            }
+        }
 
-      await registrarAuditoria(
-        req.session.usuario,
-        'CREAR',
-        'usuarios',
-        nuevoUsuarioId,
-        null,
-        { cedula, nombre, email, rol_id, calle_id: calleAsignada, foto_perfil: fotoPerfil || 'No subida' }
-      );
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(password, salt);
 
-      req.session.mensaje = 'Usuario creado exitosamente';
-      res.redirect('/usuarios');
+        const connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        try {
+            let calleAsignada = null;
+            if (rol_id == 3 || rol_id == 4) {
+                calleAsignada = calle_id || null;
+            }
+
+            let query = `
+                INSERT INTO usuarios 
+                (cedula, nombre, email, password, telefono, rol_id, calle_id, activo
+            `;
+            let values = [
+                cedula || null, nombre, email, passwordHash, telefono || null, 
+                parseInt(rol_id), calleAsignada, 1
+            ];
+            
+            if (fotoPerfil) {
+                query += ', foto_perfil';
+                values.push(fotoPerfil);
+            }
+            
+            query += ') VALUES (?' + ', ?'.repeat(values.length - 1) + ')';
+            
+            const [result] = await connection.query(query, values);
+            const nuevoUsuarioId = result.insertId;
+
+            // ====== NUEVO: Actualizar jefe_id en la calle si es JEFE (rol 3) ======
+            if (rol_id == 3 && calle_id) {
+                // Verificar que la calle exista y esté activa
+                const [calleExistente] = await connection.query(
+                    'SELECT id, nombre FROM calles WHERE id = ? AND activo = 1',
+                    [calle_id]
+                );
+                
+                if (calleExistente.length > 0) {
+                    // Actualizar jefe_id en la calle
+                    await connection.query(
+                        'UPDATE calles SET jefe_id = ? WHERE id = ?',
+                        [nuevoUsuarioId, calle_id]
+                    );
+                    console.log(`✅ Jefe "${nombre}" asignado a la calle "${calleExistente[0].nombre}"`);
+                } else {
+                    console.warn(`⚠️ Calle ID ${calle_id} no encontrada o inactiva para asignar jefe`);
+                }
+            }
+
+            // ====== LÍDER (rol 2) - Actualizar lider_id en calles ======
+            if (rol_id == 2 && calles_lider && calles_lider.length > 0) {
+                const callesArray = Array.isArray(calles_lider) ? calles_lider : [calles_lider];
+                for (const calleId of callesArray) {
+                    // Verificar que la calle exista
+                    const [calleExistente] = await connection.query(
+                        'SELECT id, nombre FROM calles WHERE id = ? AND activo = 1',
+                        [calleId]
+                    );
+                    
+                    if (calleExistente.length > 0) {
+                        await connection.query(
+                            'UPDATE calles SET lider_id = ? WHERE id = ?',
+                            [nuevoUsuarioId, calleId]
+                        );
+                        console.log(`✅ Líder "${nombre}" asignado a la calle "${calleExistente[0].nombre}"`);
+                    }
+                }
+            }
+
+            // ====== UBCH (rol 1) - Asignar comunidades ======
+            if (rol_id == 1 && comunidades && comunidades.length > 0) {
+                const comunidadesArray = Array.isArray(comunidades) ? comunidades : [comunidades];
+                for (const comunidadId of comunidadesArray) {
+                    await connection.query(
+                        'INSERT INTO ubch_comunidades (ubch_id, comunidad_id) VALUES (?, ?)',
+                        [nuevoUsuarioId, comunidadId]
+                    );
+                }
+            }
+
+            await connection.commit();
+
+            await registrarAuditoria(
+                req.session.usuario,
+                'CREAR',
+                'usuarios',
+                nuevoUsuarioId,
+                null,
+                { cedula, nombre, email, rol_id, calle_id: calleAsignada, foto_perfil: fotoPerfil || 'No subida' }
+            );
+
+            req.session.mensaje = 'Usuario creado exitosamente';
+            res.redirect('/usuarios');
+        } catch (err) {
+            await connection.rollback();
+            throw err;
+        } finally {
+            connection.release();
+        }
+
     } catch (err) {
-      await connection.rollback();
-      throw err;
-    } finally {
-      connection.release();
+        console.error('Error al crear usuario:', err);
+        req.session.error = 'Error al crear usuario';
+        res.redirect('/usuarios/nuevo');
     }
-
-  } catch (err) {
-    console.error('Error al crear usuario:', err);
-    req.session.error = 'Error al crear usuario';
-    res.redirect('/usuarios/nuevo');
-  }
 };
 
 // ==========================
@@ -318,240 +348,304 @@ exports.formEditar = async (req, res) => {
 };
 
 // ==========================
-// 📌 ACTUALIZAR USUARIO
+// 📌 ACTUALIZAR USUARIO - CORREGIDO
 // ==========================
 exports.actualizar = async (req, res) => {
-  const { id } = req.params;
-  let { 
-    cedula, nombre, email, telefono, rol_id, 
-    password, 
-    calle_jefe_id, calle_ciudadano_id, 
-    calles_lider, 
-    comunidades 
-  } = req.body;
-  
-  if (Array.isArray(calle_jefe_id)) {
-    calle_jefe_id = calle_jefe_id.find(id => id !== '' && id !== null && id !== undefined) || null;
-  }
-  if (Array.isArray(calle_ciudadano_id)) {
-    calle_ciudadano_id = calle_ciudadano_id.find(id => id !== '' && id !== null && id !== undefined) || null;
-  }
-  
-  let fotoPerfil = null;
-  if (req.file) {
-    fotoPerfil = '/uploads/perfiles/' + req.file.filename;
-    try {
-      const { procesarFotoPerfil } = require('../middleware/imageProcessor');
-      await procesarFotoPerfil(req.file.path);
-    } catch (err) {
-      console.error('Error al procesar imagen de perfil:', err);
-    }
-  }
-
-  try {
-    const [usuarioActual] = await db.query('SELECT rol_id, foto_perfil FROM usuarios WHERE id = ?', [id]);
-    
-    if (usuarioActual.length === 0) {
-      req.session.error = 'Usuario no encontrado';
-      return res.redirect('/usuarios');
-    }
-    
-    const rolActual = usuarioActual[0].rol_id;
-    
-    if (rolActual === 5 && req.session.usuario.rol_id !== 5) {
-      req.session.error = 'No tiene permisos para editar un SuperAdministrador';
-      return res.redirect('/usuarios');
-    }
-    
-    if (rol_id == 5 && req.session.usuario.rol_id !== 5) {
-      req.session.error = 'No tiene permisos para asignar el rol de SuperAdministrador';
-      return res.redirect(`/usuarios/${id}/editar`);
-    }
-    
-    if (req.session.usuario.rol_id === 1 && rolActual === 1) {
-      req.session.error = 'No tiene permisos para editar otro usuario UBCH';
-      return res.redirect('/usuarios');
-    }
-
-    const connection = await db.getConnection();
-    await connection.beginTransaction();
-
-    try {
-      const [usuarioAnterior] = await connection.query(
-        'SELECT nombre, email, telefono, rol_id, calle_id, cedula, foto_perfil FROM usuarios WHERE id = ? AND activo = 1',
-        [id]
-      );
-
-      if (usuarioAnterior.length === 0) {
-        throw new Error('Usuario no encontrado');
-      }
-
-      if (fotoPerfil && usuarioAnterior[0].foto_perfil) {
-        const fs = require('fs');
-        const path = require('path');
-        const oldPath = path.join(__dirname, '../public', usuarioAnterior[0].foto_perfil);
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
-        }
-      }
-
-      let updates = [];
-      let params = [];
-
-      updates.push('cedula = ?');
-      params.push(cedula || null);
-      
-      updates.push('nombre = ?');
-      params.push(nombre);
-      
-      updates.push('email = ?');
-      params.push(email);
-      
-      updates.push('telefono = ?');
-      params.push(telefono || null);
-      
-      updates.push('rol_id = ?');
-      params.push(rol_id);
-
-      let nuevaCalleId = null;
-      
-      if (rol_id == 3) {
-        nuevaCalleId = calle_jefe_id || null;
-        updates.push('calle_id = ?');
-        params.push(nuevaCalleId);
-      } else if (rol_id == 4) {
-        nuevaCalleId = calle_ciudadano_id || null;
-        updates.push('calle_id = ?');
-        params.push(nuevaCalleId);
-      } else {
-        updates.push('calle_id = NULL');
-      }
-
-      if (password && password.trim() !== '') {
-        const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(password, salt);
-        updates.push('password = ?');
-        params.push(passwordHash);
-      }
-
-      if (fotoPerfil) {
-        updates.push('foto_perfil = ?');
-        params.push(fotoPerfil);
-      }
-
-      params.push(id);
-
-      const query = `UPDATE usuarios SET ${updates.join(', ')} WHERE id = ?`;
-      
-      await connection.query(query, params);
-
-      if (rol_id == 2) {
-        await connection.query('UPDATE calles SET lider_id = NULL WHERE lider_id = ?', [id]);
-        
-        if (calles_lider && calles_lider.length > 0) {
-          const callesArray = Array.isArray(calles_lider) ? calles_lider : [calles_lider];
-          for (const calleId of callesArray) {
-            await connection.query(
-              'UPDATE calles SET lider_id = ? WHERE id = ?',
-              [id, calleId]
-            );
-          }
-        }
-      } else {
-        await connection.query('UPDATE calles SET lider_id = NULL WHERE lider_id = ?', [id]);
-      }
-
-      if (rol_id == 1) {
-        await connection.query('DELETE FROM ubch_comunidades WHERE ubch_id = ?', [id]);
-        
-        if (comunidades && comunidades.length > 0) {
-          const comunidadesArray = Array.isArray(comunidades) ? comunidades : [comunidades];
-          for (const comunidadId of comunidadesArray) {
-            await connection.query(
-              'INSERT INTO ubch_comunidades (ubch_id, comunidad_id) VALUES (?, ?)',
-              [id, comunidadId]
-            );
-          }
-        }
-      }
-
-      await connection.commit();
-
-      const datosNuevos = { 
+    const { id } = req.params;
+    let { 
         cedula, nombre, email, telefono, rol_id, 
-        calle_id: nuevaCalleId,
-        calles_lider: calles_lider || [],
-        comunidades: comunidades || [],
-        foto_perfil: fotoPerfil || usuarioAnterior[0].foto_perfil
-      };
-      
-      await registrarAuditoria(
-        req.session.usuario,
-        'EDITAR',
-        'usuarios',
-        id,
-        usuarioAnterior[0],
-        datosNuevos
-      );
-
-      req.session.mensaje = 'Usuario actualizado exitosamente';
-      res.redirect('/usuarios');
-
-    } catch (err) {
-      await connection.rollback();
-      throw err;
-    } finally {
-      connection.release();
+        password, 
+        calle_jefe_id, calle_ciudadano_id, 
+        calles_lider, 
+        comunidades 
+    } = req.body;
+    
+    if (Array.isArray(calle_jefe_id)) {
+        calle_jefe_id = calle_jefe_id.find(id => id !== '' && id !== null && id !== undefined) || null;
+    }
+    if (Array.isArray(calle_ciudadano_id)) {
+        calle_ciudadano_id = calle_ciudadano_id.find(id => id !== '' && id !== null && id !== undefined) || null;
+    }
+    
+    let fotoPerfil = null;
+    if (req.file) {
+        fotoPerfil = '/uploads/perfiles/' + req.file.filename;
+        try {
+            const { procesarFotoPerfil } = require('../middleware/imageProcessor');
+            await procesarFotoPerfil(req.file.path);
+        } catch (err) {
+            console.error('Error al procesar imagen de perfil:', err);
+        }
     }
 
-  } catch (err) {
-    console.error('Error al actualizar usuario:', err);
-    req.session.error = 'Error al actualizar usuario';
-    res.redirect(`/usuarios/${id}/editar`);
-  }
+    try {
+        const [usuarioActual] = await db.query('SELECT rol_id, foto_perfil FROM usuarios WHERE id = ?', [id]);
+        
+        if (usuarioActual.length === 0) {
+            req.session.error = 'Usuario no encontrado';
+            return res.redirect('/usuarios');
+        }
+        
+        const rolActual = usuarioActual[0].rol_id;
+        
+        if (rolActual === 5 && req.session.usuario.rol_id !== 5) {
+            req.session.error = 'No tiene permisos para editar un SuperAdministrador';
+            return res.redirect('/usuarios');
+        }
+        
+        if (rol_id == 5 && req.session.usuario.rol_id !== 5) {
+            req.session.error = 'No tiene permisos para asignar el rol de SuperAdministrador';
+            return res.redirect(`/usuarios/${id}/editar`);
+        }
+        
+        if (req.session.usuario.rol_id === 1 && rolActual === 1) {
+            req.session.error = 'No tiene permisos para editar otro usuario UBCH';
+            return res.redirect('/usuarios');
+        }
+
+        const connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        try {
+            const [usuarioAnterior] = await connection.query(
+                'SELECT nombre, email, telefono, rol_id, calle_id, cedula, foto_perfil FROM usuarios WHERE id = ? AND activo = 1',
+                [id]
+            );
+
+            if (usuarioAnterior.length === 0) {
+                throw new Error('Usuario no encontrado');
+            }
+
+            if (fotoPerfil && usuarioAnterior[0].foto_perfil) {
+                const fs = require('fs');
+                const path = require('path');
+                const oldPath = path.join(__dirname, '../public', usuarioAnterior[0].foto_perfil);
+                if (fs.existsSync(oldPath)) {
+                    fs.unlinkSync(oldPath);
+                }
+            }
+
+            let updates = [];
+            let params = [];
+
+            updates.push('cedula = ?');
+            params.push(cedula || null);
+            
+            updates.push('nombre = ?');
+            params.push(nombre);
+            
+            updates.push('email = ?');
+            params.push(email);
+            
+            updates.push('telefono = ?');
+            params.push(telefono || null);
+            
+            updates.push('rol_id = ?');
+            params.push(rol_id);
+
+            let nuevaCalleId = null;
+            
+            // ====== NUEVO: Limpiar asignaciones anteriores ======
+            // 1. Si era JEFE (rol 3), limpiar jefe_id de la calle anterior
+            if (rolActual === 3) {
+                await connection.query(
+                    'UPDATE calles SET jefe_id = NULL WHERE jefe_id = ?',
+                    [id]
+                );
+                console.log(`🔄 Jefe anterior removido de su calle`);
+            }
+            
+            // 2. Si era LÍDER (rol 2), limpiar lider_id de las calles anteriores
+            if (rolActual === 2) {
+                await connection.query(
+                    'UPDATE calles SET lider_id = NULL WHERE lider_id = ?',
+                    [id]
+                );
+                console.log(`🔄 Líder anterior removido de sus calles`);
+            }
+            
+            // ====== ASIGNAR NUEVA CALLE SEGÚN ROL ======
+            if (rol_id == 3) {
+                nuevaCalleId = calle_jefe_id || null;
+                updates.push('calle_id = ?');
+                params.push(nuevaCalleId);
+                
+                // Actualizar jefe_id en la calle
+                if (nuevaCalleId) {
+                    await connection.query(
+                        'UPDATE calles SET jefe_id = ? WHERE id = ?',
+                        [id, nuevaCalleId]
+                    );
+                    console.log(`✅ Nuevo jefe "${nombre}" asignado a la calle ID ${nuevaCalleId}`);
+                }
+            } else if (rol_id == 4) {
+                nuevaCalleId = calle_ciudadano_id || null;
+                updates.push('calle_id = ?');
+                params.push(nuevaCalleId);
+            } else {
+                updates.push('calle_id = NULL');
+            }
+
+            if (password && password.trim() !== '') {
+                const salt = await bcrypt.genSalt(10);
+                const passwordHash = await bcrypt.hash(password, salt);
+                updates.push('password = ?');
+                params.push(passwordHash);
+            }
+
+            if (fotoPerfil) {
+                updates.push('foto_perfil = ?');
+                params.push(fotoPerfil);
+            }
+
+            params.push(id);
+
+            const query = `UPDATE usuarios SET ${updates.join(', ')} WHERE id = ?`;
+            
+            await connection.query(query, params);
+
+            // ====== ASIGNAR CALLES AL LÍDER (rol 2) ======
+            if (rol_id == 2) {
+                // Ya limpió las calles anteriores arriba
+                
+                if (calles_lider && calles_lider.length > 0) {
+                    const callesArray = Array.isArray(calles_lider) ? calles_lider : [calles_lider];
+                    for (const calleId of callesArray) {
+                        await connection.query(
+                            'UPDATE calles SET lider_id = ? WHERE id = ?',
+                            [id, calleId]
+                        );
+                        console.log(`✅ Líder "${nombre}" asignado a calle ID ${calleId}`);
+                    }
+                }
+            }
+
+            // ====== ASIGNAR COMUNIDADES AL UBCH (rol 1) ======
+            if (rol_id == 1) {
+                await connection.query('DELETE FROM ubch_comunidades WHERE ubch_id = ?', [id]);
+                
+                if (comunidades && comunidades.length > 0) {
+                    const comunidadesArray = Array.isArray(comunidades) ? comunidades : [comunidades];
+                    for (const comunidadId of comunidadesArray) {
+                        await connection.query(
+                            'INSERT INTO ubch_comunidades (ubch_id, comunidad_id) VALUES (?, ?)',
+                            [id, comunidadId]
+                        );
+                    }
+                }
+            }
+
+            await connection.commit();
+
+            const datosNuevos = { 
+                cedula, nombre, email, telefono, rol_id, 
+                calle_id: nuevaCalleId,
+                calles_lider: calles_lider || [],
+                comunidades: comunidades || [],
+                foto_perfil: fotoPerfil || usuarioAnterior[0].foto_perfil
+            };
+            
+            await registrarAuditoria(
+                req.session.usuario,
+                'EDITAR',
+                'usuarios',
+                id,
+                usuarioAnterior[0],
+                datosNuevos
+            );
+
+            req.session.mensaje = 'Usuario actualizado exitosamente';
+            res.redirect('/usuarios');
+
+        } catch (err) {
+            await connection.rollback();
+            throw err;
+        } finally {
+            connection.release();
+        }
+
+    } catch (err) {
+        console.error('Error al actualizar usuario:', err);
+        req.session.error = 'Error al actualizar usuario';
+        res.redirect(`/usuarios/${id}/editar`);
+    }
 };
 
 // ==========================
-// 📌 DESACTIVAR USUARIO (SOFT DELETE)
+// 📌 DESACTIVAR USUARIO - CORREGIDO
 // ==========================
 exports.eliminar = async (req, res) => {
-  const { id } = req.params;
-  const { motivo } = req.body;
+    const { id } = req.params;
+    const { motivo } = req.body;
 
-  try {
-    if (parseInt(id) === req.session.usuario.id) {
-      req.session.error = 'No puedes desactivarte a ti mismo';
-      return res.redirect('/usuarios');
+    try {
+        if (parseInt(id) === req.session.usuario.id) {
+            req.session.error = 'No puedes desactivarte a ti mismo';
+            return res.redirect('/usuarios');
+        }
+
+        const [usuarioADesactivar] = await db.query(
+            'SELECT nombre, email, rol_id FROM usuarios WHERE id = ? AND activo = 1',
+            [id]
+        );
+
+        if (usuarioADesactivar.length === 0) {
+            req.session.error = 'Usuario no encontrado o ya está inactivo';
+            return res.redirect('/usuarios');
+        }
+
+        const connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        try {
+            // Desactivar usuario
+            await connection.query('UPDATE usuarios SET activo = 0 WHERE id = ?', [id]);
+
+            // ====== NUEVO: Limpiar asignaciones ======
+            // Si es JEFE (rol 3), limpiar jefe_id de su calle
+            if (usuarioADesactivar[0].rol_id === 3) {
+                await connection.query(
+                    'UPDATE calles SET jefe_id = NULL WHERE jefe_id = ?',
+                    [id]
+                );
+                console.log(`🔄 Jefe desactivado, removido de su calle`);
+            }
+            
+            // Si es LÍDER (rol 2), limpiar lider_id de sus calles
+            if (usuarioADesactivar[0].rol_id === 2) {
+                await connection.query(
+                    'UPDATE calles SET lider_id = NULL WHERE lider_id = ?',
+                    [id]
+                );
+                console.log(`🔄 Líder desactivado, removido de sus calles`);
+            }
+
+            await connection.commit();
+
+            await registrarAuditoria(
+                req.session.usuario,
+                'DESACTIVAR',
+                'usuarios',
+                id,
+                usuarioADesactivar[0],
+                { motivo: motivo || 'Desactivado por administrador', activo: false }
+            );
+
+            req.session.mensaje = `Usuario "${usuarioADesactivar[0].nombre}" desactivado correctamente`;
+            res.redirect('/usuarios');
+
+        } catch (err) {
+            await connection.rollback();
+            throw err;
+        } finally {
+            connection.release();
+        }
+
+    } catch (err) {
+        console.error('Error al desactivar usuario:', err);
+        req.session.error = 'Error al desactivar usuario';
+        res.redirect('/usuarios');
     }
-
-    const [usuarioADesactivar] = await db.query(
-      'SELECT nombre, email, rol_id FROM usuarios WHERE id = ? AND activo = 1',
-      [id]
-    );
-
-    if (usuarioADesactivar.length === 0) {
-      req.session.error = 'Usuario no encontrado o ya está inactivo';
-      return res.redirect('/usuarios');
-    }
-
-    await db.query('UPDATE usuarios SET activo = 0 WHERE id = ?', [id]);
-
-    await registrarAuditoria(
-      req.session.usuario,
-      'DESACTIVAR',
-      'usuarios',
-      id,
-      usuarioADesactivar[0],
-      { motivo: motivo || 'Desactivado por administrador', activo: false }
-    );
-
-    req.session.mensaje = `Usuario "${usuarioADesactivar[0].nombre}" desactivado correctamente`;
-    res.redirect('/usuarios');
-  } catch (err) {
-    console.error('Error al desactivar usuario:', err);
-    req.session.error = 'Error al desactivar usuario';
-    res.redirect('/usuarios');
-  }
 };
 
 // ==========================

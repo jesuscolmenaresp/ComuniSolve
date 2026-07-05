@@ -345,7 +345,7 @@
       const domainRegex = /@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}/;
       
       if (email.length > 0 && !domainRegex.test(email)) {
-        emailHelp.innerHTML = '<span class="text-warning">⚠️ Correo incompleto. Ej: ejemplo@dominio.com</span>';
+        emailHelp.innerHTML = '<span class="text-warning">⚠️ Correo incompleto. Ej: ejemplo@gmail.com</span>';
         this.style.borderColor = '#ffc107';
       } else if (email.length > 0 && !emailRegex.test(email)) {
         emailHelp.innerHTML = '<span class="text-danger">❌ Correo inválido</span>';
@@ -354,7 +354,7 @@
         emailHelp.innerHTML = '<span class="text-success">✅ Correo válido</span>';
         this.style.borderColor = '#28a745';
       } else {
-        emailHelp.innerHTML = 'ejemplo@gmail.com, ejemplo@comunisolve.com, etc.';
+        emailHelp.innerHTML = 'ejemplo@gmail.com, ejemplo@hotmail.com, etc.';
         this.style.borderColor = '';
       }
     });

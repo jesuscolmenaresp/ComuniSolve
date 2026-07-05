@@ -33,7 +33,6 @@ exports.listar = async (req, res) => {
 // ==========================
 exports.listarInactivas = async (req, res) => {
     try {
-        // Verificar que sea UBCH o SuperAdmin
         if (!req.session.usuario || (req.session.usuario.rol_id !== 1 && req.session.usuario.rol_id !== 5)) {
             req.session.error = 'No autorizado';
             return res.redirect('/dashboard');
@@ -81,15 +80,20 @@ exports.formCrear = async (req, res) => {
 };
 
 // ==========================
-// 📌 GUARDAR NUEVA EMPRESA
+// 📌 GUARDAR NUEVA EMPRESA - CORREGIDO
 // ==========================
 exports.crear = async (req, res) => {
     const { nombre, rif, contacto, telefono, email, direccion, tipo, categorias } = req.body;
+    let connection = null;
     
     try {
-        const connection = await db.getConnection();
+        // Obtener conexión
+        connection = await db.getConnection();
+        
+        // INICIAR TRANSACCIÓN
         await connection.beginTransaction();
         
+        // 1. INSERTAR EMPRESA
         const [result] = await connection.query(
             `INSERT INTO empresas 
              (nombre, rif, contacto, telefono, email, direccion, tipo, activo) 
@@ -100,7 +104,7 @@ exports.crear = async (req, res) => {
         
         const empresaId = result.insertId;
         
-        // Insertar categorías (IDs)
+        // 2. INSERTAR CATEGORÍAS
         if (categorias && categorias.length > 0) {
             const categoriasArray = Array.isArray(categorias) ? categorias : [categorias];
             for (const catId of categoriasArray) {
@@ -111,24 +115,48 @@ exports.crear = async (req, res) => {
             }
         }
         
+        // 3. CONFIRMAR TRANSACCIÓN
         await connection.commit();
-        connection.release();
         
+        // 4. REGISTRAR AUDITORÍA
         await registrarAuditoria(
             req.session.usuario,
             'CREAR',
             'empresas',
             empresaId,
             null,
-            { nombre, rif, contacto, telefono, email, direccion, tipo }
+            { nombre, rif, contacto, telefono, email, direccion, tipo, categorias }
         );
         
         req.session.mensaje = 'Empresa creada exitosamente';
         res.redirect('/empresas');
+        
     } catch (err) {
-        console.error(err);
-        req.session.error = 'Error al crear empresa';
+        console.error('❌ Error en crear empresa:', err);
+        
+        // HACER ROLLBACK SI HAY ERROR
+        if (connection) {
+            try {
+                await connection.rollback();
+                console.log('🔄 Rollback ejecutado correctamente');
+            } catch (rollbackErr) {
+                console.error('Error en rollback:', rollbackErr);
+            }
+        }
+        
+        req.session.error = err.sqlMessage || 'Error al crear empresa';
         res.redirect('/empresas/nueva');
+        
+    } finally {
+        // SIEMPRE LIBERAR LA CONEXIÓN
+        if (connection) {
+            try {
+                connection.release();
+                console.log('🔄 Conexión liberada correctamente');
+            } catch (releaseErr) {
+                console.error('Error al liberar conexión:', releaseErr);
+            }
+        }
     }
 };
 
@@ -144,14 +172,12 @@ exports.formEditar = async (req, res) => {
             return res.status(404).send('Empresa no encontrada');
         }
         
-        // Obtener categorías de la empresa (IDs)
         const [categoriasDb] = await db.query(
             'SELECT categoria_id FROM empresa_categorias WHERE empresa_id = ?',
             [id]
         );
         const categoriasSeleccionadas = categoriasDb.map(c => c.categoria_id);
         
-        // Categorías disponibles
         const [categorias] = await db.query("SELECT * FROM categorias WHERE activo = 1 ORDER BY nombre");
         
         res.render('empresas/editar', { 
@@ -168,18 +194,24 @@ exports.formEditar = async (req, res) => {
 };
 
 // ==========================
-// 📌 ACTUALIZAR EMPRESA
+// 📌 ACTUALIZAR EMPRESA - CORREGIDO
 // ==========================
 exports.actualizar = async (req, res) => {
     const { id } = req.params;
     const { nombre, rif, contacto, telefono, email, direccion, tipo, categorias } = req.body;
+    let connection = null;
     
     try {
-        const connection = await db.getConnection();
+        connection = await db.getConnection();
         await connection.beginTransaction();
         
-        // Obtener datos anteriores para auditoría
+        // Obtener datos anteriores
         const [empresaAnterior] = await connection.query('SELECT * FROM empresas WHERE id = ?', [id]);
+        
+        if (empresaAnterior.length === 0) {
+            req.session.error = 'Empresa no encontrada';
+            return res.redirect('/empresas');
+        }
         
         // Actualizar empresa
         await connection.query(
@@ -194,7 +226,7 @@ exports.actualizar = async (req, res) => {
         // Eliminar categorías anteriores
         await connection.query('DELETE FROM empresa_categorias WHERE empresa_id = ?', [id]);
         
-        // Insertar nuevas categorías (IDs)
+        // Insertar nuevas categorías
         if (categorias && categorias.length > 0) {
             const categoriasArray = Array.isArray(categorias) ? categorias : [categorias];
             for (const catId of categoriasArray) {
@@ -206,7 +238,6 @@ exports.actualizar = async (req, res) => {
         }
         
         await connection.commit();
-        connection.release();
         
         await registrarAuditoria(
             req.session.usuario,
@@ -219,10 +250,31 @@ exports.actualizar = async (req, res) => {
         
         req.session.mensaje = 'Empresa actualizada exitosamente';
         res.redirect('/empresas');
+        
     } catch (err) {
-        console.error(err);
-        req.session.error = 'Error al actualizar empresa';
+        console.error('❌ Error en actualizar empresa:', err);
+        
+        if (connection) {
+            try {
+                await connection.rollback();
+                console.log('🔄 Rollback ejecutado correctamente');
+            } catch (rollbackErr) {
+                console.error('Error en rollback:', rollbackErr);
+            }
+        }
+        
+        req.session.error = err.sqlMessage || 'Error al actualizar empresa';
         res.redirect(`/empresas/${id}/editar`);
+        
+    } finally {
+        if (connection) {
+            try {
+                connection.release();
+                console.log('🔄 Conexión liberada correctamente');
+            } catch (releaseErr) {
+                console.error('Error al liberar conexión:', releaseErr);
+            }
+        }
     }
 };
 
@@ -244,7 +296,6 @@ exports.desactivar = async (req, res) => {
             return res.redirect('/empresas');
         }
 
-        // Verificar si tiene reportes asociados
         const [reportesAsociados] = await db.query(
             'SELECT COUNT(*) as total FROM reportes WHERE empresa_id = ? AND activo = 1',
             [id]
@@ -341,7 +392,6 @@ exports.destruir = async (req, res) => {
             return res.redirect('/empresas/inactivos');
         }
 
-        // Verificar si tiene reportes asociados (incluso inactivos)
         const [reportesAsociados] = await db.query(
             'SELECT COUNT(*) as total FROM reportes WHERE empresa_id = ?',
             [id]
@@ -368,8 +418,7 @@ exports.destruir = async (req, res) => {
             'empresas',
             id,
             datosConMotivo,
-            { motivo: motivo.trim(), eliminado_por: req.session.usuario.nombre },
-            req
+            { motivo: motivo.trim(), eliminado_por: req.session.usuario.nombre }
         );
 
         req.session.mensaje = `Empresa "${datosEmpresa.nombre}" eliminada permanentemente. Motivo: ${motivo}`;

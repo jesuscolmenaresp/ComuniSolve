@@ -37,11 +37,93 @@
     <% session.error = null; %>
   <% } %>
 
+  <!-- ========== FILTROS Y CONTADOR ========== -->
+  <div class="row g-3 mb-4">
+    <!-- Filtros -->
+    <div class="col-12 col-md-9">
+      <div class="card border-0 rounded-4 shadow-sm p-3 filtros-card">
+        <div class="row g-2 align-items-end">
+          <!-- Filtro por Comunidad -->
+          <div class="col-12 col-sm-6 col-md-4">
+            <label class="form-label fw-semibold small mb-1 filtro-label">
+              <i class="bi bi-building me-1"></i> Comunidad
+            </label>
+            <select id="filtroComunidad" class="form-select form-select-sm rounded-3 filtro-select">
+              <option value="">Todas las comunidades</option>
+              <% if (comunidades && comunidades.length > 0) { %>
+                <% comunidades.forEach(com => { %>
+                  <option value="<%= com.id %>"><%= com.nombre %></option>
+                <% }); %>
+              <% } %>
+            </select>
+          </div>
+
+          <!-- Filtro por Líder -->
+          <div class="col-12 col-sm-6 col-md-3">
+            <label class="form-label fw-semibold small mb-1 filtro-label">
+              <i class="bi bi-person-badge me-1"></i> Líder
+            </label>
+            <select id="filtroLider" class="form-select form-select-sm rounded-3 filtro-select">
+              <option value="">Todos los líderes</option>
+              <% if (lideres && lideres.length > 0) { %>
+                <% lideres.forEach(l => { %>
+                  <option value="<%= l.id %>"><%= l.nombre %></option>
+                <% }); %>
+              <% } %>
+            </select>
+          </div>
+
+          <!-- Filtro por Jefe -->
+          <div class="col-12 col-sm-6 col-md-3">
+            <label class="form-label fw-semibold small mb-1 filtro-label">
+              <i class="bi bi-person-check me-1"></i> Jefe de Calle
+            </label>
+            <select id="filtroJefe" class="form-select form-select-sm rounded-3 filtro-select">
+              <option value="">Todos los jefes</option>
+              <% if (jefes && jefes.length > 0) { %>
+                <% jefes.forEach(j => { %>
+                  <option value="<%= j.id %>"><%= j.nombre %></option>
+                <% }); %>
+              <% } %>
+            </select>
+          </div>
+
+          <!-- Botón Limpiar Filtros -->
+          <div class="col-12 col-sm-6 col-md-2">
+            <button id="btnLimpiarFiltros" class="btn btn-sm w-100 rounded-3 btn-limpiar-filtros">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contador de Calles -->
+    <div class="col-12 col-md-3">
+      <div class="card border-0 rounded-4 shadow-sm h-100 contador-card">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center p-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="contador-icon">
+              <i class="bi bi-signpost-2-fill"></i>
+            </div>
+            <div class="text-center">
+              <span class="contador-numero" id="totalCalles"><%= calles ? calles.length : 0 %></span>
+              <span class="contador-texto d-block">Calles registradas</span>
+            </div>
+          </div>
+          <small class="text-muted mt-1" id="callesFiltradasInfo">
+            Mostrando <span id="callesMostradas"><%= calles ? calles.length : 0 %></span> calles
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Tabla de calles -->
   <div class="card border-0 rounded-4 shadow-sm overflow-hidden calles-card">
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-hover mb-0 calles-tabla">
+        <table class="table table-hover mb-0 calles-tabla" id="tablaCalles">
           <thead class="calles-tabla-header">
             <tr class="text-center">
               <th><i class="bi bi-signpost-2"></i> Nombre</th>
@@ -51,10 +133,13 @@
               <th><i class="bi bi-gear"></i> Acciones</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="tablaCallesBody">
             <% if (calles && calles.length > 0) { %>
               <% calles.forEach(c => { %>
-                <tr class="align-middle text-center calle-fila">
+                <tr class="align-middle text-center calle-fila" 
+                    data-comunidad="<%= c.comunidad_id || '' %>"
+                    data-lider="<%= c.lider_id || '' %>"
+                    data-jefe="<%= c.jefe_id || '' %>">
                   <td class="fw-semibold text-start calle-nombre"><%= c.nombre %></td>
                   <td>
                     <% if (c.comunidad_nombre) { %>
@@ -99,7 +184,7 @@
                 </tr>
               <% }); %>
             <% } else { %>
-              <tr>
+              <tr id="filaVacia">
                 <td colspan="5" class="text-center py-5 empty-state-calles">
                   <i class="bi bi-geo-alt fs-1 d-block mb-2"></i>
                   <p class="mb-0">No hay calles registradas</p>
@@ -124,6 +209,102 @@
   </div>
 </div>
 
+<!-- ========== SCRIPTS PARA FILTROS ========== -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const filtroComunidad = document.getElementById('filtroComunidad');
+    const filtroLider = document.getElementById('filtroLider');
+    const filtroJefe = document.getElementById('filtroJefe');
+    const btnLimpiar = document.getElementById('btnLimpiarFiltros');
+    const tablaBody = document.getElementById('tablaCallesBody');
+    const totalCallesSpan = document.getElementById('totalCalles');
+    const callesMostradasSpan = document.getElementById('callesMostradas');
+
+    function aplicarFiltros() {
+      const comunidadId = filtroComunidad.value;
+      const liderId = filtroLider.value;
+      const jefeId = filtroJefe.value;
+
+      const filas = tablaBody.querySelectorAll('.calle-fila');
+      let visibles = 0;
+
+      filas.forEach(fila => {
+        const dataComunidad = fila.dataset.comunidad || '';
+        const dataLider = fila.dataset.lider || '';
+        const dataJefe = fila.dataset.jefe || '';
+
+        let mostrar = true;
+
+        if (comunidadId && dataComunidad !== comunidadId) {
+          mostrar = false;
+        }
+
+        if (liderId && dataLider !== liderId) {
+          mostrar = false;
+        }
+
+        if (jefeId && dataJefe !== jefeId) {
+          mostrar = false;
+        }
+
+        if (mostrar) {
+          fila.style.display = '';
+          visibles++;
+        } else {
+          fila.style.display = 'none';
+        }
+      });
+
+      // Mostrar/ocultar fila vacía
+      const filaVacia = document.getElementById('filaVacia');
+      if (filaVacia) {
+        if (visibles === 0 && filas.length > 0) {
+          filaVacia.style.display = '';
+          filaVacia.querySelector('td').innerHTML = `
+            <i class="bi bi-search fs-1 d-block mb-2"></i>
+            <p class="mb-0">No hay calles que coincidan con los filtros</p>
+            <button class="btn btn-sm mt-3 px-3 py-1 rounded-3 btn-limpiar-filtros" onclick="document.getElementById('btnLimpiarFiltros').click()">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Limpiar filtros
+            </button>
+          `;
+        } else if (visibles === 0 && filas.length === 0) {
+          // Ya hay mensaje de "No hay calles registradas"
+        } else {
+          filaVacia.style.display = 'none';
+        }
+      }
+
+      // Actualizar contadores
+      const total = filas.length;
+      totalCallesSpan.textContent = total;
+      callesMostradasSpan.textContent = visibles;
+
+      // Actualizar texto informativo
+      const info = document.getElementById('callesFiltradasInfo');
+      if (comunidadId || liderId || jefeId) {
+        info.innerHTML = `Mostrando <span id="callesMostradas">${visibles}</span> de <span id="totalCalles">${total}</span> calles <span class="badge bg-primary rounded-pill ms-1">Filtrado</span>`;
+      } else {
+        info.innerHTML = `Mostrando <span id="callesMostradas">${visibles}</span> calles`;
+      }
+    }
+
+    // Event listeners
+    filtroComunidad.addEventListener('change', aplicarFiltros);
+    filtroLider.addEventListener('change', aplicarFiltros);
+    filtroJefe.addEventListener('change', aplicarFiltros);
+
+    btnLimpiar.addEventListener('click', function() {
+      filtroComunidad.value = '';
+      filtroLider.value = '';
+      filtroJefe.value = '';
+      aplicarFiltros();
+    });
+
+    // Inicializar
+    aplicarFiltros();
+  });
+</script>
+
 <style>
   .calles-title {
     color: #5D4037;
@@ -145,6 +326,64 @@
     box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
   }
   
+  /* ========== FILTROS ========== */
+  .filtros-card {
+    background: white;
+  }
+  
+  .filtro-label {
+    color: #5D4037;
+  }
+  
+  .filtro-select {
+    border-color: #f0d5c0;
+    background: white;
+  }
+  
+  .filtro-select:focus {
+    border-color: #fd6704bd;
+    box-shadow: 0 0 0 0.2rem rgba(253, 103, 4, 0.15);
+  }
+  
+  .btn-limpiar-filtros {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+    transition: all 0.2s ease;
+    border: none;
+  }
+  .btn-limpiar-filtros:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+  }
+  
+  /* ========== CONTADOR ========== */
+  .contador-card {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+  }
+  
+  .contador-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+  }
+  
+  .contador-numero {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  
+  .contador-texto {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    line-height: 1.2;
+  }
+  
+  .contador-card .text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+  
+  /* ========== TABLA ========== */
   .calles-card {
     background: white;
   }
@@ -234,11 +473,31 @@
     color: #fd6704bd;
   }
   
+  /* ========== MODO OSCURO ========== */
   body.dark-mode .calles-title {
     color: #e4e4e7;
   }
   body.dark-mode .calles-subtitle {
     color: #a1a1aa;
+  }
+  
+  body.dark-mode .filtros-card {
+    background: #1a1a2e !important;
+  }
+  
+  body.dark-mode .filtro-label {
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .filtro-select {
+    background: #2d2d44;
+    border-color: #3f3f46;
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .filtro-select:focus {
+    border-color: #f7931e;
+    box-shadow: 0 0 0 0.2rem rgba(247, 147, 30, 0.2);
   }
   
   body.dark-mode .calles-card {
@@ -292,6 +551,13 @@
     background: linear-gradient(135deg, #138496 0%, #0e5c6b 100%);
   }
   
+  body.dark-mode .btn-limpiar-filtros {
+    background: linear-gradient(135deg, #3f3f46 0%, #2d2d44 100%);
+  }
+  body.dark-mode .btn-limpiar-filtros:hover {
+    box-shadow: 0 4px 15px rgba(63, 63, 70, 0.5);
+  }
+  
   body.dark-mode .empty-state-calles i {
     color: #a1a1aa;
   }
@@ -313,11 +579,31 @@
     color: white;
   }
   
+  body.dark-mode .contador-card {
+    background: linear-gradient(135deg, #e08515 0%, #f7931e 100%);
+  }
+  
   .btn-sm, .btn {
     transition: all 0.2s ease;
   }
   
   .badge {
     font-weight: normal;
+  }
+  
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 768px) {
+    .contador-card .card-body {
+      padding: 0.75rem !important;
+    }
+    .contador-icon {
+      font-size: 1.8rem;
+    }
+    .contador-numero {
+      font-size: 1.5rem;
+    }
+    .contador-texto {
+      font-size: 0.7rem;
+    }
   }
 </style>

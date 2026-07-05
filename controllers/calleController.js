@@ -10,7 +10,8 @@ exports.listarCalles = async (req, res) => {
       SELECT c.*, 
              u.nombre AS jefe_nombre, 
              l.nombre AS lider_nombre,
-             com.nombre AS comunidad_nombre
+             com.nombre AS comunidad_nombre,
+             com.id AS comunidad_id  -- ← Agregar ID de comunidad para filtros
       FROM calles c
       LEFT JOIN usuarios u ON c.jefe_id = u.id
       LEFT JOIN usuarios l ON c.lider_id = l.id
@@ -18,8 +19,28 @@ exports.listarCalles = async (req, res) => {
       WHERE c.activo = 1
       ORDER BY c.nombre ASC
     `);
+    
+    // ====== NUEVO: Obtener datos para filtros ======
+    // 1. Comunidades activas
+    const [comunidades] = await db.query(
+      "SELECT id, nombre FROM comunidades WHERE activo = 1 ORDER BY nombre"
+    );
+    
+    // 2. Líderes (rol 2) activos
+    const [lideres] = await db.query(
+      "SELECT id, nombre FROM usuarios WHERE rol_id = 2 AND activo = 1 ORDER BY nombre"
+    );
+    
+    // 3. Jefes de calle (rol 3) activos
+    const [jefes] = await db.query(
+      "SELECT id, nombre FROM usuarios WHERE rol_id = 3 AND activo = 1 ORDER BY nombre"
+    );
+    
     res.render("calles/listar", { 
       calles,
+      comunidades,   // ← Para el filtro por comunidad
+      lideres,       // ← Para el filtro por líder
+      jefes,         // ← Para el filtro por jefe
       session: req.session
     });
   } catch (err) {
