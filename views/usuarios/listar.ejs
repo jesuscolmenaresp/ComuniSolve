@@ -247,24 +247,29 @@
   </span>
 </div>
 
-  <!-- Resumen de usuarios -->
-  <div class="card border-0 rounded-4 shadow-sm mt-4 overflow-hidden resumen-card">
+<!-- Resumen de usuarios -->
+<div class="card border-0 rounded-4 shadow-sm mt-4 overflow-hidden resumen-card">
     <div class="card-body p-3 resumen-body">
       <div class="row text-center">
-        <div class="col-3">
+        <div class="col-2">
           <i class="bi bi-people fs-4 resumen-icon-total"></i>
           <h5 class="fw-bold mb-0 resumen-total"><%= usuarios.filter(u => !(session.usuario.rol_id === 1 && u.rol_id === 5)).length %></h5>
           <small class="text-muted resumen-label">Total</small>
         </div>
-        <div class="col-3">
+        <div class="col-2">
           <i class="bi bi-bank fs-4 resumen-icon-ubch"></i>
           <h5 class="fw-bold mb-0 resumen-ubch"><%= usuarios.filter(u => u.rol_id === 1).length %></h5>
           <small class="text-muted resumen-label">UBCH</small>
         </div>
-        <div class="col-3">
+        <div class="col-2">
           <i class="bi bi-person-badge fs-4 resumen-icon-lider"></i>
           <h5 class="fw-bold mb-0 resumen-lider"><%= usuarios.filter(u => u.rol_id === 2).length %></h5>
           <small class="text-muted resumen-label">Líderes</small>
+        </div>
+        <div class="col-3">
+          <i class="bi bi-person-check fs-4 resumen-icon-jefe"></i>
+          <h5 class="fw-bold mb-0 resumen-jefe"><%= usuarios.filter(u => u.rol_id === 3).length %></h5>
+          <small class="text-muted resumen-label">Jefes de Calle</small>
         </div>
         <div class="col-3">
           <i class="bi bi-person fs-4 resumen-icon-ciudadano"></i>
@@ -274,7 +279,6 @@
       </div>
     </div>
   </div>
-</div>
 
 <!-- MODAL ÚNICO PARA RECHAZAR USUARIO -->
 <div class="modal fade" id="modalRechazarGlobal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -496,7 +500,8 @@
   .resumen-icon-ubch { color: #dc3545; }
   .resumen-icon-lider { color: #17a2b8; }
   .resumen-icon-ciudadano { color: #28a745; }
-  .resumen-total, .resumen-ubch, .resumen-lider, .resumen-ciudadano { color: #5D4037; }
+  .resumen-icon-jefe { color: #fd7e14; }
+  .resumen-total, .resumen-ubch, .resumen-lider, .resumen-jefe, .resumen-ciudadano { color: #5D4037; }
   .resumen-label { color: #8B6B5A; }
   
   /* Modal de rechazar */

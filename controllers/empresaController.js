@@ -17,8 +17,14 @@ exports.listar = async (req, res) => {
             ORDER BY e.nombre
         `);
         
+        // ====== OBTENER CATEGORÍAS PARA FILTROS ======
+        const [categorias] = await db.query(
+            "SELECT id, nombre FROM categorias WHERE activo = 1 ORDER BY nombre"
+        );
+        
         res.render('empresas/listar', { 
             empresas,
+            categorias,  // ← Para el filtro por categoría
             usuario: req.session.usuario,
             session: req.session
         });
@@ -27,7 +33,6 @@ exports.listar = async (req, res) => {
         res.status(500).send('Error al listar empresas');
     }
 };
-
 // ==========================
 // 📌 LISTAR EMPRESAS INACTIVAS
 // ==========================

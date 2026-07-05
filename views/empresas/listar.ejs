@@ -37,11 +37,85 @@
     <% session.error = null; %>
   <% } %>
 
+  <!-- ========== FILTROS Y CONTADOR ========== -->
+  <div class="row g-3 mb-4">
+    <!-- Filtros -->
+    <div class="col-12 col-md-9">
+      <div class="card border-0 rounded-4 shadow-sm p-3 filtros-card">
+        <div class="row g-2 align-items-end">
+          <!-- Filtro por Tipo -->
+          <div class="col-12 col-sm-6 col-md-3">
+            <label class="form-label fw-semibold small mb-1 filtro-label">
+              <i class="bi bi-tag me-1"></i> Tipo
+            </label>
+            <select id="filtroTipo" class="form-select form-select-sm rounded-3 filtro-select">
+              <option value="">Todos los tipos</option>
+              <option value="pública">🏛️ Pública</option>
+              <option value="privada">💼 Privada</option>
+              <option value="mixta">🤝 Mixta</option>
+              <option value="comunitaria">🌱 Comunitaria</option>
+            </select>
+          </div>
+
+          <!-- Filtro por Categoría -->
+          <div class="col-12 col-sm-6 col-md-3">
+            <label class="form-label fw-semibold small mb-1 filtro-label">
+              <i class="bi bi-tags me-1"></i> Categoría
+            </label>
+            <select id="filtroCategoria" class="form-select form-select-sm rounded-3 filtro-select">
+              <option value="">Todas las categorías</option>
+              <% if (categorias && categorias.length > 0) { %>
+                <% categorias.forEach(cat => { %>
+                  <option value="<%= cat.id %>"><%= cat.nombre %></option>
+                <% }); %>
+              <% } %>
+            </select>
+          </div>
+
+          <!-- Buscador -->
+          <div class="col-12 col-sm-6 col-md-4">
+            <label class="form-label fw-semibold small mb-1 filtro-label">
+              <i class="bi bi-search me-1"></i> Buscar
+            </label>
+            <input type="text" id="buscarEmpresa" class="form-control form-control-sm rounded-3 filtro-input" placeholder="Buscar por nombre o RIF...">
+          </div>
+
+          <!-- Botón Limpiar Filtros -->
+          <div class="col-12 col-sm-6 col-md-2">
+            <button id="btnLimpiarFiltros" class="btn btn-sm w-100 rounded-3 btn-limpiar-filtros">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contador de Empresas -->
+    <div class="col-12 col-md-3">
+      <div class="card border-0 rounded-4 shadow-sm h-100 contador-card">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center p-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="contador-icon">
+              <i class="bi bi-building-fill"></i>
+            </div>
+            <div class="text-center">
+              <span class="contador-numero" id="totalEmpresas"><%= empresas ? empresas.length : 0 %></span>
+              <span class="contador-texto d-block">Empresas registradas</span>
+            </div>
+          </div>
+          <small class="text-muted mt-1" id="empresasFiltradasInfo">
+            Mostrando <span id="empresasMostradas"><%= empresas ? empresas.length : 0 %></span> empresas
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Tabla de empresas -->
   <div class="card border-0 rounded-4 shadow-sm overflow-hidden empresas-card">
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-hover mb-0 empresas-tabla">
+        <table class="table table-hover mb-0 empresas-tabla" id="tablaEmpresas">
           <thead class="empresas-tabla-header">
             <tr class="text-center">
               <th><i class="bi bi-building"></i> Nombre</th>
@@ -53,7 +127,7 @@
               <th><i class="bi bi-gear"></i> Acciones</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="tablaEmpresasBody">
             <% if (empresas && empresas.length > 0) { %>
               <% empresas.forEach(e => { %>
                 <tr class="align-middle text-center empresa-fila" 
@@ -105,7 +179,7 @@
                 </tr>
               <% }) %>
             <% } else { %>
-              <tr>
+              <tr id="filaVacia">
                 <td colspan="7" class="text-center py-5 empty-state-empresas">
                   <i class="bi bi-building fs-1 d-block mb-2"></i>
                   <p class="mb-0">No hay empresas registradas</p>
@@ -164,116 +238,110 @@
   </div>
 </div>
 
+<!-- ========== SCRIPTS PARA FILTROS ========== -->
 <script>
-  // ========================================
-  // DOBLE CLIC PARA VER DETALLES DE EMPRESA
-  // ========================================
-  document.querySelectorAll('.empresa-fila').forEach(fila => {
-    fila.addEventListener('dblclick', function(e) {
-      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.tagName === 'FORM') return;
-      
-      const id = this.dataset.id;
-      const nombre = this.dataset.nombre;
-      const rif = this.dataset.rif;
-      const contacto = this.dataset.contacto;
-      const telefono = this.dataset.telefono;
-      const email = this.dataset.email;
-      const tipo = this.dataset.tipo;
-      const direccion = this.dataset.direccion;
-      const categorias = this.dataset.categorias || 'Sin categorías asignadas';
-      
-      // Mapeo de tipos a iconos y colores
-      const tipoMap = {
-        'pública': { icon: '🏛️', color: '#28a745' },
-        'privada': { icon: '💼', color: '#ffc107' },
-        'mixta': { icon: '🤝', color: '#17a2b8' },
-        'comunitaria': { icon: '🌱', color: '#fd7e14' }
-      };
-      
-      const tipoInfo = tipoMap[tipo] || { icon: '📌', color: '#6c757d' };
-      
-      let contenido = `
-        <div class="row">
-          <div class="col-12 text-center mb-4">
-            <div class="empresa-detalle-icon">
-              <i class="bi bi-building-fill fs-1" style="color: #fd6704bd;"></i>
-            </div>
-            <h4 class="fw-bold mt-2" style="color: #5D4037;">${nombre}</h4>
-            <span class="badge rounded-pill px-3 py-1" style="background: ${tipoInfo.color}; color: white; font-size: 0.85rem;">
-              ${tipoInfo.icon} ${tipo}
-            </span>
-          </div>
-        </div>
-        <hr>
-        <div class="row g-3">
-          <div class="col-md-6">
-            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
-              <i class="bi bi-card-list fs-4" style="color: #fd6704bd;"></i>
-              <div>
-                <strong class="small text-muted d-block">RIF</strong>
-                <span class="fw-semibold">${rif}</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
-              <i class="bi bi-envelope fs-4" style="color: #17a2b8;"></i>
-              <div>
-                <strong class="small text-muted d-block">Email</strong>
-                <span class="fw-semibold">${email}</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
-              <i class="bi bi-person fs-4" style="color: #28a745;"></i>
-              <div>
-                <strong class="small text-muted d-block">Persona de contacto</strong>
-                <span class="fw-semibold">${contacto}</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
-              <i class="bi bi-telephone fs-4" style="color: #6f42c1;"></i>
-              <div>
-                <strong class="small text-muted d-block">Teléfono</strong>
-                <span class="fw-semibold">${telefono}</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-12">
-            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
-              <i class="bi bi-geo-alt fs-4" style="color: #dc3545;"></i>
-              <div>
-                <strong class="small text-muted d-block">Dirección</strong>
-                <span class="fw-semibold">${direccion}</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-12">
-            <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3">
-              <i class="bi bi-tags fs-4" style="color: #ffc107;"></i>
-              <div>
-                <strong class="small text-muted d-block">Categorías que atiende</strong>
-                <div class="mt-1">
-                  ${categorias !== 'Sin categorías asignadas' ? 
-                    categorias.split(',').map(cat => 
-                      `<span class="badge rounded-pill px-2 py-1 me-1" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">${cat.trim()}</span>`
-                    ).join('') : 
-                    `<span class="text-muted">${categorias}</span>`
-                  }
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      document.getElementById('detalleEmpresaContent').innerHTML = contenido;
-      document.getElementById('btnEditarEmpresa').href = `/empresas/${id}/editar`;
-      new bootstrap.Modal(document.getElementById('modalEmpresaDetalle')).show();
+  document.addEventListener('DOMContentLoaded', function() {
+    const filtroTipo = document.getElementById('filtroTipo');
+    const filtroCategoria = document.getElementById('filtroCategoria');
+    const buscarEmpresa = document.getElementById('buscarEmpresa');
+    const btnLimpiar = document.getElementById('btnLimpiarFiltros');
+    const tablaBody = document.getElementById('tablaEmpresasBody');
+    const totalEmpresasSpan = document.getElementById('totalEmpresas');
+    const empresasMostradasSpan = document.getElementById('empresasMostradas');
+
+    function aplicarFiltros() {
+      const tipo = filtroTipo.value;
+      const categoriaId = filtroCategoria.value;
+      const texto = buscarEmpresa.value.toLowerCase().trim();
+
+      const filas = tablaBody.querySelectorAll('.empresa-fila');
+      let visibles = 0;
+
+      filas.forEach(fila => {
+        const dataTipo = fila.dataset.tipo || '';
+        const dataCategorias = fila.dataset.categorias || '';
+        const dataNombre = fila.dataset.nombre?.toLowerCase() || '';
+        const dataRif = fila.dataset.rif?.toLowerCase() || '';
+
+        let mostrar = true;
+
+        // Filtro por tipo
+        if (tipo && dataTipo !== tipo) {
+          mostrar = false;
+        }
+
+        // Filtro por categoría
+        if (categoriaId) {
+          // Buscar si la categoría está en la lista de categorías de la empresa
+          const categorias = dataCategorias ? dataCategorias.toLowerCase().split(',') : [];
+          const categoriaNombre = document.querySelector(`#filtroCategoria option[value="${categoriaId}"]`)?.textContent?.toLowerCase() || '';
+          
+          // Si no hay categorías o no coincide, ocultar
+          if (categorias.length === 0 || !categorias.some(cat => cat.trim() === categoriaNombre.trim())) {
+            mostrar = false;
+          }
+        }
+
+        // Buscador por nombre o RIF
+        if (texto && !dataNombre.includes(texto) && !dataRif.includes(texto)) {
+          mostrar = false;
+        }
+
+        if (mostrar) {
+          fila.style.display = '';
+          visibles++;
+        } else {
+          fila.style.display = 'none';
+        }
+      });
+
+      // Mostrar/ocultar fila vacía
+      const filaVacia = document.getElementById('filaVacia');
+      if (filaVacia) {
+        if (visibles === 0 && filas.length > 0) {
+          filaVacia.style.display = '';
+          filaVacia.querySelector('td').innerHTML = `
+            <i class="bi bi-search fs-1 d-block mb-2"></i>
+            <p class="mb-0">No hay empresas que coincidan con los filtros</p>
+            <button class="btn btn-sm mt-3 px-3 py-1 rounded-3 btn-limpiar-filtros" onclick="document.getElementById('btnLimpiarFiltros').click()">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Limpiar filtros
+            </button>
+          `;
+        } else if (visibles === 0 && filas.length === 0) {
+          // Ya hay mensaje de "No hay empresas registradas"
+        } else {
+          filaVacia.style.display = 'none';
+        }
+      }
+
+      // Actualizar contadores
+      const total = filas.length;
+      totalEmpresasSpan.textContent = total;
+      empresasMostradasSpan.textContent = visibles;
+
+      // Actualizar texto informativo
+      const info = document.getElementById('empresasFiltradasInfo');
+      if (tipo || categoriaId || texto) {
+        info.innerHTML = `Mostrando <span id="empresasMostradas">${visibles}</span> de <span id="totalEmpresas">${total}</span> empresas <span class="badge bg-primary rounded-pill ms-1">Filtrado</span>`;
+      } else {
+        info.innerHTML = `Mostrando <span id="empresasMostradas">${visibles}</span> empresas`;
+      }
+    }
+
+    // Event listeners
+    filtroTipo.addEventListener('change', aplicarFiltros);
+    filtroCategoria.addEventListener('change', aplicarFiltros);
+    buscarEmpresa.addEventListener('keyup', aplicarFiltros);
+
+    btnLimpiar.addEventListener('click', function() {
+      filtroTipo.value = '';
+      filtroCategoria.value = '';
+      buscarEmpresa.value = '';
+      aplicarFiltros();
     });
+
+    // Inicializar
+    aplicarFiltros();
   });
 </script>
 
@@ -300,6 +368,65 @@
   .btn-nueva-empresa:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(253, 103, 4, 0.3);
+  }
+
+  /* ========== FILTROS ========== */
+  .filtros-card {
+    background: white;
+  }
+  
+  .filtro-label {
+    color: #5D4037;
+  }
+  
+  .filtro-select,
+  .filtro-input {
+    border-color: #f0d5c0;
+    background: white;
+  }
+  
+  .filtro-select:focus,
+  .filtro-input:focus {
+    border-color: #fd6704bd;
+    box-shadow: 0 0 0 0.2rem rgba(253, 103, 4, 0.15);
+  }
+  
+  .btn-limpiar-filtros {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+    transition: all 0.2s ease;
+    border: none;
+  }
+  .btn-limpiar-filtros:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+  }
+
+  /* ========== CONTADOR ========== */
+  .contador-card {
+    background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);
+    color: white;
+  }
+  
+  .contador-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+  }
+  
+  .contador-numero {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  
+  .contador-texto {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    line-height: 1.2;
+  }
+  
+  .contador-card .text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
   }
   
   /* Tarjeta de tabla */
@@ -454,6 +581,34 @@
     color: #a1a1aa;
   }
   
+  body.dark-mode .filtros-card {
+    background: #1a1a2e !important;
+  }
+  
+  body.dark-mode .filtro-label {
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .filtro-select,
+  body.dark-mode .filtro-input {
+    background: #2d2d44;
+    border-color: #3f3f46;
+    color: #e4e4e7;
+  }
+  
+  body.dark-mode .filtro-select:focus,
+  body.dark-mode .filtro-input:focus {
+    border-color: #f7931e;
+    box-shadow: 0 0 0 0.2rem rgba(247, 147, 30, 0.2);
+  }
+  
+  body.dark-mode .btn-limpiar-filtros {
+    background: linear-gradient(135deg, #3f3f46 0%, #2d2d44 100%);
+  }
+  body.dark-mode .btn-limpiar-filtros:hover {
+    box-shadow: 0 4px 15px rgba(63, 63, 70, 0.5);
+  }
+  
   body.dark-mode .empresas-card {
     background: #1a1a2e !important;
   }
@@ -569,11 +724,31 @@
     border-color: #3f3f46;
   }
   
+  body.dark-mode .contador-card {
+    background: linear-gradient(135deg, #e08515 0%, #f7931e 100%);
+  }
+  
   .btn-sm, .btn {
     transition: all 0.2s ease;
   }
   
   .badge {
     font-weight: normal;
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 768px) {
+    .contador-card .card-body {
+      padding: 0.75rem !important;
+    }
+    .contador-icon {
+      font-size: 1.8rem;
+    }
+    .contador-numero {
+      font-size: 1.5rem;
+    }
+    .contador-texto {
+      font-size: 0.7rem;
+    }
   }
 </style>

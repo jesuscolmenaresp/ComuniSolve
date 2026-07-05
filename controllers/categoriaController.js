@@ -2,6 +2,70 @@ const db = require('../models/db');
 const { registrarAuditoria } = require('../middleware/auditoriaMiddleware');
 
 // ==========================
+// 📌 MAPEO DE COLORES PARA LA VISTA
+// ==========================
+const colorMap = {
+    'primary': '#0d6efd',
+    'secondary': '#6c757d',
+    'success': '#28a745',
+    'danger': '#dc3545',
+    'warning': '#ffc107',
+    'info': '#17a2b8',
+    'dark': '#212529',
+    'light': '#f8f9fa',
+    'purple': '#6f42c1',
+    'pink': '#d63384',
+    'orange': '#fd7e14',
+    'teal': '#20c997',
+    'indigo': '#6610f2',
+    'lime': '#aacc00',
+    'brown': '#8B4513'
+};
+
+// ==========================
+// 📌 MAPEO DE ICONOS (POR NOMBRE Y POR EMOJI)
+// ==========================
+const iconMap = {
+    // Por nombre de categoría (más confiable)
+    'Agua': 'bi-droplet',
+    'Electricidad': 'bi-lightning',
+    'Vialidad': 'bi-signpost-2',
+    'Salud': 'bi-hospital',
+    'Educación': 'bi-book',
+    'Seguridad': 'bi-shield',
+    'Ambiente': 'bi-tree',
+    'Aguas Servidas': 'bi-droplet-half',
+    'Alimentación': 'bi-apple',
+    'Basura': 'bi-trash',
+    'Áreas Verdes': 'bi-tree',
+    'Animales': 'bi-paw',
+    'Ruido': 'bi-volume-up',
+    'Alumbrado': 'bi-lightbulb',
+    
+    // Por emoji (fallback)
+    '💧': 'bi-droplet',
+    '⚡': 'bi-lightning',
+    '🚧': 'bi-signpost-2',
+    '🏥': 'bi-hospital',
+    '🗑️': 'bi-trash',
+    '🌳': 'bi-tree',
+    '🐶': 'bi-paw',
+    '🔊': 'bi-volume-up',
+    '💡': 'bi-lightbulb',
+    '📦': 'bi-box',
+    '📚': 'bi-book',
+    '🌿': 'bi-leaf',
+    '🚰': 'bi-droplet-half',
+    '🍅': 'bi-apple',
+    '🟢': 'bi-circle-fill',
+    '🔴': 'bi-circle-fill',
+    '🟡': 'bi-circle-fill',
+    '🔵': 'bi-circle-fill',
+    '⚫': 'bi-circle-fill',
+    '⚪': 'bi-circle'
+};
+
+// ==========================
 // 📌 LISTAR CATEGORÍAS ACTIVAS
 // ==========================
 exports.listar = async (req, res) => {
@@ -14,8 +78,16 @@ exports.listar = async (req, res) => {
             ORDER BY c.nombre
         `);
         
+        // Agregar información de color e icono a cada categoría
+        const categoriasConInfo = categorias.map(c => ({
+            ...c,
+            color_hex: colorMap[c.color] || '#6c757d',
+            // Primero intenta por nombre, luego por emoji
+            bootstrap_icon: iconMap[c.nombre] || iconMap[c.icono] || null
+        }));
+        
         res.render('categorias/listar', { 
-            categorias,
+            categorias: categoriasConInfo,
             usuario: req.session.usuario,
             session: req.session
         });
@@ -44,8 +116,15 @@ exports.listarInactivas = async (req, res) => {
             ORDER BY c.nombre
         `);
         
+        // Agregar información de color e icono a cada categoría
+        const categoriasConInfo = categorias.map(c => ({
+            ...c,
+            color_hex: colorMap[c.color] || '#6c757d',
+            bootstrap_icon: iconMap[c.icono] || null
+        }));
+        
         res.render('categorias/inactivos', { 
-            categorias,
+            categorias: categoriasConInfo,
             usuario: req.session.usuario,
             session: req.session
         });

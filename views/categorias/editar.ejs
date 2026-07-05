@@ -68,6 +68,11 @@
                     <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🐶">🐶 Animales</button>
                     <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🔊">🔊 Ruido</button>
                     <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="💡">💡 Alumbrado</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="📚">📚 Educación</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🌿">🌿 Ambiente</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🛡️">🛡️ Seguridad</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🚰">🚰 Aguas Servidas</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🍅">🍅 Alimentación</button>
                     <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="📦">📦 Otro</button>
                   </div>
                 </div>
@@ -96,6 +101,14 @@
                     <button type="button" class="btn color-option rounded-3" data-color="warning" style="background-color: #ffc107; width: 50px; height: 50px; border-radius: 12px;" title="Amarillo"></button>
                     <button type="button" class="btn color-option rounded-3" data-color="info" style="background-color: #17a2b8; width: 50px; height: 50px; border-radius: 12px;" title="Celeste"></button>
                     <button type="button" class="btn color-option rounded-3" data-color="dark" style="background-color: #212529; width: 50px; height: 50px; border-radius: 12px;" title="Negro"></button>
+                    <!-- ====== NUEVOS COLORES ====== -->
+                    <button type="button" class="btn color-option rounded-3" data-color="purple" style="background-color: #6f42c1; width: 50px; height: 50px; border-radius: 12px;" title="Púrpura"></button>
+                    <button type="button" class="btn color-option rounded-3" data-color="pink" style="background-color: #d63384; width: 50px; height: 50px; border-radius: 12px;" title="Rosa"></button>
+                    <button type="button" class="btn color-option rounded-3" data-color="orange" style="background-color: #fd7e14; width: 50px; height: 50px; border-radius: 12px;" title="Naranja"></button>
+                    <button type="button" class="btn color-option rounded-3" data-color="teal" style="background-color: #20c997; width: 50px; height: 50px; border-radius: 12px;" title="Turquesa"></button>
+                    <button type="button" class="btn color-option rounded-3" data-color="indigo" style="background-color: #6610f2; width: 50px; height: 50px; border-radius: 12px;" title="Índigo"></button>
+                    <button type="button" class="btn color-option rounded-3" data-color="lime" style="background-color: #aacc00; width: 50px; height: 50px; border-radius: 12px;" title="Lima"></button>
+                    <button type="button" class="btn color-option rounded-3" data-color="brown" style="background-color: #8B4513; width: 50px; height: 50px; border-radius: 12px;" title="Marrón"></button>
                   </div>
                 </div>
               </div>
@@ -108,6 +121,14 @@
                 <option value="warning" <%= categoria.color === 'warning' ? 'selected' : '' %>>🟡 Amarillo</option>
                 <option value="info" <%= categoria.color === 'info' ? 'selected' : '' %>>🔷 Celeste</option>
                 <option value="dark" <%= categoria.color === 'dark' ? 'selected' : '' %>>⚫ Negro</option>
+                <!-- ====== NUEVOS COLORES ====== -->
+                <option value="purple" <%= categoria.color === 'purple' ? 'selected' : '' %>>🟣 Púrpura</option>
+                <option value="pink" <%= categoria.color === 'pink' ? 'selected' : '' %>>🩷 Rosa</option>
+                <option value="orange" <%= categoria.color === 'orange' ? 'selected' : '' %>>🟠 Naranja</option>
+                <option value="teal" <%= categoria.color === 'teal' ? 'selected' : '' %>>🩵 Turquesa</option>
+                <option value="indigo" <%= categoria.color === 'indigo' ? 'selected' : '' %>>🔮 Índigo</option>
+                <option value="lime" <%= categoria.color === 'lime' ? 'selected' : '' %>>🟩 Lima</option>
+                <option value="brown" <%= categoria.color === 'brown' ? 'selected' : '' %>>🟤 Marrón</option>
               </select>
               <small class="text-muted categoria-help">Selecciona un color para identificar la categoría</small>
             </div>
@@ -314,6 +335,7 @@
   .color-option {
     transition: all 0.2s ease;
     cursor: pointer;
+    border: 2px solid #f0d5c0;
   }
   .color-option:hover {
     transform: scale(1.05);

@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "build": "npm install"
+    "build": "npm install",
+    "sync-images": "node descargar-imagenes.js",
+    "sync-all": "node sincronizar-todo.js",
+    "push-to-production": "node subir-local-nube.js"
   },
   "keywords": [],
   "author": "Jesús Colmenares",
@@ -22,7 +25,7 @@
     "express-session": "^1.18.2",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
-    "mysql2": "^3.14.2",
+    "mysql2": "^3.22.5",
     "node-mailjet": "^6.0.11",
     "nodemailer": "^9.0.1",
     "pdfkit": "^0.18.0",
