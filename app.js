@@ -30,9 +30,14 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-// Middlewares
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+// Middlewares - AUMENTAR LÍMITES
+app.use(express.urlencoded({ 
+  extended: true,
+  limit: '10mb'  // <-- AUMENTAR de 5MB a 10MB
+}));
+app.use(express.json({ 
+  limit: '10mb'  // <-- AUMENTAR de 5MB a 10MB
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Configuración de sesión MEJORADA para producción

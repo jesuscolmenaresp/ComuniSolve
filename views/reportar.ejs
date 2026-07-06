@@ -37,14 +37,14 @@
           <% } %>
 
           <!-- Formulario -->
-          <form action="/reportar" method="POST" enctype="multipart/form-data">
+          <form action="/reportar" method="POST" enctype="multipart/form-data" id="formReportar">
             
             <!-- Título -->
             <div class="mb-4">
               <label class="form-label fw-semibold small mb-2 reportar-label">
                 <i class="bi bi-card-heading me-1"></i> Título del problema *
               </label>
-              <input type="text" name="titulo" class="form-control rounded-3 reportar-input" 
+              <input type="text" name="titulo" id="tituloInput" class="form-control rounded-3 reportar-input" 
                      placeholder="Ej: Bote de agua en la esquina" required>
             </div>
 
@@ -53,7 +53,7 @@
               <label class="form-label fw-semibold small mb-2 reportar-label">
                 <i class="bi bi-file-text me-1"></i> Descripción *
               </label>
-              <textarea name="descripcion" class="form-control rounded-3 reportar-input" rows="3" 
+              <textarea name="descripcion" id="descripcionInput" class="form-control rounded-3 reportar-input" rows="3" 
                         placeholder="Describe detalladamente el problema que deseas reportar..." required></textarea>
             </div>
 
@@ -62,7 +62,7 @@
               <label class="form-label fw-semibold small mb-2 reportar-label">
                 <i class="bi bi-tag me-1"></i> Categoría del problema *
               </label>
-              <select name="categoria_id" class="form-select rounded-3 reportar-select" required>
+              <select name="categoria_id" id="categoriaSelect" class="form-select rounded-3 reportar-select" required>
                 <option value="">-- Seleccione una categoría --</option>
                 <% if (categorias && categorias.length > 0) { %>
                   <% categorias.forEach(cat => { %>
@@ -97,7 +97,7 @@
                 <input type="hidden" name="calle_id" value="<%= usuario.calle_id %>">
               
               <% } else if ((usuario.rol_id === 2 || usuario.rol_id === 1) && calles && calles.length > 0) { %>
-                <select name="calle_id" class="form-select rounded-3 reportar-select" required>
+                <select name="calle_id" id="calleSelect" class="form-select rounded-3 reportar-select" required>
                   <option value="">-- Seleccione una calle --</option>
                   <% calles.forEach(c => { %>
                     <option value="<%= c.id %>"><%= c.nombre %></option>
@@ -130,8 +130,14 @@
               <label class="form-label fw-semibold small mb-2 reportar-label">
                 <i class="bi bi-image me-1"></i> Adjuntar imagen (opcional)
               </label>
-              <input type="file" name="imagen" class="form-control rounded-3 reportar-file" accept="image/*">
-              <small class="text-muted reportar-help">Puedes subir una imagen del problema (JPG, PNG)</small>
+              <input type="file" name="imagen" id="imagenInput" class="form-control rounded-3 reportar-file" accept="image/*">
+              <small class="text-muted reportar-help" id="infoImagen">Puedes subir una imagen del problema (JPG, PNG, GIF, WEBP - Máximo 10 MB)</small>
+              <div id="previewImagen" class="mt-2" style="display: none;">
+                <img id="previewImg" src="#" alt="Vista previa" style="max-height: 150px; border-radius: 8px; border: 1px solid #f0d5c0; padding: 4px;">
+                <button type="button" id="btnQuitarImagen" class="btn btn-sm btn-outline-danger mt-1">
+                  <i class="bi bi-x-circle me-1"></i> Quitar imagen
+                </button>
+              </div>
             </div>
 
             <!-- Mapa de ubicación -->
@@ -155,7 +161,7 @@
 
             <!-- Botones -->
             <div class="d-flex gap-3 mt-4 pt-2">
-              <button type="submit" class="btn px-4 py-2 fw-semibold rounded-3 btn-enviar">
+              <button type="submit" class="btn px-4 py-2 fw-semibold rounded-3 btn-enviar" id="btnEnviar">
                 <i class="bi bi-send-fill me-2"></i> Enviar Reporte
               </button>
               <a href="/reportes" class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3 btn-cancelar">
@@ -187,7 +193,9 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-  // Inicializar mapa
+  // ==========================================
+  // INICIALIZAR MAPA
+  // ==========================================
   window.map = L.map('map').setView([10.0389, -67.4931], 14);
   
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -262,16 +270,136 @@
     );
   });
 
-  // Validar ubicación antes de enviar
-  document.querySelector('form').addEventListener('submit', function(e) {
+  // ==========================================
+  // VALIDACIONES DEL FORMULARIO
+  // ==========================================
+  document.getElementById('formReportar').addEventListener('submit', function(e) {
+    const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+    const fileInput = document.getElementById('imagenInput');
+    const btnEnviar = document.getElementById('btnEnviar');
+    
+    // 1. Validar título
+    const titulo = document.getElementById('tituloInput').value.trim();
+    if (titulo.length < 3) {
+      e.preventDefault();
+      alert('⚠️ El título debe tener al menos 3 caracteres.');
+      document.getElementById('tituloInput').focus();
+      return false;
+    }
+    
+    // 2. Validar descripción
+    const descripcion = document.getElementById('descripcionInput').value.trim();
+    if (descripcion.length < 10) {
+      e.preventDefault();
+      alert('⚠️ La descripción debe tener al menos 10 caracteres.');
+      document.getElementById('descripcionInput').focus();
+      return false;
+    }
+    
+    // 3. Validar categoría
+    const categoria = document.getElementById('categoriaSelect').value;
+    if (!categoria) {
+      e.preventDefault();
+      alert('⚠️ Por favor, selecciona una categoría.');
+      document.getElementById('categoriaSelect').focus();
+      return false;
+    }
+    
+    // 4. Validar calle (si aplica)
+    const calleSelect = document.getElementById('calleSelect');
+    if (calleSelect && calleSelect.value === '') {
+      e.preventDefault();
+      alert('⚠️ Por favor, selecciona una calle.');
+      calleSelect.focus();
+      return false;
+    }
+    
+    // 5. Validar imagen (tamaño y tipo)
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      
+      // Verificar tamaño
+      if (file.size > MAX_SIZE) {
+        e.preventDefault();
+        alert(`⚠️ La imagen es demasiado grande (${(file.size / 1024 / 1024).toFixed(1)} MB).\nMáximo permitido: 10 MB.`);
+        fileInput.value = '';
+        document.getElementById('previewImagen').style.display = 'none';
+        return false;
+      }
+      
+      // Verificar tipo de archivo
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        e.preventDefault();
+        alert('⚠️ Solo se permiten imágenes (JPEG, PNG, GIF, WEBP)');
+        fileInput.value = '';
+        document.getElementById('previewImagen').style.display = 'none';
+        return false;
+      }
+    }
+    
+    // 6. Validar ubicación
     const lat = document.getElementById('ubicacion_lat').value;
     const lng = document.getElementById('ubicacion_lng').value;
     
     if (!lat || !lng) {
       e.preventDefault();
       alert('⚠️ Por favor, selecciona una ubicación en el mapa o usa el botón "Usar mi ubicación actual"');
+      return false;
+    }
+    
+    // Deshabilitar botón para evitar doble envío
+    btnEnviar.disabled = true;
+    btnEnviar.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Enviando...';
+  });
+
+  // ==========================================
+  // PREVISUALIZACIÓN DE IMAGEN
+  // ==========================================
+  document.getElementById('imagenInput').addEventListener('change', function(e) {
+    const previewDiv = document.getElementById('previewImagen');
+    const previewImg = document.getElementById('previewImg');
+    const file = this.files[0];
+    
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        previewImg.src = event.target.result;
+        previewDiv.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+      
+      // Mostrar tamaño
+      const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+      document.getElementById('infoImagen').textContent = `Archivo: ${file.name} (${sizeMB} MB)`;
     }
   });
+
+  // Quitar imagen
+  document.getElementById('btnQuitarImagen').addEventListener('click', function() {
+    document.getElementById('imagenInput').value = '';
+    document.getElementById('previewImagen').style.display = 'none';
+    document.getElementById('infoImagen').textContent = 'Puedes subir una imagen del problema (JPG, PNG, GIF, WEBP - Máximo 10 MB)';
+  });
+
+  // ==========================================
+  // RECUPERAR UBICACIÓN SI EL USUARIO YA LA SELECCIONÓ
+  // ==========================================
+  // Si el usuario vuelve a la página después de un error, mantener la ubicación
+  const latActual = document.getElementById('ubicacion_lat').value;
+  const lngActual = document.getElementById('ubicacion_lng').value;
+  
+  if (latActual && lngActual) {
+    const lat = parseFloat(latActual);
+    const lng = parseFloat(lngActual);
+    
+    window.map.setView([lat, lng], 16);
+    if (marker) {
+      marker.setLatLng([lat, lng]);
+    } else {
+      marker = L.marker([lat, lng]).addTo(window.map);
+    }
+  }
 </script>
 
 <style>

@@ -41,22 +41,50 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// ========== LÍMITES AUMENTADOS ==========
+// Aumentar de 5MB a 10MB (o 20MB si necesitas más)
+const MAX_REPORTE_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_PERFIL_SIZE = 2 * 1024 * 1024;   // 2 MB
+
 // Middleware para reportes
 const uploadReportes = multer({
   storage: storageReportes,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+  limits: { 
+    fileSize: MAX_REPORTE_SIZE  // <--- CAMBIADO de 5MB a 10MB
+  }
 });
 
 // Middleware para fotos de perfil
 const uploadPerfil = multer({
   storage: storagePerfil,
   fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 } // 2MB
+  limits: { 
+    fileSize: MAX_PERFIL_SIZE  // 2MB (se mantiene)
+  }
 });
+
+// ========== MIDDLEWARE DE ERROR PARA MULTER ==========
+const handleMulterError = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'FILE_TOO_LARGE') {
+      req.session.error = `El archivo es demasiado grande. Máximo ${MAX_REPORTE_SIZE / 1024 / 1024} MB.`;
+      return res.redirect('/reportar');
+    }
+    req.session.error = 'Error al subir el archivo: ' + err.message;
+    return res.redirect('/reportar');
+  }
+  if (err) {
+    req.session.error = err.message;
+    return res.redirect('/reportar');
+  }
+  next();
+};
 
 module.exports = { 
   upload: uploadReportes,
   uploadPerfil,
-  uploadReportes 
+  uploadReportes,
+  handleMulterError,
+  MAX_REPORTE_SIZE
 };

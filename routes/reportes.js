@@ -3,7 +3,7 @@ const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const roleMiddleware = require('../middleware/roleMiddleware');
 const reporteController = require('../controllers/reporteController');
-const { uploadReportes } = require('../middleware/uploadMiddleware');
+const { uploadReportes, handleMulterError } = require('../middleware/uploadMiddleware');
 const exportController = require('../controllers/exportController');
 
 // 📌 Listar reportes (versión rápida)
@@ -15,8 +15,13 @@ router.get('/reportes/:id/detalle', authMiddleware, reporteController.obtenerDet
 // Formulario de reporte
 router.get('/reportar', authMiddleware, reporteController.mostrarFormulario);
 
-// Guardar reporte con imagen
-router.post('/reportar', authMiddleware, uploadReportes.single('imagen'), reporteController.guardarReporte);
+// Guardar reporte con imagen - CON MANEJO DE ERRORES
+router.post('/reportar', 
+  authMiddleware, 
+  uploadReportes.single('imagen'), 
+  handleMulterError,  // <--- AGREGAR ESTO
+  reporteController.guardarReporte
+);
 
 // Cambiar estado
 router.post('/reportes/:id/estado', authMiddleware, reporteController.cambiarEstado);
