@@ -32,7 +32,7 @@ exports.listarReportesRapido = async (req, res) => {
       FROM reportes r
       INNER JOIN calles c ON r.calle_id = c.id
       INNER JOIN categorias cat ON r.categoria_id = cat.id
-      WHERE 1=1
+      WHERE r.activo = 1
     `;
     
     let params = [];
@@ -67,7 +67,6 @@ exports.listarReportesRapido = async (req, res) => {
     } 
     else if (usuario.rol_id === 1) {
       // ✅ UBCH (rol 1): TODOS los reportes de las calles de SU COMUNIDAD
-      // Un UBCH puede tener varias comunidades asignadas (tabla ubch_comunidades)
       query += ` AND r.calle_id IN (
         SELECT c.id 
         FROM calles c 
@@ -123,8 +122,8 @@ exports.listarReportesRapido = async (req, res) => {
       });
     }
     
-    const [categorias] = await db.query('SELECT id, nombre FROM categorias ORDER BY nombre');
-    
+    const [categorias] = await db.query('SELECT id, nombre FROM categorias WHERE activo = 1 ORDER BY nombre');
+      
     // ========================================
     // 📌 FILTRAR CALLES SEGÚN ROL (para el select de filtro)
     // ========================================
@@ -187,7 +186,6 @@ exports.listarReportesRapido = async (req, res) => {
     res.status(500).send("Error al obtener reportes: " + err.message);
   }
 };
-
 // ==========================
 // 📌 LISTAR REPORTES (ALIAS)
 // ==========================
@@ -285,7 +283,8 @@ exports.mostrarFormulario = async (req, res) => {
       calles = todasCalles;
     }
     
-    const [categorias] = await db.query("SELECT * FROM categorias ORDER BY nombre");
+    // SOLO CATEGORÍAS ACTIVAS
+    const [categorias] = await db.query("SELECT * FROM categorias WHERE activo = 1 ORDER BY nombre");
     
     res.render("reportar", { 
       calles, 
