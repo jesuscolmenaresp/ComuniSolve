@@ -23,49 +23,6 @@ const colorMap = {
 };
 
 // ==========================
-// 📌 MAPEO DE ICONOS (POR NOMBRE Y POR EMOJI)
-// ==========================
-const iconMap = {
-    // Por nombre de categoría (más confiable)
-    'Agua': 'bi-droplet',
-    'Electricidad': 'bi-lightning',
-    'Vialidad': 'bi-signpost-2',
-    'Salud': 'bi-hospital',
-    'Educación': 'bi-book',
-    'Seguridad': 'bi-shield',
-    'Ambiente': 'bi-tree',
-    'Aguas Servidas': 'bi-droplet-half',
-    'Alimentación': 'bi-apple',
-    'Basura': 'bi-trash',
-    'Áreas Verdes': 'bi-tree',
-    'Animales': 'bi-paw',
-    'Ruido': 'bi-volume-up',
-    'Alumbrado': 'bi-lightbulb',
-    
-    // Por emoji (fallback)
-    '💧': 'bi-droplet',
-    '⚡': 'bi-lightning',
-    '🚧': 'bi-signpost-2',
-    '🏥': 'bi-hospital',
-    '🗑️': 'bi-trash',
-    '🌳': 'bi-tree',
-    '🐶': 'bi-paw',
-    '🔊': 'bi-volume-up',
-    '💡': 'bi-lightbulb',
-    '📦': 'bi-box',
-    '📚': 'bi-book',
-    '🌿': 'bi-leaf',
-    '🚰': 'bi-droplet-half',
-    '🍅': 'bi-apple',
-    '🟢': 'bi-circle-fill',
-    '🔴': 'bi-circle-fill',
-    '🟡': 'bi-circle-fill',
-    '🔵': 'bi-circle-fill',
-    '⚫': 'bi-circle-fill',
-    '⚪': 'bi-circle'
-};
-
-// ==========================
 // 📌 LISTAR CATEGORÍAS ACTIVAS
 // ==========================
 exports.listar = async (req, res) => {
@@ -78,12 +35,10 @@ exports.listar = async (req, res) => {
             ORDER BY c.nombre
         `);
         
-        // Agregar información de color e icono a cada categoría
+        // Solo agregamos información de color (el icono se renderiza con el helper de app.js)
         const categoriasConInfo = categorias.map(c => ({
             ...c,
-            color_hex: colorMap[c.color] || '#6c757d',
-            // Primero intenta por nombre, luego por emoji
-            bootstrap_icon: iconMap[c.nombre] || iconMap[c.icono] || null
+            color_hex: colorMap[c.color] || '#6c757d'
         }));
         
         res.render('categorias/listar', { 
@@ -102,7 +57,6 @@ exports.listar = async (req, res) => {
 // ==========================
 exports.listarInactivas = async (req, res) => {
     try {
-        // Verificar que sea UBCH o SuperAdmin
         if (!req.session.usuario || (req.session.usuario.rol_id !== 1 && req.session.usuario.rol_id !== 5)) {
             req.session.error = 'No autorizado';
             return res.redirect('/dashboard');
@@ -116,11 +70,9 @@ exports.listarInactivas = async (req, res) => {
             ORDER BY c.nombre
         `);
         
-        // Agregar información de color e icono a cada categoría
         const categoriasConInfo = categorias.map(c => ({
             ...c,
-            color_hex: colorMap[c.color] || '#6c757d',
-            bootstrap_icon: iconMap[c.icono] || null
+            color_hex: colorMap[c.color] || '#6c757d'
         }));
         
         res.render('categorias/inactivos', { 
@@ -253,7 +205,6 @@ exports.desactivar = async (req, res) => {
             return res.redirect('/categorias');
         }
 
-        // Verificar si tiene reportes asociados
         const [reportesAsociados] = await db.query(
             'SELECT COUNT(*) as total FROM reportes WHERE categoria_id = ? AND activo = 1',
             [id]
@@ -350,7 +301,6 @@ exports.destruir = async (req, res) => {
             return res.redirect('/categorias/inactivos');
         }
 
-        // Verificar si tiene reportes asociados (incluso inactivos)
         const [reportesAsociados] = await db.query(
             'SELECT COUNT(*) as total FROM reportes WHERE categoria_id = ?',
             [id]

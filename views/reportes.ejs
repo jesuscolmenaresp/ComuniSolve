@@ -160,6 +160,7 @@
             <tr class="reporte-fila align-middle" data-estado="<%= r.estado %>" data-id="<%= r.id %>" style="cursor: pointer;">
               <td><i class="bi bi-chat-square-text me-1 text-primary"></i> <%= r.titulo %></td>
               <td><%= r.descripcion.length > 50 ? r.descripcion.substring(0,50) + '...' : r.descripcion %></td>
+              <!-- ========== ICONO CORREGIDO EN LA TABLA ========== -->
               <td class="text-center"><span class="badge px-2 py-1 rounded-pill" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;"><%= r.categoria_icono ? r.categoria_icono + ' ' : '' %><%= r.categoria_nombre %></span></td>
               <td><i class="bi bi-pin-map-fill text-secondary me-1"></i> <%= r.nombre_calle %></td>
               <td><i class="bi bi-calendar-week"></i> <%= new Date(r.fecha).toLocaleDateString() %></td>
@@ -791,7 +792,11 @@
                 <div class="col-md-6">
                   <div class="d-flex align-items-center gap-2 p-2 bg-light rounded-3">
                     <i class="bi bi-tag text-info fs-5"></i>
-                    <div><strong class="small text-secondary">Categoría</strong><br><span class="badge px-2 py-1 rounded-pill" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">${reporte.categoria_icono || ''} ${reporte.categoria_nombre}</span></div>
+                    <div><strong class="small text-secondary">Categoría</strong><br>
+                    <span class="badge px-2 py-1 rounded-pill" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white;">
+                      ${reporte.categoria_icono ? reporte.categoria_icono + ' ' : ''}${reporte.categoria_nombre}
+                    </span>
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-6">

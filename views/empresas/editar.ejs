@@ -119,7 +119,7 @@
                           <input class="form-check-input empresa-checkbox" type="checkbox" name="categorias" value="<%= cat.id %>" id="cat_<%= cat.id %>"
                                  <%= categoriasSeleccionadas.includes(cat.id) ? 'checked' : '' %>>
                           <label class="form-check-label empresa-checkbox-label" for="cat_<%= cat.id %>">
-                            <%= cat.icono ? cat.icono + ' ' : '' %><%= cat.nombre %>
+                            <%- renderIcon(cat.icono) %> <%= cat.nombre %>
                           </label>
                         </div>
                       <% }) %>

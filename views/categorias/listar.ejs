@@ -56,15 +56,9 @@
             <% if (categorias && categorias.length > 0) { %>
               <% categorias.forEach(c => { %>
                 <tr class="text-center align-middle categoria-fila">
-                  <td class="categoria-icono" style="font-size: 1.5rem;">
-                    <% if (c.bootstrap_icon) { %>
-                      <i class="bi <%= c.bootstrap_icon %>" style="font-size: 1.8rem; color: #fd6704bd;"></i>
-                    <% } else if (c.icono) { %>
-                      <span class="categoria-emoji"><%= c.icono %></span>
-                    <% } else { %>
-                      <i class="bi bi-tag-fill" style="font-size: 1.5rem; color: #fd6704bd;"></i>
-                    <% } %>
-                  </td>
+                <td class="categoria-icono" style="font-size: 1.5rem;">
+                  <%- renderIcon(c.icono) %>
+                </td>
                   <td class="fw-semibold categoria-nombre"><%= c.nombre %></td>
                   <td class="categoria-descripcion"><%= c.descripcion || '—' %></td>
                   <td>

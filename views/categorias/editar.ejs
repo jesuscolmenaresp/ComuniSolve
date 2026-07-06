@@ -59,21 +59,21 @@
               <div class="row g-2 mb-2">
                 <div class="col-12">
                   <div class="d-flex flex-wrap gap-2" id="iconSelector">
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="💧">💧 Agua</button>
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="⚡">⚡ Electricidad</button>
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🚧">🚧 Vialidad</button>
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🏥">🏥 Salud</button>
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🗑️">🗑️ Basura</button>
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🌳">🌳 Áreas Verdes</button>
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🐶">🐶 Animales</button>
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🔊">🔊 Ruido</button>
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="💡">💡 Alumbrado</button>
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="📚">📚 Educación</button>
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🌿">🌿 Ambiente</button>
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🛡️">🛡️ Seguridad</button>
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🚰">🚰 Aguas Servidas</button>
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🍅">🍅 Alimentación</button>
-                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="📦">📦 Otro</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="💧"><%- renderIcon('💧') %> Agua</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="⚡"><%- renderIcon('⚡') %> Electricidad</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🚧"><%- renderIcon('🚧') %> Vialidad</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🏥"><%- renderIcon('🏥') %> Salud</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🗑️"><%- renderIcon('🗑️') %> Basura</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🌳"><%- renderIcon('🌳') %> Áreas Verdes</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🐶"><%- renderIcon('🐶') %> Animales</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🔊"><%- renderIcon('🔊') %> Ruido</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="💡"><%- renderIcon('💡') %> Alumbrado</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="📚"><%- renderIcon('📚') %> Educación</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🌿"><%- renderIcon('🌿') %> Ambiente</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🛡️"><%- renderIcon('🛡️') %> Seguridad</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🚰"><%- renderIcon('🚰') %> Aguas Servidas</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="🍅"><%- renderIcon('🍅') %> Alimentación</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 icon-option" data-icon="📦"><%- renderIcon('📦') %> Otro</button>
                   </div>
                 </div>
               </div>
@@ -101,7 +101,6 @@
                     <button type="button" class="btn color-option rounded-3" data-color="warning" style="background-color: #ffc107; width: 50px; height: 50px; border-radius: 12px;" title="Amarillo"></button>
                     <button type="button" class="btn color-option rounded-3" data-color="info" style="background-color: #17a2b8; width: 50px; height: 50px; border-radius: 12px;" title="Celeste"></button>
                     <button type="button" class="btn color-option rounded-3" data-color="dark" style="background-color: #212529; width: 50px; height: 50px; border-radius: 12px;" title="Negro"></button>
-                    <!-- ====== NUEVOS COLORES ====== -->
                     <button type="button" class="btn color-option rounded-3" data-color="purple" style="background-color: #6f42c1; width: 50px; height: 50px; border-radius: 12px;" title="Púrpura"></button>
                     <button type="button" class="btn color-option rounded-3" data-color="pink" style="background-color: #d63384; width: 50px; height: 50px; border-radius: 12px;" title="Rosa"></button>
                     <button type="button" class="btn color-option rounded-3" data-color="orange" style="background-color: #fd7e14; width: 50px; height: 50px; border-radius: 12px;" title="Naranja"></button>
@@ -121,7 +120,6 @@
                 <option value="warning" <%= categoria.color === 'warning' ? 'selected' : '' %>>🟡 Amarillo</option>
                 <option value="info" <%= categoria.color === 'info' ? 'selected' : '' %>>🔷 Celeste</option>
                 <option value="dark" <%= categoria.color === 'dark' ? 'selected' : '' %>>⚫ Negro</option>
-                <!-- ====== NUEVOS COLORES ====== -->
                 <option value="purple" <%= categoria.color === 'purple' ? 'selected' : '' %>>🟣 Púrpura</option>
                 <option value="pink" <%= categoria.color === 'pink' ? 'selected' : '' %>>🩷 Rosa</option>
                 <option value="orange" <%= categoria.color === 'orange' ? 'selected' : '' %>>🟠 Naranja</option>

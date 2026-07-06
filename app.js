@@ -57,6 +57,74 @@ if (process.env.NODE_ENV === 'production') {
 app.use(session(sessionConfig));
 
 // ================================================
+// MAPEO DE ICONOS PARA CATEGORÍAS
+// ================================================
+const iconMap = {
+    // Por nombre de categoría (más confiable)
+    'Agua': 'bi-droplet',
+    'Electricidad': 'bi-lightning',
+    'Vialidad': 'bi-signpost-2',
+    'Salud': 'bi-hospital',
+    'Educación': 'bi-book',
+    'Seguridad': 'bi-shield',
+    'Ambiente': 'bi-tree',
+    'Aguas Servidas': 'bi-droplet-half',
+    'Alimentación': 'bi-apple',
+    'Basura': 'bi-trash',
+    'Áreas Verdes': 'bi-tree',
+    'Animales': 'bi-paw',
+    'Ruido': 'bi-volume-up',
+    'Alumbrado': 'bi-lightbulb',
+    
+    // Por emoji (fallback)
+    '💧': 'bi-droplet',
+    '⚡': 'bi-lightning',
+    '🚧': 'bi-signpost-2',
+    '🏥': 'bi-hospital',
+    '🗑️': 'bi-trash',
+    '🌳': 'bi-tree',
+    '🐶': 'bi-paw',
+    '🔊': 'bi-volume-up',
+    '💡': 'bi-lightbulb',
+    '📦': 'bi-box',
+    '📚': 'bi-book',
+    '🌿': 'bi-tree',
+    '🚰': 'bi-droplet-half',
+    '🍅': 'bi-apple',
+    '🟢': 'bi-circle-fill',
+    '🔴': 'bi-circle-fill',
+    '🟡': 'bi-circle-fill',
+    '🔵': 'bi-circle-fill',
+    '⚫': 'bi-circle-fill',
+    '⚪': 'bi-circle',
+    '🛡️': 'bi-shield'
+};
+
+// Helper para renderizar iconos en HTML (con etiquetas <i>)
+// Úsalo en: listar.ejs (badges), crear.ejs, editar.ejs
+app.locals.renderIcon = function(icono) {
+    if (!icono) return '';
+    
+    // Si ya es una clase de Bootstrap Icon
+    if (icono.startsWith('bi-')) {
+        return `<i class="bi ${icono}"></i>`;
+    }
+    
+    // Si es un emoji, buscar en el mapa
+    if (iconMap[icono]) {
+        return `<i class="bi ${iconMap[icono]}"></i>`;
+    }
+    
+    // Si es un texto que coincide con una categoría
+    if (iconMap[icono.trim()]) {
+        return `<i class="bi ${iconMap[icono.trim()]}"></i>`;
+    }
+    
+    // Si no se encuentra, mostrar el emoji directamente
+    return icono;
+};
+
+// ================================================
 // MIDDLEWARES GLOBALES (se ejecutan en orden)
 // ================================================
 

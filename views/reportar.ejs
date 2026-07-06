@@ -57,7 +57,7 @@
                         placeholder="Describe detalladamente el problema que deseas reportar..." required></textarea>
             </div>
 
-            <!-- Categoría -->
+            <!-- Categoría - SIN ICONOS -->
             <div class="mb-4">
               <label class="form-label fw-semibold small mb-2 reportar-label">
                 <i class="bi bi-tag me-1"></i> Categoría del problema *
@@ -67,7 +67,7 @@
                 <% if (categorias && categorias.length > 0) { %>
                   <% categorias.forEach(cat => { %>
                     <option value="<%= cat.id %>">
-                      <%= cat.icono ? cat.icono + ' ' : '' %><%= cat.nombre %>
+                      <%= cat.nombre %>
                     </option>
                   <% }) %>
                 <% } else { %>
