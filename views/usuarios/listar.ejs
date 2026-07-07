@@ -8,7 +8,19 @@
       </h2>
       <p class="text-muted small mb-0 listar-subtitle">Administra los ciudadanos y líderes de la comunidad</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 flex-wrap">
+      <!-- ========== EXPORTAR ========== -->
+      <div class="btn-group">
+        <button type="button" class="btn btn-sm btn-success dropdown-toggle px-3 py-2 fw-semibold rounded-3" 
+                style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none;"
+                data-bs-toggle="dropdown">
+          <i class="bi bi-download me-1"></i> Exportar
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a href="/usuarios/exportar/excel" id="btnExportarExcel" class="dropdown-item"><i class="bi bi-file-excel text-success me-2"></i> Excel</a></li>
+          <li><a href="/usuarios/exportar/pdf" id="btnExportarPDF" class="dropdown-item"><i class="bi bi-file-pdf text-danger me-2"></i> PDF</a></li>
+        </ul>
+      </div>
       <a href="/usuarios/inactivos" class="btn btn-sm btn-outline-danger px-3 py-2 fw-semibold rounded-3 btn-ver-inactivos">
         <i class="bi bi-person-x me-1"></i> Ver inactivos
       </a>
@@ -327,6 +339,29 @@
 </div>
 
 <script>
+  // ========== ACTUALIZAR ENLACES DE EXPORTACIÓN CON FILTROS ==========
+  function actualizarEnlacesExportacion() {
+    const params = new URLSearchParams();
+    const rol = document.getElementById('filtroRol')?.value;
+    const estado = document.getElementById('filtroEstado')?.value;
+    const search = document.getElementById('buscarUsuario')?.value;
+    
+    if (rol && rol !== '0' && rol !== 'todos') params.append('rol', rol);
+    if (estado && estado !== 'todos') params.append('estado', estado);
+    if (search && search.trim() !== '') params.append('search', search.trim());
+    
+    const queryString = params.toString();
+    const excelBtn = document.getElementById('btnExportarExcel');
+    const pdfBtn = document.getElementById('btnExportarPDF');
+    
+    if (excelBtn) {
+      excelBtn.href = `/usuarios/exportar/excel${queryString ? '?' + queryString : ''}`;
+    }
+    if (pdfBtn) {
+      pdfBtn.href = `/usuarios/exportar/pdf${queryString ? '?' + queryString : ''}`;
+    }
+  }
+
   function abrirModalRechazar(usuarioId, usuarioNombre) {
     document.getElementById('formRechazarGlobal').action = '/usuarios/' + usuarioId + '/rechazar';
     document.getElementById('usuarioARechazarInfo').innerHTML = '<strong>' + usuarioNombre + '</strong>';
@@ -366,6 +401,9 @@
       if (texto && !dataNombre.includes(texto) && !dataEmail.includes(texto)) mostrar = false;
       fila.style.display = mostrar ? '' : 'none';
     });
+    
+    // Actualizar enlaces de exportación después de aplicar filtros
+    actualizarEnlacesExportacion();
   }
 
   filtroRol.addEventListener('change', aplicarFiltros);
@@ -376,6 +414,11 @@
     filtroEstado.value = 'todos';
     buscarUsuario.value = '';
     aplicarFiltros();
+  });
+
+  // Inicializar enlaces de exportación al cargar la página
+  document.addEventListener('DOMContentLoaded', function() {
+    actualizarEnlacesExportacion();
   });
 
   // ========== DOBLE CLICK PARA VER DETALLES CON FOTO ==========
@@ -602,4 +645,21 @@
   .badge { font-weight: normal; }
   .form-control:focus, .form-select:focus { border-color: #fd6704bd; box-shadow: 0 0 0 3px rgba(253, 103, 4, 0.15); }
   body.dark-mode .form-control:focus, body.dark-mode .form-select:focus { border-color: #f7931e; }
+  
+  /* ========== ESTILOS PARA DROPDOWN DE EXPORTAR ========== */
+  .dropdown-menu {
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    border: none;
+  }
+  .dropdown-item {
+    padding: 8px 20px;
+    transition: all 0.2s ease;
+  }
+  .dropdown-item:hover {
+    background: #f8f5f2;
+  }
+  body.dark-mode .dropdown-item:hover {
+    background: #2d2d44;
+  }
 </style>

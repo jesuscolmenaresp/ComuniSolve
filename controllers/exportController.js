@@ -1178,3 +1178,316 @@ exports.exportarAuditoriaPDF = async (req, res) => {
         res.status(500).send('Error al exportar auditoría a PDF');
     }
 };
+// ==========================
+// 📌 EXPORTAR USUARIOS A EXCEL (CORREGIDO - SIN ID, SIN ASIGNACIONES)
+// ==========================
+exports.exportarUsuariosExcel = async (req, res) => {
+    try {
+        const usuario = req.session.usuario;
+        const { rol, estado, search } = req.query;
+        
+        let query = `
+            SELECT u.id, u.cedula, u.nombre, u.email, u.telefono, 
+                   u.estado, u.activo,
+                   r.nombre as rol_nombre,
+                   c.nombre as calle_nombre
+            FROM usuarios u
+            INNER JOIN roles r ON u.rol_id = r.id
+            LEFT JOIN calles c ON u.calle_id = c.id
+            WHERE 1=1
+        `;
+        let params = [];
+        
+        // Filtros por rol (solo UBCH y SuperAdmin pueden ver)
+        if (usuario) {
+            if (usuario.rol_id === 1) {
+                query += " AND u.rol_id != 5";
+            }
+        }
+        
+        if (rol && rol !== 'todos' && rol !== '0') {
+            query += " AND u.rol_id = ?";
+            params.push(rol);
+        }
+        if (estado && estado !== 'todos') {
+            query += " AND u.estado = ?";
+            params.push(estado);
+        }
+        if (search && search !== '') {
+            query += " AND (u.nombre LIKE ? OR u.email LIKE ? OR u.cedula LIKE ?)";
+            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+        }
+        
+        query += " ORDER BY u.nombre ASC";
+        
+        const [usuarios] = await db.query(query, params);
+        
+        const workbook = new ExcelJS.Workbook();
+        workbook.creator = 'ComuniSolve';
+        workbook.created = new Date();
+        
+        const worksheet = workbook.addWorksheet('Usuarios');
+        
+        // Estilos de cabecera
+        const headerStyle = {
+            font: { bold: true, color: { argb: 'FFFFFFFF' } },
+            fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FD6704BD' } },
+            alignment: { horizontal: 'center', vertical: 'middle' },
+            border: {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' }
+            }
+        };
+        
+        worksheet.columns = [
+            { header: 'Cédula', key: 'cedula', width: 15 },
+            { header: 'Nombre', key: 'nombre', width: 30 },
+            { header: 'Email', key: 'email', width: 35 },
+            { header: 'Teléfono', key: 'telefono', width: 15 },
+            { header: 'Rol', key: 'rol_nombre', width: 15 },
+            { header: 'Calle', key: 'calle_nombre', width: 25 },
+            { header: 'Estado', key: 'estado', width: 12 }
+        ];
+        
+        worksheet.getRow(1).eachCell((cell) => {
+            Object.assign(cell, headerStyle);
+        });
+        
+        usuarios.forEach((u, index) => {
+            const row = worksheet.addRow({
+                cedula: u.cedula || '—',
+                nombre: u.nombre,
+                email: u.email,
+                telefono: u.telefono || '—',
+                rol_nombre: u.rol_nombre,
+                calle_nombre: u.calle_nombre || '—',
+                estado: u.estado === 'aprobado' ? 'Aprobado' : u.estado === 'pendiente' ? 'Pendiente' : 'Rechazado'
+            });
+            
+            if (index % 2 === 1) {
+                row.eachCell((cell) => {
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5F0EB' } };
+                });
+            }
+        });
+        
+        // Hoja de resumen
+        const summarySheet = workbook.addWorksheet('Resumen');
+        const titleRow = summarySheet.addRow(['COMUNISOLVE - REPORTE DE USUARIOS']);
+        titleRow.font = { bold: true, size: 16 };
+        summarySheet.addRow([]);
+        summarySheet.addRow([`Fecha de exportación: ${format(new Date(), 'dd/MM/yyyy HH:mm')}`]);
+        summarySheet.addRow([]);
+        
+        summarySheet.addRow(['RESUMEN POR ROL:']);
+        summarySheet.addRow(['Rol', 'Cantidad']);
+        const roles = {};
+        usuarios.forEach(u => {
+            roles[u.rol_nombre] = (roles[u.rol_nombre] || 0) + 1;
+        });
+        Object.entries(roles).forEach(([rol, total]) => {
+            summarySheet.addRow([rol, total]);
+        });
+        summarySheet.addRow(['Total', usuarios.length]);
+        summarySheet.addRow([]);
+        
+        summarySheet.addRow(['RESUMEN POR ESTADO:']);
+        summarySheet.addRow(['Estado', 'Cantidad']);
+        const estados = {};
+        usuarios.forEach(u => {
+            estados[u.estado] = (estados[u.estado] || 0) + 1;
+        });
+        Object.entries(estados).forEach(([estado, total]) => {
+            const nombreEstado = estado === 'aprobado' ? 'Aprobados' : estado === 'pendiente' ? 'Pendientes' : 'Rechazados';
+            summarySheet.addRow([nombreEstado, total]);
+        });
+        
+        summarySheet.getColumn(1).width = 30;
+        summarySheet.getColumn(2).width = 20;
+        
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename=usuarios_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+        
+        await workbook.xlsx.write(res);
+        res.end();
+        
+    } catch (err) {
+        console.error('Error exportando usuarios a Excel:', err);
+        res.status(500).send('Error al exportar usuarios a Excel');
+    }
+};
+
+// ==========================
+// 📌 EXPORTAR USUARIOS A PDF (OPTIMIZADO - ANCHOS AJUSTADOS)
+// ==========================
+exports.exportarUsuariosPDF = async (req, res) => {
+    try {
+        const usuario = req.session.usuario;
+        const { rol, estado, search } = req.query;
+        
+        let query = `
+            SELECT u.id, u.cedula, u.nombre, u.email, u.telefono, 
+                   u.estado, u.activo,
+                   r.nombre as rol_nombre,
+                   c.nombre as calle_nombre
+            FROM usuarios u
+            INNER JOIN roles r ON u.rol_id = r.id
+            LEFT JOIN calles c ON u.calle_id = c.id
+            WHERE 1=1
+        `;
+        let params = [];
+        
+        if (usuario && usuario.rol_id === 1) {
+            query += " AND u.rol_id != 5";
+        }
+        
+        if (rol && rol !== 'todos' && rol !== '0') {
+            query += " AND u.rol_id = ?";
+            params.push(rol);
+        }
+        if (estado && estado !== 'todos') {
+            query += " AND u.estado = ?";
+            params.push(estado);
+        }
+        if (search && search !== '') {
+            query += " AND (u.nombre LIKE ? OR u.email LIKE ? OR u.cedula LIKE ?)";
+            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+        }
+        
+        query += " ORDER BY u.nombre ASC";
+        
+        const [usuarios] = await db.query(query, params);
+        
+        const doc = new PDFDocument({ 
+            margin: 50, 
+            size: 'A4',
+            autoFirstPage: true,
+            bufferPages: true
+        });
+        
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=usuarios_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+        
+        doc.pipe(res);
+        
+        const pageWidth = doc.page.width - 100;
+        
+        function dibujarEncabezado() {
+            const y = 30;
+            doc.rect(50, y, pageWidth, 3).fillColor('#5D4037').fill();
+            
+            doc.fontSize(18).font('Helvetica-Bold').fillColor('#5D4037')
+               .text('ComuniSolve', 50, y + 12, { align: 'center' });
+            doc.fontSize(10).font('Helvetica').fillColor('#6c757d')
+               .text('Reporte de Usuarios', { align: 'center' });
+            doc.fontSize(8).font('Helvetica').fillColor('#8B6B5A')
+               .text(`Generado: ${format(new Date(), 'dd/MM/yyyy HH:mm')}`, { align: 'center' });
+            
+            doc.rect(50, doc.y + 2, pageWidth, 1).fillColor('#e0d5c8').fill();
+            return doc.y + 8;
+        }
+        
+        let yPos = dibujarEncabezado();
+        yPos += 5;
+        
+        // Filtros
+        let filtrosInfo = [];
+        if (rol && rol !== 'todos' && rol !== '0') {
+            const [rolData] = await db.query('SELECT nombre FROM roles WHERE id = ?', [rol]);
+            if (rolData.length > 0) filtrosInfo.push(`Rol: ${rolData[0].nombre}`);
+        }
+        if (estado && estado !== 'todos') filtrosInfo.push(`Estado: ${estado}`);
+        if (search) filtrosInfo.push(`Búsqueda: "${search}"`);
+        
+        if (filtrosInfo.length > 0) {
+            doc.fontSize(7).font('Helvetica').fillColor('#8B6B5A')
+               .text(`Filtros: ${filtrosInfo.join(' | ')}`, { align: 'center' });
+            yPos = doc.y + 15;
+        } else {
+            yPos += 10;
+        }
+        
+        doc.fontSize(10).font('Helvetica-Bold').fillColor('#5D4037')
+           .text(`Lista de Usuarios (Total: ${usuarios.length})`, 50, yPos, { underline: true });
+        yPos = doc.y + 8;
+        
+        // ============================================================
+        // 📌 ANCHOS OPTIMIZADOS
+        // Cédula: 55 | Nombre: 75 | Email: 110 | Rol: 60 | Estado: 45
+        // ============================================================
+        const colWidths = [55, 75, 110, 60, 45];
+        const colPositions = [50];
+        for (let i = 1; i < colWidths.length; i++) {
+            colPositions.push(colPositions[i-1] + colWidths[i-1]);
+        }
+        const rowHeight = 18; // Reducido de 20 a 18 para que quepan más filas
+        let itemCount = 0;
+        
+        function dibujarCabeceras() {
+            doc.rect(50, yPos, pageWidth, rowHeight)
+               .fillColor('#5D4037').fill()
+               .fillColor('white');
+            
+            const headers = ['Cédula', 'Nombre', 'Email', 'Rol', 'Estado'];
+            doc.fontSize(7).font('Helvetica-Bold');
+            colPositions.forEach((x, i) => {
+                doc.text(headers[i], x + 3, yPos + 5, { width: colWidths[i] - 6, align: 'center' });
+            });
+            yPos += rowHeight;
+        }
+        
+        dibujarCabeceras();
+        
+        const estadoColors = {
+            'aprobado': '#28a745',
+            'pendiente': '#ffc107',
+            'rechazado': '#dc3545'
+        };
+        
+        for (const u of usuarios) {
+            itemCount++;
+            const fillColor = itemCount % 2 === 0 ? '#faf8f6' : '#ffffff';
+            
+            if (yPos + rowHeight > doc.page.height - 60) {
+                doc.addPage();
+                yPos = dibujarEncabezado() + 8;
+                dibujarCabeceras();
+            }
+            
+            doc.rect(50, yPos, pageWidth, rowHeight)
+               .fillColor(fillColor).fill()
+               .fillColor('#4a3728');
+            
+            doc.fontSize(6.5).font('Helvetica')
+               .text(u.cedula || '—', colPositions[0] + 3, yPos + 4, { width: colWidths[0] - 6, align: 'center' });
+            
+            doc.text(u.nombre, colPositions[1] + 3, yPos + 4, { width: colWidths[1] - 6, align: 'center', ellipsis: true });
+            
+            doc.text(u.email, colPositions[2] + 3, yPos + 4, { width: colWidths[2] - 6, align: 'center', ellipsis: true });
+            
+            doc.text(u.rol_nombre, colPositions[3] + 3, yPos + 4, { width: colWidths[3] - 6, align: 'center' });
+            
+            // Estado - con badge más compacto
+            const color = estadoColors[u.estado] || '#6c757d';
+            const estadoTexto = u.estado === 'aprobado' ? 'Aprobado' : u.estado === 'pendiente' ? 'Pendiente' : 'Rechazado';
+            const badgeWidth = 38;
+            const badgeX = colPositions[4] + (colWidths[4] - badgeWidth) / 2;
+            
+            doc.rect(badgeX, yPos + 2, badgeWidth, 14)
+               .fillColor(color).fill()
+               .fillColor('white')
+               .fontSize(5.5).font('Helvetica-Bold')
+               .text(estadoTexto, badgeX, yPos + 4.5, { width: badgeWidth, align: 'center' });
+            
+            yPos += rowHeight;
+        }
+        
+        doc.end();
+        
+    } catch (err) {
+        console.error('Error exportando usuarios a PDF:', err);
+        res.status(500).send('Error al exportar usuarios a PDF');
+    }
+};

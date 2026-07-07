@@ -4,6 +4,7 @@ const usuarioController = require('../controllers/usuarioController');
 const authMiddleware = require('../middleware/authMiddleware');
 const roleMiddleware = require('../middleware/roleMiddleware');
 const { uploadPerfil } = require('../middleware/uploadMiddleware');
+const exportController = require('../controllers/exportController'); // <-- AGREGAR
 
 // ========== RUTAS PARA UBCH (rol 1) y SUPERADMIN (rol 5) ==========
 
@@ -21,6 +22,19 @@ router.get('/usuarios/inactivos',
   usuarioController.listarInactivos
 );
 
+// ========== EXPORTAR USUARIOS A EXCEL Y PDF ==========
+router.get('/usuarios/exportar/excel', 
+  authMiddleware, 
+  roleMiddleware([1, 5]), 
+  exportController.exportarUsuariosExcel
+);
+
+router.get('/usuarios/exportar/pdf', 
+  authMiddleware, 
+  roleMiddleware([1, 5]), 
+  exportController.exportarUsuariosPDF
+);
+
 // Formulario crear usuario (UBCH y SuperAdmin)
 router.get('/usuarios/nuevo', 
   authMiddleware, 
@@ -29,12 +43,11 @@ router.get('/usuarios/nuevo',
 );
 
 // Crear usuario (UBCH y SuperAdmin) - CON FOTO DE PERFIL
-// IMPORTANTE: uploadPerfil debe ir ANTES del controlador
 router.post('/usuarios', 
   authMiddleware, 
   roleMiddleware([1, 5]),
-  uploadPerfil.single('foto_perfil'), // ✅ Primero se procesa la imagen
-  usuarioController.crear // ✅ Luego se ejecuta el controlador
+  uploadPerfil.single('foto_perfil'),
+  usuarioController.crear
 );
 
 // Formulario editar (UBCH y SuperAdmin)
