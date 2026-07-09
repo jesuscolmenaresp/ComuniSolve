@@ -16,7 +16,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Timeout global para peticiones (evita cold starts eternos)
 app.use((req, res, next) => {
-  res.setTimeout(30000, () => {
+  res.setTimeout(60000, () => {  
     res.status(504).send('Tiempo de espera agotado. Por favor, recarga la página.');
   });
   next();

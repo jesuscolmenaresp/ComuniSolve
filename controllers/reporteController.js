@@ -164,7 +164,7 @@ exports.listarReportesRapido = async (req, res) => {
     
     const [calles] = await db.query(callesQuery, callesParams);
     
-    const [empresas] = await db.query('SELECT id, nombre FROM empresas ORDER BY nombre LIMIT 20');
+    const [empresas] = await db.query('SELECT id, nombre, contacto FROM empresas WHERE activo = 1 ORDER BY nombre LIMIT 20');
     
     res.render('reportes', { 
       reportes, 
@@ -192,7 +192,7 @@ exports.listarReportesRapido = async (req, res) => {
 exports.listarReportes = exports.listarReportesRapido;
 
 // ==========================
-// 📌 OBTENER DETALLE DE REPORTE (para modal)
+// 📌 OBTENER DETALLE DE REPORTE (para modal) - CORREGIDO
 // ==========================
 exports.obtenerDetalle = async (req, res) => {
   const { id } = req.params;
@@ -209,6 +209,7 @@ exports.obtenerDetalle = async (req, res) => {
              r.ubicacion_lat,
              r.ubicacion_lng,
              r.empresa_id,
+             r.categoria_id,
              u.nombre AS nombre_usuario,
              u.telefono AS usuario_telefono,
              u.email AS usuario_email,
@@ -220,6 +221,7 @@ exports.obtenerDetalle = async (req, res) => {
              cat.color AS categoria_color,
              e.nombre AS empresa_nombre,
              e.contacto AS empresa_contacto,
+             e.telefono AS empresa_telefono,
              (SELECT COUNT(*) FROM votos v WHERE v.reporte_id = r.id) AS total_votos,
              v_vol.nombre AS voluntario_nombre,
              v.habilidad AS voluntario_habilidad,
@@ -245,6 +247,19 @@ exports.obtenerDetalle = async (req, res) => {
     if (!data.categoria_nombre) data.categoria_nombre = 'Sin categoría';
     if (!data.categoria_color) data.categoria_color = 'secondary';
     if (!data.estado) data.estado = 'Pendiente';
+    
+    // ============================================================
+    // 📌 OBTENER EMPRESAS FILTRADAS POR CATEGORÍA DEL REPORTE
+    // ============================================================
+    const [empresasFiltradas] = await db.query(`
+      SELECT DISTINCT e.id, e.nombre, e.contacto
+      FROM empresas e
+      INNER JOIN empresa_categorias ec ON e.id = ec.empresa_id
+      WHERE ec.categoria_id = ? AND e.activo = 1
+      ORDER BY e.nombre, e.contacto
+    `, [data.categoria_id]);
+    
+    data.empresas_disponibles = empresasFiltradas;
     
     res.json(data);
   } catch (err) {

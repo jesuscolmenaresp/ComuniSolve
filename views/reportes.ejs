@@ -348,37 +348,50 @@
   // FUNCIONES PARA GESTIÓN DE EMPRESA
   // ========================
   function mostrarFormAsignarEmpresa(id) {
-    const section = document.getElementById('asignarEmpresaSection');
-    if (!section) return;
-    
-    section.innerHTML = `
-      <div class="card border-primary rounded-3 h-100">
-        <div class="card-header" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);">
-          <small class="fw-bold text-white"><i class="bi bi-building me-2"></i>ASIGNAR EMPRESA</small>
+      const section = document.getElementById('asignarEmpresaSection');
+      if (!section) return;
+      
+      // Obtener las empresas del reporte actual
+      const reporte = currentReporteData;
+      const empresas = reporte?.empresas_disponibles || [];
+      
+      let options = '<option value="">-- Seleccionar empresa --</option>';
+      empresas.forEach(e => {
+          // Mostrar: "Alcaldia del Municipio Zamora - Director Leonardo Vivas"
+          const nombreMostrar = e.contacto 
+              ? `${e.nombre} - ${e.contacto}` 
+              : e.nombre;
+          options += `<option value="${e.id}">${escapeHtml(nombreMostrar)}</option>`;
+      });
+      
+      if (empresas.length === 0) {
+          options = '<option value="">No hay empresas disponibles para esta categoría</option>';
+      }
+      
+      section.innerHTML = `
+        <div class="card border-primary rounded-3 h-100">
+          <div class="card-header" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);">
+            <small class="fw-bold text-white"><i class="bi bi-building me-2"></i>ASIGNAR EMPRESA</small>
+          </div>
+          <div class="card-body p-2" style="background: #fefaf7;">
+            <form id="formAsignarEmpresa" method="POST" class="d-flex gap-2 align-items-center flex-wrap">
+              <select name="empresa_id" class="form-select form-select-sm" style="border: 1px solid #f0d5c0; background-color: #fefaf7;" ${empresas.length === 0 ? 'disabled' : ''}>
+                ${options}
+              </select>
+              <button type="submit" class="btn btn-sm" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;" ${empresas.length === 0 ? 'disabled' : ''}>
+                <i class="bi bi-check-lg"></i> Asignar
+              </button>
+            </form>
+            ${empresas.length === 0 ? `<small class="text-muted">No hay empresas que atiendan esta categoría</small>` : ''}
+          </div>
         </div>
-        <div class="card-body p-2" style="background: #fefaf7;">
-          <form id="formAsignarEmpresa" method="POST" class="d-flex gap-2 align-items-center flex-wrap">
-            <select name="empresa_id" class="form-select form-select-sm" style="border: 1px solid #f0d5c0; background-color: #fefaf7;">
-              <option value="">-- Seleccionar empresa --</option>
-              <% if (empresas && empresas.length > 0) { %>
-                <% empresas.forEach(e => { %>
-                  <option value="<%= e.id %>"><%= e.nombre %></option>
-                <% }) %>
-              <% } %>
-            </select>
-            <button type="submit" class="btn btn-sm" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;">
-              <i class="bi bi-check-lg"></i> Asignar
-            </button>
-          </form>
-        </div>
-      </div>
-    `;
-    section.style.display = 'block';
-    
-    const form = document.getElementById('formAsignarEmpresa');
-    if (form) {
-      form.action = `/reportes/${id}/asignar-empresa`;
-    }
+      `;
+      section.style.display = 'block';
+      
+      const form = document.getElementById('formAsignarEmpresa');
+      if (form) {
+        form.action = `/reportes/${id}/asignar-empresa`;
+      }
   }
 
   function mostrarEmpresaAsignada(reporte) {
@@ -417,6 +430,21 @@
     const section = document.getElementById('asignarEmpresaSection');
     if (!section) return;
     
+    const reporte = currentReporteData;
+    const empresas = reporte?.empresas_disponibles || [];
+    
+    let options = '<option value="">-- Seleccionar nueva empresa --</option>';
+    empresas.forEach(e => {
+        const nombreMostrar = e.contacto 
+            ? `${e.nombre} - ${e.contacto}` 
+            : e.nombre;
+        options += `<option value="${e.id}">${escapeHtml(nombreMostrar)}</option>`;
+    });
+    
+    if (empresas.length === 0) {
+        options = '<option value="">No hay empresas disponibles para esta categoría</option>';
+    }
+    
     section.innerHTML = `
       <div class="card border-primary rounded-3 h-100">
         <div class="card-header" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%);">
@@ -424,17 +452,13 @@
         </div>
         <div class="card-body p-2" style="background: #fefaf7;">
           <form id="formCambiarEmpresa" method="POST" class="d-flex gap-2 align-items-center flex-wrap">
-            <select name="empresa_id" class="form-select form-select-sm" style="border: 1px solid #f0d5c0;">
-              <option value="">-- Seleccionar nueva empresa --</option>
-              <% if (empresas && empresas.length > 0) { %>
-                <% empresas.forEach(e => { %>
-                  <option value="<%= e.id %>"><%= e.nombre %></option>
-                <% }) %>
-              <% } %>
+            <select name="empresa_id" class="form-select form-select-sm" style="border: 1px solid #f0d5c0;" ${empresas.length === 0 ? 'disabled' : ''}>
+              ${options}
             </select>
-            <button type="submit" class="btn btn-sm" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;">Actualizar</button>
+            <button type="submit" class="btn btn-sm" style="background: linear-gradient(135deg, #fd6704bd 0%, #f7931e 100%); color: white; border: none;" ${empresas.length === 0 ? 'disabled' : ''}>Actualizar</button>
             <button type="button" class="btn btn-sm btn-secondary" onclick="location.reload()">Cancelar</button>
           </form>
+          ${empresas.length === 0 ? `<small class="text-muted">No hay empresas que atiendan esta categoría</small>` : ''}
         </div>
       </div>
     `;
@@ -444,7 +468,7 @@
     if (form) {
       form.action = `/reportes/${id}/asignar-empresa`;
     }
-  }
+}
 
   function confirmarEliminarEmpresa(id) {
     if (confirm('¿Estás seguro de eliminar la empresa asignada a este reporte?')) {
