@@ -258,148 +258,162 @@ const calles = {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+  // Datos desde el servidor
+  const categoriasLabels = <%- JSON.stringify(porCategoria.map(item => item.nombre)) %>;
+  const categoriasDatos = <%- JSON.stringify(porCategoria.map(item => item.total)) %>;
+  const estadosLabels = <%- JSON.stringify(porEstado.map(item => item.estado)) %>;
+  const estadosDatos = <%- JSON.stringify(porEstado.map(item => item.total)) %>;
+  const callesLabels = <%- JSON.stringify(porCalle.map(item => item.nombre)) %>;
+  const callesDatos = <%- JSON.stringify(porCalle.map(item => item.total)) %>;
+
   // Gráfico de Categorías
-  new Chart(document.getElementById('chartCategoria'), {
-    type: 'pie',
-    data: {
-      labels: JSON.parse('<%- JSON.stringify(categorias.labels) %>'),
-      datasets: [{
-        data: JSON.parse('<%- JSON.stringify(categorias.datos) %>'),
-        backgroundColor: [
-          '#0d6efd',   // Agua - AZUL
-          '#ffc107',   // Electricidad - AMARILLO
-          '#dc3545',   // Salud - ROJO
-          '#3bba89',   // Vialidad - VERDE
-          '#6c757d',   // Otros - GRIS
-          '#17a2b8',   // Extra - CELESTE
-          '#fd7e14'    // Extra - NARANJA
-        ],
-        borderWidth: 0,
-        hoverOffset: 10
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { 
-            font: { size: 11 },
-            padding: 15,
-            usePointStyle: true,
-            pointStyle: 'circle'
-          }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const label = context.label || '';
-              const value = context.raw || 0;
-              const total = context.dataset.data.reduce((a, b) => a + b, 0);
-              const percentage = ((value / total) * 100).toFixed(1);
-              return `${label}: ${value} (${percentage}%)`;
+  if (categoriasLabels.length > 0) {
+    new Chart(document.getElementById('chartCategoria'), {
+      type: 'pie',
+      data: {
+        labels: categoriasLabels,
+        datasets: [{
+          data: categoriasDatos,
+          backgroundColor: [
+            '#0d6efd', '#ffc107', '#dc3545', '#3bba89', '#6c757d', '#17a2b8', '#fd7e14'
+          ],
+          borderWidth: 0,
+          hoverOffset: 10
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { 
+            position: 'bottom', 
+            labels: { 
+              font: { size: 11 },
+              padding: 15,
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.raw || 0;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                return `${label}: ${value} (${percentage}%)`;
+              }
             }
           }
         }
       }
-    }
-  });
+    });
+  } else {
+    document.getElementById('chartCategoria').innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-pie-chart fs-1 d-block mb-2"></i><p>No hay datos para mostrar</p></div>';
+  }
 
   // Gráfico de Estados
-  new Chart(document.getElementById('chartEstado'), {
-    type: 'doughnut',
-    data: {
-      labels: JSON.parse('<%- JSON.stringify(estados.labels) %>'),
-      datasets: [{
-        data: JSON.parse('<%- JSON.stringify(estados.datos) %>'),
-        backgroundColor: ['#ffc107', '#17a2b8', '#28a745'],
-        borderWidth: 0,
-        hoverOffset: 10
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      cutout: '60%',
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { 
-            font: { size: 11 },
-            padding: 15,
-            usePointStyle: true,
-            pointStyle: 'circle'
-          }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const label = context.label || '';
-              const value = context.raw || 0;
-              const total = context.dataset.data.reduce((a, b) => a + b, 0);
-              const percentage = ((value / total) * 100).toFixed(1);
-              return `${label}: ${value} (${percentage}%)`;
+  if (estadosLabels.length > 0) {
+    new Chart(document.getElementById('chartEstado'), {
+      type: 'doughnut',
+      data: {
+        labels: estadosLabels,
+        datasets: [{
+          data: estadosDatos,
+          backgroundColor: ['#ffc107', '#17a2b8', '#28a745'],
+          borderWidth: 0,
+          hoverOffset: 10
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        cutout: '60%',
+        plugins: {
+          legend: { 
+            position: 'bottom', 
+            labels: { 
+              font: { size: 11 },
+              padding: 15,
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.raw || 0;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                return `${label}: ${value} (${percentage}%)`;
+              }
             }
           }
         }
       }
-    }
-  });
+    });
+  } else {
+    document.getElementById('chartEstado').innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-donut fs-1 d-block mb-2"></i><p>No hay datos para mostrar</p></div>';
+  }
 
-  // Gráfico de Calles
-  new Chart(document.getElementById('chartCalles'), {
-    type: 'bar',
-    data: {
-      labels: JSON.parse('<%- JSON.stringify(calles.labels) %>'),
-      datasets: [{
-        label: 'Reportes',
-        data: JSON.parse('<%- JSON.stringify(calles.datos) %>'),
-        backgroundColor: [
-          'rgba(253, 103, 4, 0.8)',
-          'rgba(13, 110, 253, 0.8)',
-          'rgba(40, 167, 69, 0.8)',
-          'rgba(255, 193, 7, 0.8)',
-          'rgba(23, 162, 184, 0.8)'
-        ],
-        borderRadius: 8,
-        barPercentage: 0.7,
-        hoverBackgroundColor: [
-          'rgba(253, 103, 4, 1)',
-          'rgba(13, 110, 253, 1)',
-          'rgba(40, 167, 69, 1)',
-          'rgba(255, 193, 7, 1)',
-          'rgba(23, 162, 184, 1)'
-        ]
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      scales: {
-        y: {
-          beginAtZero: true,
-          stepSize: 1,
-          grid: { color: 'rgba(0,0,0,0.05)' },
-          ticks: { font: { size: 11 } }
-        },
-        x: {
-          ticks: { font: { size: 11, weight: 'bold' } },
-          grid: { display: false }
-        }
+  // Gráfico de Calles - TOP 5
+  if (callesLabels.length > 0) {
+    new Chart(document.getElementById('chartCalles'), {
+      type: 'bar',
+      data: {
+        labels: callesLabels,
+        datasets: [{
+          label: 'Reportes',
+          data: callesDatos,
+          backgroundColor: [
+            'rgba(253, 103, 4, 0.8)',
+            'rgba(13, 110, 253, 0.8)',
+            'rgba(40, 167, 69, 0.8)',
+            'rgba(255, 193, 7, 0.8)',
+            'rgba(23, 162, 184, 0.8)'
+          ],
+          borderRadius: 8,
+          barPercentage: 0.7,
+          hoverBackgroundColor: [
+            'rgba(253, 103, 4, 1)',
+            'rgba(13, 110, 253, 1)',
+            'rgba(40, 167, 69, 1)',
+            'rgba(255, 193, 7, 1)',
+            'rgba(23, 162, 184, 1)'
+          ]
+        }]
       },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          titleColor: 'white',
-          bodyColor: 'white',
-          cornerRadius: 8,
-          padding: 10
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            stepSize: 1,
+            grid: { color: 'rgba(0,0,0,0.05)' },
+            ticks: { font: { size: 11 } }
+          },
+          x: {
+            ticks: { font: { size: 11, weight: 'bold' } },
+            grid: { display: false }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            titleColor: 'white',
+            bodyColor: 'white',
+            cornerRadius: 8,
+            padding: 10
+          }
         }
       }
-    }
-  });
+    });
+  } else {
+    document.getElementById('chartCalles').innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-bar-chart fs-1 d-block mb-2"></i><p>No hay datos para mostrar</p></div>';
+  }
 </script>
 
 <style>

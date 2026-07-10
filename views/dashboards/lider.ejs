@@ -297,12 +297,12 @@ if (topCalles && topCalles.length > 0) {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   // Datos desde el servidor
-  const categoriasLabels = JSON.parse('<%- JSON.stringify(categoriasLabels) %>');
-  const categoriasDatos = JSON.parse('<%- JSON.stringify(categoriasDatos) %>');
-  const estadosLabels = JSON.parse('<%- JSON.stringify(estadosLabels) %>');
-  const estadosDatos = JSON.parse('<%- JSON.stringify(estadosDatos) %>');
-  const callesLabels = JSON.parse('<%- JSON.stringify(callesLabels) %>');
-  const callesDatos = JSON.parse('<%- JSON.stringify(callesDatos) %>');
+  const categoriasLabels = <%- JSON.stringify(porCategoria.map(item => item.nombre)) %>;
+  const categoriasDatos = <%- JSON.stringify(porCategoria.map(item => item.total)) %>;
+  const estadosLabels = <%- JSON.stringify(porEstado.map(item => item.estado)) %>;
+  const estadosDatos = <%- JSON.stringify(porEstado.map(item => item.total)) %>;
+  const callesLabels = <%- JSON.stringify(topCalles.map(item => item.nombre)) %>;
+  const callesDatos = <%- JSON.stringify(topCalles.map(item => item.total)) %>;
 
   // Gráfico de Categorías
   if (categoriasLabels.length > 0) {
@@ -313,13 +313,7 @@ if (topCalles && topCalles.length > 0) {
         datasets: [{
           data: categoriasDatos,
           backgroundColor: [
-            '#0d6efd',   // Agua - AZUL
-            '#ffc107',   // Electricidad - AMARILLO
-            '#dc3545',   // Salud - ROJO
-            '#3bba89',   // Vialidad - VERDE
-            '#6c757d',   // Otros - GRIS
-            '#17a2b8',   // Extra - CELESTE
-            '#fd7e14'    // Extra - NARANJA
+            '#0d6efd', '#ffc107', '#dc3545', '#3bba89', '#6c757d', '#17a2b8', '#fd7e14'
           ],
           borderWidth: 0,
           hoverOffset: 10
@@ -344,7 +338,7 @@ if (topCalles && topCalles.length > 0) {
                 const label = context.label || '';
                 const value = context.raw || 0;
                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                const percentage = ((value / total) * 100).toFixed(1);
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
                 return `${label}: ${value} (${percentage}%)`;
               }
             }
@@ -352,6 +346,8 @@ if (topCalles && topCalles.length > 0) {
         }
       }
     });
+  } else {
+    document.getElementById('chartCategoria').innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-pie-chart fs-1 d-block mb-2"></i><p>No hay datos para mostrar</p></div>';
   }
 
   // Gráfico de Estados
@@ -387,7 +383,7 @@ if (topCalles && topCalles.length > 0) {
                 const label = context.label || '';
                 const value = context.raw || 0;
                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                const percentage = ((value / total) * 100).toFixed(1);
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
                 return `${label}: ${value} (${percentage}%)`;
               }
             }
@@ -395,9 +391,11 @@ if (topCalles && topCalles.length > 0) {
         }
       }
     });
+  } else {
+    document.getElementById('chartEstado').innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-donut fs-1 d-block mb-2"></i><p>No hay datos para mostrar</p></div>';
   }
 
-  // Gráfico de Calles
+  // Gráfico de Calles - TOP 5
   if (callesLabels.length > 0) {
     new Chart(document.getElementById('chartCalles'), {
       type: 'bar',
@@ -451,6 +449,8 @@ if (topCalles && topCalles.length > 0) {
         }
       }
     });
+  } else {
+    document.getElementById('chartCalles').innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-bar-chart fs-1 d-block mb-2"></i><p>No hay datos para mostrar</p></div>';
   }
 </script>
 
