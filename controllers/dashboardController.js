@@ -23,7 +23,6 @@ exports.admin = async (req, res) => {
       comunidadFilter = ' AND c.comunidad_id IN (?) ';
       params.push(comunidadesIds);
     } else {
-      // Si no tiene comunidades asignadas, no mostrar datos
       comunidadFilter = ' AND 1=0 ';
     }
 
@@ -126,7 +125,7 @@ exports.admin = async (req, res) => {
       `, [comunidadesIds]);
       totales.total_ciudadanos = ciuRows[0]?.total || 0;
       
-      // Voluntarios APROBADOS de sus calles
+      // ✅ VOLUNTARIOS APROBADOS de sus calles (SOLO APROBADOS)
       const [volRows] = await db.query(`
         SELECT COUNT(DISTINCT v.id) as total FROM voluntarios v
         INNER JOIN usuarios u ON v.usuario_id = u.id
@@ -135,7 +134,7 @@ exports.admin = async (req, res) => {
       `, [comunidadesIds]);
       totales.total_voluntarios = volRows[0]?.total || 0;
       
-      console.log("✅ Totales calculados");
+      console.log("✅ Totales calculados - Voluntarios aprobados:", totales.total_voluntarios);
     } catch (err) {
       console.error("❌ Error en totales:", err.message);
     }
@@ -247,7 +246,7 @@ exports.lider = async (req, res) => {
     `, [idsCalles]);
     console.log("📊 Top Calles:", topCalles.length);
 
-    // 5. Voluntarios APROBADOS en sus calles
+    // 5. ✅ Voluntarios APROBADOS en sus calles (SOLO APROBADOS)
     const [voluntarios] = await db.query(`
       SELECT DISTINCT u.nombre, v.habilidad, u.telefono
       FROM voluntarios v
@@ -255,7 +254,7 @@ exports.lider = async (req, res) => {
       WHERE u.calle_id IN (?) AND v.estado = 'aprobado'
       LIMIT 5
     `, [idsCalles]);
-    console.log("📊 Voluntarios:", voluntarios.length);
+    console.log("📊 Voluntarios aprobados:", voluntarios.length);
 
     // 6. Reportes recientes en sus calles (últimos 5)
     const [reportesRecientes] = await db.query(`
@@ -317,7 +316,7 @@ exports.lider = async (req, res) => {
 };
 
 // ==========================
-// 📌 DASHBOARD JEFE DE CALLE (simplificado)
+// 📌 DASHBOARD JEFE DE CALLE
 // ==========================
 exports.jefe = async (req, res) => {
   const usuario = req.session.usuario;
@@ -490,7 +489,7 @@ exports.jefe = async (req, res) => {
 };
 
 // ==========================
-// 📌 DASHBOARD SUPERADMINISTRADOR (completo)
+// 📌 DASHBOARD SUPERADMINISTRADOR
 // ==========================
 exports.superAdmin = async (req, res) => {
   const usuario = req.session.usuario;
@@ -542,7 +541,7 @@ exports.superAdmin = async (req, res) => {
       const [categoriasRow] = await db.query('SELECT COUNT(*) as total FROM categorias');
       totalCategorias = categoriasRow[0]?.total || 0;
       
-      // Voluntarios por estado (solo contar APROBADOS como activos)
+      // ✅ VOLUNTARIOS APROBADOS (SOLO APROBADOS)
       const [volAprobadosRow] = await db.query('SELECT COUNT(*) as total FROM voluntarios WHERE estado = "aprobado"');
       voluntariosAprobados = volAprobadosRow[0]?.total || 0;
       
@@ -556,7 +555,7 @@ exports.superAdmin = async (req, res) => {
       const [volRech] = await db.query('SELECT COUNT(*) as total FROM voluntarios WHERE estado = "rechazado"');
       voluntariosRechazados = volRech[0]?.total || 0;
       
-      console.log("✅ Estadísticas SuperAdmin calculadas");
+      console.log("✅ Estadísticas SuperAdmin - Voluntarios aprobados:", voluntariosAprobados);
     } catch (err) {
       console.error("❌ Error en estadísticas SuperAdmin:", err.message);
     }
@@ -672,7 +671,7 @@ exports.superAdmin = async (req, res) => {
         calles: totalCalles,
         comunidades: totalComunidades,
         voluntarios: totalVoluntarios,
-        voluntariosActivos: voluntariosAprobados,
+        voluntariosActivos: voluntariosAprobados, // ✅ SOLO APROBADOS
         voluntariosPendientes: voluntariosPendientes,
         voluntariosAprobados: voluntariosAprobados,
         voluntariosRechazados: voluntariosRechazados,
