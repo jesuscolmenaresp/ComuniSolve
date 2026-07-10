@@ -248,6 +248,33 @@
           <div id="asignarEmpresaSection" style="display: none;" class="flex-grow-1"></div>
           <div id="asignarVoluntarioSection" style="display: none;" class="flex-grow-1"></div>
         <% } %>
+
+        <!-- ========== EDITAR CATEGORÍA (solo UBCH y SuperAdmin) ========== -->
+        <% if (usuario && (usuario.rol_id === 1 || usuario.rol_id === 5)) { %>
+          <div class="w-100 mb-2" id="editarCategoriaSection" style="display: none;">
+            <div class="card border-warning rounded-3">
+              <div class="card-header" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);">
+                <small class="fw-bold text-dark"><i class="bi bi-pencil me-2"></i>EDITAR CATEGORÍA</small>
+              </div>
+              <div class="card-body p-2" style="background: #fefaf7;">
+                <form id="formEditarCategoria" method="POST" class="d-flex gap-2 align-items-center flex-wrap">
+                  <select name="categoria_id" id="categoriaEditSelect" class="form-select form-select-sm" style="border: 1px solid #f0d5c0; background-color: #fefaf7; flex: 1; min-width: 150px;">
+                    <option value="">-- Seleccionar categoría --</option>
+                    <% if (categorias && categorias.length > 0) { %>
+                      <% categorias.forEach(c => { %>
+                        <option value="<%= c.id %>"><%= c.nombre %></option>
+                      <% }) %>
+                    <% } %>
+                  </select>
+                  <button type="submit" class="btn btn-sm" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #333; border: none;">
+                    <i class="bi bi-check-lg"></i> Cambiar
+                  </button>
+                </form>
+                <small class="text-muted">Cambia la categoría del reporte si fue mal clasificado</small>
+              </div>
+            </div>
+          </div>
+        <% } %>
         
         <!-- Botón Desactivar (solo UBCH y SuperAdmin) -->
         <% if (usuario && (usuario.rol_id === 1 || usuario.rol_id === 5)) { %>
@@ -777,6 +804,23 @@
         } else if (asignarVoluntarioSection && !esAdmin) {
           asignarVoluntarioSection.style.display = 'none';
         }
+
+        // ========================================
+        // EDITAR CATEGORÍA - MOSTRAR EN MODAL
+        // ========================================
+        const editarCategoriaSection = document.getElementById('editarCategoriaSection');
+        if (editarCategoriaSection && (usuarioRol === 1 || usuarioRol === 5)) {
+          editarCategoriaSection.style.display = 'block';
+          const form = document.getElementById('formEditarCategoria');
+          if (form) {
+            form.action = `/reportes/${id}/editar-categoria`;
+            // Seleccionar la categoría actual
+            const select = document.getElementById('categoriaEditSelect');
+            if (select) {
+              select.value = reporte.categoria_id || '';
+            }
+          }
+        }
         
         // Configurar botón desactivar
         const btnDesactivar = document.getElementById('btnDesactivarReporte');
@@ -869,6 +913,24 @@
       }
     });
   });
+
+// ========================================
+// EDITAR CATEGORÍA - ENVÍO TRADICIONAL
+// ========================================
+document.addEventListener('submit', function(e) {
+  const form = e.target.closest('#formEditarCategoria');
+  if (!form) return;
+  
+  const select = document.getElementById('categoriaEditSelect');
+  if (!select.value) {
+    e.preventDefault();
+    alert('⚠️ Por favor, selecciona una categoría');
+    return;
+  }
+  
+  // El formulario se envía normalmente con el método POST
+  // El servidor manejará la redirección y los mensajes
+});
 </script>
 
 <style>

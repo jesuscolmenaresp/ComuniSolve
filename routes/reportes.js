@@ -70,4 +70,13 @@ router.post('/reportes/:id/desactivar',
   reporteController.desactivarReporte
 );
 
+// ==========================
+// 📌 EDITAR CATEGORÍA DE REPORTE (UBCH y SuperAdmin)
+// ==========================
+router.post('/reportes/:id/editar-categoria', 
+  authMiddleware, 
+  roleMiddleware([1, 5]), 
+  reporteController.editarCategoria
+);
+
 module.exports = router;

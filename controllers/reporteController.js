@@ -842,3 +842,70 @@ exports.destruirReporte = async (req, res) => {
     res.redirect('/reportes/inactivos');
   }
 };
+// ==========================
+// 📌 EDITAR CATEGORÍA DE REPORTE (UBCH y SuperAdmin)
+// ==========================
+exports.editarCategoria = async (req, res) => {
+  const { id } = req.params;
+  const { categoria_id } = req.body;
+  const usuario = req.session.usuario;
+
+  try {
+    // Verificar que categoria_id existe
+    if (!categoria_id) {
+      req.session.error = 'Debes seleccionar una categoría';
+      return res.redirect('/reportes');
+    }
+
+    if (!usuario || ![1, 5].includes(usuario.rol_id)) {
+      req.session.error = 'No autorizado';
+      return res.redirect('/reportes');
+    }
+
+    // Verificar que el reporte existe y está activo
+    const [reporte] = await db.query(
+      'SELECT id, titulo, categoria_id FROM reportes WHERE id = ? AND activo = 1',
+      [id]
+    );
+    
+    if (reporte.length === 0) {
+      req.session.error = 'Reporte no encontrado';
+      return res.redirect('/reportes');
+    }
+
+    // Verificar que la categoría existe y está activa
+    const [categoria] = await db.query(
+      'SELECT id, nombre FROM categorias WHERE id = ? AND activo = 1',
+      [categoria_id]
+    );
+    
+    if (categoria.length === 0) {
+      req.session.error = 'Categoría no válida o inactiva';
+      return res.redirect('/reportes');
+    }
+
+    const categoriaAnterior = reporte[0].categoria_id;
+
+    await db.query(
+      'UPDATE reportes SET categoria_id = ? WHERE id = ?',
+      [categoria_id, id]
+    );
+
+    await registrarAuditoria(
+      usuario,
+      'EDITAR_CATEGORIA',
+      'reportes',
+      id,
+      { categoria_id: categoriaAnterior },
+      { categoria_id: categoria_id, categoria_nombre: categoria[0].nombre }
+    );
+
+    req.session.mensaje = `Categoría del reporte "${reporte[0].titulo}" actualizada a "${categoria[0].nombre}"`;
+    res.redirect('/reportes');
+    
+  } catch (err) {
+    console.error('Error al editar categoría:', err);
+    req.session.error = 'Error al actualizar la categoría';
+    res.redirect('/reportes');
+  }
+};
